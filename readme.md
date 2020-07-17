@@ -2,6 +2,8 @@
 
 This little tool allows you to easily make sense of JSON data. 
 
+Click [HERE](https://dexterlabora.github.io/json-magic/) for instant demo
+
 ## Features
 
 ### Vue Web 
@@ -16,10 +18,19 @@ If the index.html file is run via the server, it can be sent data dynamically.
 - Websocket Server
 - Webhook Server
 
-Example
+## Install 
 
 ```
-node server.js
+git clone https://github.com/dexterlabora/json-magic.git
+cd json-magic/node
+npm install
+npm run
+```
+
+
+Running
+
+```
 
  Application Started 
 
@@ -49,5 +60,5 @@ Websocket address   ws://localhost:3000
 - tableify
 - vue-prism
 
-
+This project was intentionally built minimal (using CDNs), so that it could run in any environment and easily hacked.
 
