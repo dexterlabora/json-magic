@@ -104,7 +104,7 @@
                                     <v-card-actions>
                                         <v-btn color="blue darken-1" text @click="apiDialog = false">Close</v-btn>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="fetchJson" color="green">
+                                        <v-btn @click="fetchJson" color="green" :loading="isLoading">
                                             <v-icon>mdi-arrow-right-drop-circle</v-icon>
                                             Run API
                                         </v-btn>
@@ -360,6 +360,7 @@
                         }
                     ],
                     drawer: false,
+                    isLoading: false,
                     apiDialog: false,
                     form: {
                         inputFile: undefined,
@@ -558,12 +559,17 @@
 
                     options.headers[this.apiForm.headerKey] = this.apiForm.headerValue
                     console.log('fetchJson', options)
+                    this.isLoading = true;
                     axios.post(this.serverOptions.proxyUrl, options).then(res => {
                         console.log('fetchJson ', this.form.url, res)
                         this.form.inputJson = JSON.stringify(res.data, null, 4);
                         this.inputValue = res.data;
+                        
                     }).catch(e => {
                         console.log("fetch error", JSON.stringify(e))
+                        //this.isLoading = false
+                    }).finally(()=>{
+                        this.isLoading = false
                     })
                 },
                 updateTableFields(object) {

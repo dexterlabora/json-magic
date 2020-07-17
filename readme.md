@@ -24,7 +24,7 @@ If the index.html file is run via the server, it can be sent data dynamically.
 git clone https://github.com/dexterlabora/json-magic.git
 cd json-magic/node
 npm install
-npm run
+npm run start
 ```
 
 
@@ -60,5 +60,5 @@ Websocket address   ws://localhost:3000
 - tableify
 - vue-prism
 
-This project was intentionally built minimal (using CDNs), so that it could run in any environment and easily hacked.
+This project was intentionally built minimal using CDNs for a few components.
 
