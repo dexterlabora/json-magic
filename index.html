@@ -158,8 +158,13 @@
                                     <v-toolbar-title>JSONata Explorer</v-toolbar-title>
 
                                     <v-spacer></v-spacer>
-
-                                    <v-btn small @click="download('result',result)" color="green" tile outlined dark>
+                                    <v-btn small @click="download('query.txt',form.query)" color="green" tile outlined
+                                        dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        Query
+                                    </v-btn>
+                                    <v-btn small @click="download('result.json',result)" color="green" tile outlined
+                                        dark>
                                         <v-icon small>mdi-arrow-down-bold</v-icon>
                                         JSON
                                     </v-btn>
@@ -194,13 +199,14 @@
                             </v-card>
                         </pane>
                         <pane>
-                            <v-card v-if="result.length" width=100%>
+                            <v-card v-if="result" width=100%>
                                 <v-toolbar dense>
                                     <v-toolbar-title>Results</v-toolbar-title>
 
                                     <v-spacer></v-spacer>
 
-                                    <v-btn small @click="download('result',result)" color="green" tile outlined dark>
+                                    <v-btn small @click="download('result.json',result)" color="green" tile outlined
+                                        dark>
                                         <v-icon small>mdi-arrow-down-bold</v-icon>
                                         JSON
                                     </v-btn>
@@ -212,8 +218,11 @@
                                     </v-btn>
 
                                     <v-btn small @click="selectElementContents" color="green" tile outlined dark>
-                                        select
-                                        table
+                                        select table
+                                    </v-btn>
+                                    <v-btn small @click="onDownloadTable" color="green" tile outlined dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        HTML Table
                                     </v-btn>
                                 </v-toolbar>
                                 <v-card-text>
@@ -232,7 +241,6 @@
                 <span>DexterLabora &copy; {{ new Date().getFullYear() }}</span>
                 <v-spacer></v-spacer>
                 <v-icon :color="isConnected ? 'green': 'red'" class="mr-2">mdi-cloud</v-icon>
-
                 <div class=".text-sm-body-1">{{wsUrl}}</div>
             </v-footer>
 
@@ -241,12 +249,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-    <script>
+    <script src="https://unpkg.com/http-vue-loader"></script>
+    <!-- <script src="components/components/v-swagger/src/wrapper.js"></script> -->
 
-    </script>
     <script>
         Vue.component('vue-prism-editor', VuePrismEditor)
         Vue.component('vue-json-pretty', VueJsonPretty.default)
+
+
         const {
             Splitpanes,
             Pane
@@ -256,10 +266,24 @@
             vuetify: new Vuetify(),
             components: {
                 Splitpanes,
-                Pane
+                Pane,
+                //VSwagger,
+                //'v-swagger': httpVueLoader("components/components/v-swagger/src/wrapper.js")
             },
             data() {
                 return {
+                    spec: {
+                        host: "https://www.google.com",
+                        title: "Google Search",
+                        description: "Hello, API",
+                        opened: true,
+                        request: [{
+                            method: 'get', // post, delete or put 
+                            description: "Google Home",
+                            url: "/"
+                        }]
+                    },
+
                     serverOptions: {
                         proxyUrl: "/api/proxy"
                     },
@@ -377,7 +401,7 @@
                         headerValue: "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
                     },
                     inputValue: {},
-
+                    result: [],
                     isConnected: false,
                     wsUrl: `ws://localhost:${location.port}/websocket`,
                     tableFields: []
@@ -389,8 +413,9 @@
                     if (!this.result) {
                         return
                     }
-                    return tableify(this.result).replace("<table>", '<table id="resultTable">')
+                    return `${tableify(this.result).replace("<table>", '<table id="resultTable">')}`
                 },
+
                 parsedInput() {
 
                     console.log('computed parsedInput this.inputValue', this.inputValue)
@@ -422,33 +447,54 @@
                 socket() {
                     return new WebSocket(this.wsUrl);
                 },
-                result() {
-                    if (!this.form.query && !this.parsedInput) {
-                        return
-                    }
-                    let modified = [];
-                    let result = [];
-                    try {
-                        modified = jsonata(this.form.query).evaluate(this.parsedInput)
-                        if (!Array.isArray(modified)) {
-                            result.push(modified)
-                        } else {
-                            result = modified
-                        }
-                    } catch (e) {
-                        console.log(e)
-                    }
-                    this.updateTableFields(result);
-                    return result;
+                
+            },
+            watch: {
+                "form.query"() {
+                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)
+                    this.updateTableFields(this.result);
+                },
+                "parsedInput"() {
+                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)
+                    this.updateTableFields(this.result);
                 }
             },
-            // watch:{
-            //         "form.inputFile": function(){
-            //             console.log('upload file changed')
-            //             this.onJsonFileUpload();
-            //         }
-            //     },
             methods: {
+                onDownloadTable() {
+                    let css = `
+                        <style>
+                            table,
+                            th,
+                            td {
+                                border: 1px solid rgb(44, 44, 44);
+                                border-collapse: collapse;
+                            }
+
+                            th,
+                            td {
+                                padding: 5px;
+                            }
+                        </style>`;
+                    let html = this.tableHtml + css;
+                    this.download(`export_${new Date().toLocaleDateString()}.html`, html)
+                },
+                generateJsonataResult(query, jsonData) {
+                    try {
+                        return jsonata(query).evaluate(jsonData, (error, result) => {
+                            if (error) {
+                                console.error("jsonata error", error);
+                                return error['message'];
+                            }
+
+                            console.log("Finished with", result);
+                            return result;
+                        })
+
+                    } catch (e) {
+                        console.log("JSONata expression error", e)
+                        return e.message;
+                    }
+                },
                 onJsonFileUpload() {
                     console.log('updating JSON with user file upload')
                     if (!this.form.inputFile) {
@@ -467,12 +513,12 @@
                         console.log("input updated", this.form.inputJson)
                     }
                 },
-
-                download(name, data) {
-                    let text = JSON.stringify(data, null, 4)
-                    var filename = 'export_' + name + '_' + new Date().toLocaleDateString() + '.json';
+                download(filename, data) {
+                    if (filename.includes('.json')) {
+                        data = JSON.stringify(data, null, 4)
+                    }
                     var element = document.createElement('a');
-                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
                     element.setAttribute('download', filename);
 
                     element.style.display = 'none';
@@ -538,19 +584,10 @@
                 copyText() {
                     navigator.clipboard.writeText(this.tableHtml);
                 },
-                inputJsonUpdated() {
-                    try {
-                        this.inputValue = JSON.parse(this.form.inputJson);
-                    } catch (error) {
-                        this.inputValue = error
-                    }
-
-                },
                 isObject(val) {
                     return val instanceof Object;
                 },
                 fetchJson() {
-
                     let options = {
                         method: "get", // ONLY ALLOWING GET METHODS (For now)
                         url: this.apiForm.url,
@@ -564,11 +601,11 @@
                         console.log('fetchJson ', this.form.url, res)
                         this.form.inputJson = JSON.stringify(res.data, null, 4);
                         this.inputValue = res.data;
-                        
+
                     }).catch(e => {
                         console.log("fetch error", JSON.stringify(e))
                         //this.isLoading = false
-                    }).finally(()=>{
+                    }).finally(() => {
                         this.isLoading = false
                     })
                 },
@@ -581,23 +618,9 @@
                         }
                     })
                 },
-
-                handleClick(value) {
-                    // todo
-                    console.log('JSON clicked ', value)
-                    let split = value.split(".")
-                    split.shift();
-                    console.log('split', split)
-                    let query = `$.${split.join(".")}`
-                    this.form.query = query;
-
-                },
                 handleResultClick(value) {
-                    // todo
-                    console.log('JSON clicked ', value)
                     let split = value.split(".")
                     split.shift();
-                    console.log('split', split)
                     let query = `.${split.join(".")}`
                     this.form.query = this.form.query + query;
 
@@ -629,13 +652,13 @@
                     this.isConnected = false;
                 };
                 this.socket.onmessage = (msg) => {
-                    console.log('socket message', msg)
+                    //console.log('socket message', msg)
 
                     // sets raw and value data
                     this.form.inputJson = this.formatJsonString(msg.data)
                     this.inputValue = msg.data
-
                 };
+
                 // initialize with example JSON
                 this.form.inputJson = JSON.stringify(this.example, null, 4);
                 this.inputValue = this.form.inputJson;
