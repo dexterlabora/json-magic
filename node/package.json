@@ -1,10 +1,11 @@
 {
-  "name": "node",
+  "name": "json-magic",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple tool to explore JSON data with JSONata and export HTML tables",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "deploy": "gcloud functions deploy JSONmagic --runtime nodejs10 --trigger-http --entry-point app --memory 512M"
   },
   "author": "Cory Guynn",
   "license": "Apache 2.0",

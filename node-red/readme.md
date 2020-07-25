@@ -1,0 +1,1 @@
+This is a Node-RED flow that provides a backend to the JSONmagic tool

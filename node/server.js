@@ -69,3 +69,7 @@ console.log("\n Application Started \n");
 console.log(`APP address on      http://localhost:${serverPort}`)
 console.log(`Webhook API address    http://localhost:${serverPort}/webhook`)
 console.log(`Websocket address   ws://localhost:${serverPort}`)
+
+module.exports = {
+  app
+};

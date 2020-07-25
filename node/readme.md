@@ -1,0 +1,1 @@
+This is an optional NodeJS backend server to host the JSONmagic Vue app.

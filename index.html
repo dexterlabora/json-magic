@@ -66,6 +66,41 @@
 
             <v-main>
                 <v-container class="fill-height" fluid>
+                    <!-- Websocket Dialog -->
+                    <template>
+                        <v-row justify="center">
+                            <v-dialog v-model="wsDialog" max-width="700px">
+                                <v-card>
+                                    <v-toolbar>
+                                        <v-toolbar-title>Websocket Configuration</v-toolbar-title>
+                                        <v-spacer></v-spacer>
+                                    </v-toolbar>
+                                    <v-card-text>
+                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a websocket server.</v-card-text-subtitle>
+                                        <v-card color="grey darken-3">
+
+                                            <v-text-field label="URL Path" v-model="wsForm.url" class="mr-2">
+                                            </v-text-field>
+                                            <v-checkbox v-model="wsForm.enabled" label="enabled"></v-checkbox>
+
+                                        </v-card>
+                                        <v-spacer></v-spacer>
+                                        
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn color="blue darken-1" text @click="wsDialog = false">Close</v-btn>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="onConnectWebsocket" color="green" >
+                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>
+                                            Update Websocket
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-row>
+                    </template>
+
+                    <!-- User API Dialog -->
                     <template>
                         <v-row justify="center">
                             <v-dialog v-model="apiDialog" max-width="700px">
@@ -126,6 +161,9 @@
 
                                     <v-btn icon @click="apiDialog=true" dark>
                                         <v-icon>mdi-api</v-icon>
+                                    </v-btn>
+                                    <v-btn icon @click="wsDialog=true" dark>
+                                        <v-icon>mdi-cloud</v-icon>
                                     </v-btn>
 
                                     <v-file-input dense hide-input dark accept="application/JSON"
@@ -236,8 +274,8 @@
             <v-footer app>
                 <span>DexterLabora &copy; {{ new Date().getFullYear() }}</span>
                 <v-spacer></v-spacer>
-                <v-icon :color="isConnected ? 'green': 'red'" class="mr-2">mdi-cloud</v-icon>
-                <div class=".text-sm-body-1">{{wsUrl}}</div>
+                <v-icon :color="wsForm.isConnected ? 'green': 'red'" class="mr-2">mdi-cloud</v-icon>
+                <div class=".text-sm-body-1">{{wsForm.url}}</div>
             </v-footer>
 
         </v-app>
@@ -270,18 +308,6 @@
             },
             data() {
                 return {
-                    spec: {
-                        host: "https://www.google.com",
-                        title: "Google Search",
-                        description: "Hello, API",
-                        opened: true,
-                        request: [{
-                            method: 'get', // post, delete or put 
-                            description: "Google Home",
-                            url: "/"
-                        }]
-                    },
-
                     serverOptions: {
                         proxyUrl: "/api/proxy"
                     },
@@ -384,11 +410,18 @@
                     drawer: false,
                     isLoading: false,
                     apiDialog: false,
+                    wsDialog:false,
                     form: {
                         inputFile: undefined,
                         inputJson: "",
                         query: '$',
 
+                    },
+                    socket:null,
+                    wsForm:{
+                        "url":`ws://localhost:${location.port}/websocket`,
+                        "isConnected": false,
+                        "enabled": true
                     },
                     apiForm: {
                         url: 'https://api.meraki.com/api/v1/organizations/537758/inventoryDevices',
@@ -400,8 +433,8 @@
                     },
                     inputValue: {},
                     result: [],
-                    isConnected: false,
-                    wsUrl: `ws://localhost:${location.port}/websocket`,
+                   
+                    
                     tableFields: []
                 }
             },
@@ -442,9 +475,12 @@
                     })
                     return arrays;
                 },
-                socket() {
-                    return new WebSocket(this.wsUrl);
-                },
+                // socket() {
+                //     if(this.wsForm.enabled){
+                //         return new WebSocket(this.wsForm.url);
+                //     }
+                    
+                // },
 
             },
             watch: {
@@ -458,6 +494,20 @@
                 }
             },
             methods: {
+                onConnectWebsocket(){
+                    console.log('onConnectWebsocket')
+                    if(this.socket){
+                        console.log('closing socket')
+                        this.socket.close();
+                    }
+                    
+                    if(this.wsForm.enabled){
+                        console.log('enabling socket')
+                        this.socket = new WebSocket(this.wsForm.url);
+                        
+                        this.initWebsocket()
+                    }
+                },
                 onDownloadTable() {
                     let css = `
                         <style>
@@ -654,16 +704,14 @@
                         return error
                     }
 
-                }
-            },
-            created() {
-                this.$vuetify.theme.dark = true;
-                this.socket.onopen = () => {
+                },
+                initWebsocket(){
+                    this.socket.onopen = () => {
                     console.log('socket open');
-                    this.isConnected = true;
+                    this.wsForm.isConnected = true;
                 };
                 this.socket.onclose = () => {
-                    this.isConnected = false;
+                    this.wsForm.isConnected = false;
                 };
                 this.socket.onmessage = (msg) => {
                     //console.log('socket message', msg)
@@ -672,6 +720,12 @@
                     this.form.inputJson = this.formatJsonString(msg.data)
                     this.inputValue = msg.data
                 };
+                }
+            },
+            created() {
+                this.$vuetify.theme.dark = true;
+                this.onConnectWebsocket();
+                
 
                 // initialize with example JSON
                 this.form.inputJson = JSON.stringify(this.example, null, 4);
