@@ -32,6 +32,7 @@
 import request from './request.vue'
 
 export default {
+  name: 'VSwagger',
   components: {
     request
     // VueJsonPretty

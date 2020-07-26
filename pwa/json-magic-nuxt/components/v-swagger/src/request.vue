@@ -6,9 +6,9 @@
           <strong class="description">{{ description }}</strong>
         </v-flex>
         <v-flex class="sm4 md4">
-          <v-btn small :color="methodColors[method]">
+          <v-chip small disabled :color="methodColors[method]">
             {{ method }}
-          </v-btn>
+          </v-chip>
         </v-flex>
         <v-flex class="sm8 md8">
           <div class="path">

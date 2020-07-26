@@ -3,14 +3,13 @@
     <v-toolbar>
       <v-toolbar-title>Import JSON from an API</v-toolbar-title>
       <v-spacer />
-      <v-btn @click="apiForm.showAdvanced=!apiForm.showAdvanced">
+      <v-btn color="green" outlined @click="apiForm.showAdvanced=!apiForm.showAdvanced">
         Extra Settings
       </v-btn>
     </v-toolbar>
     <v-card-text>
       <v-card color="grey darken-3">
         <v-text-field v-model="apiForm.url" label="URL Path" class="mr-2" />
-        <v-text-field v-model="apiForm.headerValue" small type="password" label="API Key" />
       </v-card>
       <v-spacer />
       <v-card v-if="apiForm.showAdvanced">
@@ -19,6 +18,7 @@
           Custom Auth Header
         </v-label>
         <v-text-field v-model="apiForm.headerKey" small label="Key" />
+        <v-text-field v-model="apiForm.headerValue" small type="password" label="API Key" />
         <v-spacer />
         <v-card width="70%">
           <v-label dark>
@@ -43,8 +43,10 @@
 
 <script>
 const axios = require('axios')
+
 export default {
   name: 'InputApi',
+
   data: () => ({
     serverOptions: {
       proxyUrl: '/api/proxy'

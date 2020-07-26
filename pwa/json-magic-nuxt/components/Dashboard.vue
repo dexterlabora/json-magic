@@ -27,47 +27,9 @@
       </v-row>
     </template>
 
-    <!-- <template>
-      <v-row justify="center">
-        <v-dialog v-model="apiDialog" max-width="700px">
-          <v-card>
-            <v-toolbar>
-              <v-toolbar-title>Import JSON from an API</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn @click="apiForm.showAdvanced=!apiForm.showAdvanced">Extra Settings</v-btn>
-            </v-toolbar>
-            <v-card-text>
-              <v-card color="grey darken-3">
-                <v-text-field label="URL Path" v-model="apiForm.url" class="mr-2"></v-text-field>
-                <v-text-field small type="password" label="API Key" v-model="apiForm.headerValue"></v-text-field>
-              </v-card>
-              <v-spacer></v-spacer>
-              <v-card v-if="apiForm.showAdvanced">
-                <v-checkbox v-model="apiForm.includeHeaders" label="include headers"></v-checkbox>
-                <v-label dark>Custom Auth Header</v-label>
-                <v-text-field small label="Key" v-model="apiForm.headerKey"></v-text-field>
-                <v-spacer></v-spacer>
-                <v-card width="70%">
-                  <v-label dark>API Proxy Server</v-label>
-
-                  <v-text-field small label="URL Path" v-model="serverOptions.proxyUrl"></v-text-field>
-                </v-card>
-              </v-card>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="blue darken-1" text @click="apiDialog = false">Close</v-btn>
-              <v-spacer></v-spacer>
-              <v-btn @click="fetchJson" color="green" :loading="isLoading">
-                <v-icon>mdi-arrow-right-drop-circle</v-icon>Run API
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-row>
-    </template> -->
-
     <splitpanes class="default-theme">
       <pane min-size="5" size="20">
+        <!-- JSON Input  -->
         <v-card width="100%" class="m-2">
           <v-toolbar dense>
             <v-toolbar-title>Input</v-toolbar-title>
@@ -119,6 +81,7 @@
         </v-card>
       </pane>
       <pane min-size="5" size="25">
+        <!-- JSONata Explorer -->
         <v-card width="100%">
           <v-toolbar dense>
             <v-toolbar-title>JSONata Explorer</v-toolbar-title>
@@ -168,6 +131,7 @@
         </v-card>
       </pane>
       <pane>
+        <!-- Results Table -->
         <v-card v-if="result" width="100%">
           <v-toolbar dense>
             <v-toolbar-title>Results</v-toolbar-title>
@@ -216,7 +180,6 @@ const jsonata = require('jsonata')
 const linkify = require('linkifyjs')
 require('linkifyjs/plugins/hashtag')(linkify) // optional
 const linkifyHtml = require('linkifyjs/html')
-// require(['linkify-element'], function (linkifyElement) {
 
 export default {
   name: 'Dashboard',
@@ -231,9 +194,6 @@ export default {
 
   },
   data: () => ({
-    // serverOptions: {
-    //   proxyUrl: "/api/proxy"
-    // },
     panel: [0, 0],
     example: [
       {
@@ -345,20 +305,6 @@ export default {
       query: '$'
     },
     socket: null,
-    // wsForm: {
-    //   url: `ws://localhost:${location.port}/websocket`,
-    //   isConnected: false,
-    //   enabled: true
-    // },
-    // apiForm: {
-    //   url:
-    //     "https://api.meraki.com/api/v1/organizations/537758/inventoryDevices",
-    //   showAdvanced: false,
-    //   includeHeaders: true,
-    //   inputHeaders: `{ "X-Cisco-Meraki-API-Key": "093b24e85df15a3e66f1fc359f4c48493eaa1b73"}`, // DEMO API KEY
-    //   headerKey: "X-Cisco-Meraki-API-Key",
-    //   headerValue: "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
-    // },
     inputValue: {},
     result: [],
     tableFields: []

@@ -481,7 +481,7 @@ table {
 
 .section-header {
   padding: 8px 20px;
-  min-height: 50px;
+  min-height: 20px;
   background: hsla(0, 0%, 100%, 0.8);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   display: flex;
