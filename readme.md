@@ -62,3 +62,8 @@ Websocket address   ws://localhost:3000
 
 This project was intentionally built minimal using CDNs for a few components.
 
+# JSON Magic - PWA w/ OpenAPI Tools
+
+This is an advanced version of this tool, which is a deployable Progressive Web App. It includes its own backend Express server and can be easily deployed to Google App Engine.
+
+[Read More](pwa/json-magic-nuxt/README.md)
