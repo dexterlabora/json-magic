@@ -303,6 +303,7 @@ export default {
         this.parsedSwagger = parsed
 
         // Swagger 2
+        if (!this.parsedSwagger) { return }
         if (this.parsedSwagger.swagger) {
           const jsonExpression = jsonata(`(
             $requestArray := $.paths.*#$pi.*#$i.{

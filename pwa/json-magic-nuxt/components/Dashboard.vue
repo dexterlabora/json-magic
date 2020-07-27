@@ -311,11 +311,16 @@ export default {
   }),
   computed: {
     tableHtml () {
-      if (!this.result && this.result !== undefined) {
+      if (!this.result) {
         return
       }
       // const resultWithUrlLinks = this.addUrlLinks(this.result)
-      const table = `${tableify(this.result).replace(
+      console.log('tableHtml pre-', this.result)
+      let adjusted = this.result
+      if (Array.isArray(this.result)) {
+        adjusted = this.result.map((r) => { if (!r) { r = 'Nothing' } else { return r } })
+      }
+      const table = `${tableify(adjusted).replace(
         '<table>',
         '<table id="resultTable">'
       )}`
@@ -324,6 +329,7 @@ export default {
 
     parsedInput () {
       console.log('computed parsedInput this.inputValue', this.inputValue)
+      if (!this.inputValue) { return }
       if (
         !Array.isArray(this.inputValue) &&
         !this.isObject(this.inputValue) &&
@@ -334,7 +340,7 @@ export default {
       try {
         return JSON.parse(this.inputValue)
       } catch (e) {
-        return this.inputValue
+        return e
       }
     }
 
@@ -517,6 +523,7 @@ export default {
     //     });
     // },
     updateTableFields (object) {
+      if (!object || object == null) { return }
       const keys = Object.keys(object)
       this.tableFields = keys.map((r) => {
         return {
@@ -526,8 +533,20 @@ export default {
       })
     },
     handleResultClick (value) {
-      const split = value.split('.')
+      console.log('handleResultClick value', value)
+      let split = value.split('.')
       split.shift()
+      split = split.map((s) => {
+        console.log('s', s)
+        // if (s.includes(null)) {
+        //   s = 'Nothing'
+        // }
+        if (!s.includes('[')) {
+          s = `\`${s}\``
+        }
+        return s
+      })
+      console.log('handleResultClick split', split)
       const query = `.${split.join('.')}`
       this.form.query = this.form.query + query
     },
