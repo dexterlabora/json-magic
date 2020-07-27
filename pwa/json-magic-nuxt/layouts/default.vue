@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
@@ -23,17 +23,28 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
     <v-app-bar
       :clipped-left="clipped"
-      fixed
+
       app
       dense
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-
+      <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
+      <v-btn
+        icon
+        to="/"
+      >
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
       <v-toolbar-title v-text="title" />
       <v-spacer />
+      <v-btn
+        icon
+        to="/inspire"
+      >
+        <v-icon>mdi-information</v-icon>
+      </v-btn>
       <!-- <v-btn
         icon
         @click.stop="miniVariant = !miniVariant"
