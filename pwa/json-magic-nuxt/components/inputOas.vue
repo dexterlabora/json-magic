@@ -311,6 +311,7 @@ export default {
                 "method": $keys(%)[$i],
                 "description": description,
                 "operationId": operationId,
+                "params": parameters,
                 "tags": (tags ? tags : [$keys(%.%)[$pi]])
             };
 
@@ -334,6 +335,7 @@ export default {
                 "method": $keys(%)[$i],
                 "description": description,
                 "operationId": operationId,
+                "params": parameters,
                 "tags": (tags ? tags : [$keys(%.%)[$pi]])
             };
 

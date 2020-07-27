@@ -85,7 +85,7 @@ export default {
       dataHeaders: this.parseHeaders(this.headers),
       dataBody: this.parseBody(this.body),
       dataPath: this.parsePath(this.path),
-      dataQuery: this.parseQuery(this.params)
+      dataQuery: this.parseQuery(this.params).filter(p => p.source === 'query')
     }
   },
   computed: {
@@ -222,6 +222,7 @@ export default {
     parseQuery (params) {
       return Object.keys(params).map((key) => {
         let obj = params[key]
+        console.log('parseQuery obj', obj)
 
         if (typeof obj === 'string') {
           obj = { key, value: obj }
@@ -229,7 +230,7 @@ export default {
 
         return Object.assign(
           {
-            source: 'query',
+            source: obj.in,
             type: 'string',
             required: false, // not dynamic --cory
             description: ''

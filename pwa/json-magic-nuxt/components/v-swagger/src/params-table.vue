@@ -7,23 +7,35 @@
     </div>
     <div class="table-container">
       <table>
-        <tr v-for="(item, index) in dataParameters" :key="index">
+        <tr v-for="(item) in dataParameters" :key="item.name">
           <v-layout column>
             <v-flex class="sm6 md6">
               <div class="parameter-name">
                 <span>
                   <div v-if="item.description">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-icon color="grey lighten-1" v-on="on">mdi-info</v-icon>
-                        {{ item.key }}
-                        <span v-if="item.required" class="required">* required</span>
+                    <v-tooltip right max-width="400px">
+                      <template v-slot:activator="{ on, attrs }">
+                        {{ item.name }}<v-btn icon v-bind="attrs" v-on="on">
+                          <v-icon color="grey lighten-1">mdi-information</v-icon>
+                        </v-btn>
                       </template>
-                      {{ item.description }}
+                      <span>{{ item.description }}</span>
                     </v-tooltip>
+                    <span v-if="item.required" class="required">* required</span>
+
+                    <!-- <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-icon color="grey lighten-1" v-on="on">mdi-information</v-icon>
+
+                        <span v-if="item.required" class="required">* required</span>
+                        {{ item.description }}
+                      </template>
+
+                    </v-tooltip> -->
                   </div>
                   <div v-else>
-                    {{ item.key }}
+
+                    {{ item.name || item.key }}
                     <span v-if="item.required" class="required">* required</span>
                   </div>
                 </span>
