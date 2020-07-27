@@ -57,7 +57,7 @@ export default {
       url:
         'https://api.meraki.com/api/v1/organizations/537758/inventoryDevices',
       showAdvanced: false,
-      includeHeaders: true,
+      includeHeaders: false,
       inputHeaders: '{ "X-Cisco-Meraki-API-Key": "093b24e85df15a3e66f1fc359f4c48493eaa1b73"}', // DEMO API KEY
       headerKey: 'X-Cisco-Meraki-API-Key',
       headerValue: '093b24e85df15a3e66f1fc359f4c48493eaa1b73'
@@ -76,8 +76,10 @@ export default {
         url: this.apiForm.url,
         headers: {}
       }
+      if (this.apiForm.includeHeaders) {
+        options.headers[this.apiForm.headerKey] = this.apiForm.headerValue
+      }
 
-      options.headers[this.apiForm.headerKey] = this.apiForm.headerValue
       console.log('fetchJson', options)
       this.isLoading = true
       axios

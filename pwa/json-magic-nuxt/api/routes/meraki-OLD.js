@@ -36,7 +36,7 @@ router.use("/", jsonParser, function(req, res, next) {
     body: JSON.stringify(req.body),
     //followAllRedirects: true, // Does not work as intended with PUT,POST,DELETE (returns a [GET] on final location)
     headers: {
-      "X-Cisco-Meraki-API-Key": apiKey,
+     // "X-Cisco-Meraki-API-Key": apiKey,
       "Content-Type": "application/json",
       "User-Agent": "meraki-json-magic-demo"
     }
@@ -53,10 +53,10 @@ router.use("/", jsonParser, function(req, res, next) {
     if (data) {
       console.log("FINAL data ", data);
     }
-    if (response.headers["content-type"]) {
-      res.setHeader("content-type", response.headers["content-type"]);
-    }
-    res.status(response.statusCode).send(data || "");
+    // if (response.headers["content-type"]) {
+    //   res.setHeader("content-type", response.headers["content-type"]);
+    // }
+    res.send(data || "");
   }).on("error", function(err) {
     console.log(err);
     res.send(err);

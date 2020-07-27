@@ -10,6 +10,7 @@
             </v-toolbar>
             <v-card-title class="pb-0">
               <v-select
+                v-model="oasForm.specUrlsModel"
                 :items="oasForm.specUrls"
                 label="Open API Specs"
                 outlined
@@ -71,7 +72,7 @@
                     <v-select
                       v-model="selectedFilters.tag0"
                       :items="tagFilters.tag0"
-                      label="tag0"
+                      label="Filter"
                       outline
                       @change="onFilterTag0"
                     />
@@ -80,7 +81,7 @@
                     <v-select
                       v-model="selectedFilters.tag1"
                       :items="tagFilters.tag1"
-                      label="tag1"
+                      label="Filter"
                       outline
                       @change="onFilterTag1"
                     />
@@ -89,7 +90,7 @@
                     <v-select
                       v-model="selectedFilters.tag2"
                       :items="tagFilters.tag2"
-                      label="tag2"
+                      label="Filter"
                       outline
                     />
                   </v-flex>
@@ -147,6 +148,7 @@ export default {
       parsedSwagger: {},
       oasForm: {
         selectedSpecUrl: '',
+        specUrlsModel: {},
         specUrls: [
           {
             text: 'Meraki API v1-beta',
@@ -157,6 +159,14 @@ export default {
             text: 'Meraki API v0',
             value:
               'https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json'
+          },
+          {
+            text: 'Pet Store - OAS 2.0 Example',
+            value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v2.0/json/petstore-expanded.json'
+          },
+          {
+            text: 'uspto - OAS 3.0 Example',
+            value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/uspto.json'
           }
         ]
       }
@@ -219,6 +229,7 @@ export default {
         tag1: [],
         tag2: []
       }
+
       // tag0
       this.allPaths.request.forEach(p => filters.tag0.push(p.tags[0]))
       const set0 = [...new Set(filters.tag0)]
@@ -249,6 +260,8 @@ export default {
     }
   },
   mounted () {
+    this.oasForm.specUrlsModel = this.oasForm.specUrls[0] // set default spec
+    this.oasForm.selectedSpecUrl = this.oasForm.specUrls[0].value
     this.initSwagger()
   },
 
@@ -288,25 +301,53 @@ export default {
     initSwagger () {
       this.fetchOasSpec().then((parsed) => {
         this.parsedSwagger = parsed
-        const jsonExpression = jsonata(`(
+
+        // Swagger 2
+        if (this.parsedSwagger.swagger) {
+          const jsonExpression = jsonata(`(
             $requestArray := $.paths.*#$pi.*#$i.{
                 "key": $i,
                 "url": $keys(%.%)[$pi],
                 "method": $keys(%)[$i],
                 "description": description,
                 "operationId": operationId,
-                "tags": tags
+                "tags": (tags ? tags : [$keys(%.%)[$pi]])
             };
 
             {
-                "host": 'https://'& host & basePath,
+                "host": schemes[0] & "://" & host & basePath,
                 "title": info.title,
                 "description": info.description,
                 "opened": true,
                 "request":$requestArray
             };
             )`)
-        this.allPaths = jsonExpression.evaluate(parsed)
+          this.allPaths = jsonExpression.evaluate(parsed)
+
+        // OAS v3
+        } else if (this.parsedSwagger.openapi) {
+          const jsonExpression = jsonata(`/* OAS v3 */
+(
+            $requestArray := $.paths.*#$pi.*#$i.{
+                "key": $i,
+                "url": $keys(%.%)[$pi],
+                "method": $keys(%)[$i],
+                "description": description,
+                "operationId": operationId,
+                "tags": (tags ? tags : [$keys(%.%)[$pi]])
+            };
+
+            {
+                "host": $replace(servers[0].url,'{scheme}',servers[0].variables.scheme.default),
+                "title": info.title,
+                "description": info.description,
+                "opened": true,
+                "request":$requestArray
+            };
+            )`)
+          this.allPaths = jsonExpression.evaluate(parsed)
+        }
+
         // init first filter
 
         // Specific to Meraki

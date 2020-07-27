@@ -34,10 +34,10 @@ function request(requestOptions) {
 
   // ** AXIOS **
   //requestOptions.url = requestOptions.url; // || "http://localhost:8080/api"; // hard coded for local dev testing
-  console.log("axios requestOptions", requestOptions)
+  //console.log("axios requestOptions", requestOptions)
   return axios(requestOptions)
     .then(res => {
-      console.log("axios res", res);
+      //console.log("axios res.data", res.data);
       return res.data;
     })
     .catch(e => {
@@ -47,8 +47,8 @@ function request(requestOptions) {
 
 
 router.post('/proxy', jsonParser, (req, res, next) => {
-  console.log('/proxy req.body', req.body)
-  request(req.body).then(data => res.json(data)).finally(()=>next())
+  //console.log('/proxy req.body', req.body)
+  request(req.body).then(data => res.json(data))
 });
 
 module.exports = router

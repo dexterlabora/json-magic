@@ -37,10 +37,10 @@
 
             <v-spacer />
             <v-btn icon dark @click="oasDialog=true">
-              <v-icon>mdi-star</v-icon>
+              <v-icon>mdi-api</v-icon>
             </v-btn>
             <v-btn icon dark @click="apiDialog=true">
-              <v-icon>mdi-api</v-icon>
+              <v-icon>mdi-console</v-icon>
             </v-btn>
             <v-btn icon dark @click="wsDialog=true">
               <v-icon>mdi-cloud</v-icon>
