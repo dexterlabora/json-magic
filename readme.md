@@ -2,7 +2,10 @@
 
 This little tool allows you to easily make sense of JSON data. 
 
-Click [HERE](https://dexterlabora.github.io/json-magic/) for instant demo
+## Demos
+
+- [Simple HTML version](https://dexterlabora.github.io/json-magic/)
+- [PWA with OpenAPI Spec](https://meraki-micro-services.ew.r.appspot.com/)
 
 ## Features
 
