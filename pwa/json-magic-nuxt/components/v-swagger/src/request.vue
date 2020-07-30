@@ -3,21 +3,21 @@
     <div :class="['request-item']" @click="open = !open">
       <v-layout column>
         <v-flex class="sm12 md12">
-          <strong class="description">{{ description }}</strong>
+          <p class="description">
+            <strong>{{ operation }}</strong>
+          </p>
+          <p>{{ description }}</p>
         </v-flex>
         <v-flex class="sm4 md4">
-          <v-chip small disabled :color="methodColors[method]">
-            {{ method }}
-          </v-chip>
-        </v-flex>
-        <v-flex class="sm8 md8">
           <div class="path">
-            {{ url }}
+            <v-chip small disabled :color="methodColors[method]" class="mr-5">
+              {{ method }}
+            </v-chip>{{ url }}
           </div>
         </v-flex>
       </v-layout>
     </div>
-    <params-table v-show="open" :params="sourceList" :method="method" :description="description" @data="onData($event)" />
+    <params-table v-show="open" :params="sourceList" :method="method" :description="description" :security-headers="securityHeaders" @data="onData($event)" />
   </div>
 </template>
 
@@ -31,6 +31,10 @@ export default {
   },
   props: {
     description: {
+      type: String,
+      default: ''
+    },
+    operation: {
       type: String,
       default: ''
     },
@@ -48,6 +52,12 @@ export default {
       type: Array,
       default: () => {
         return []
+      }
+    },
+    securityHeaders: {
+      type: Object,
+      default: () => {
+        return {}
       }
     },
     path: {
@@ -330,7 +340,7 @@ export default {
     padding: 0 10px;
     font-family: monospace;
     font-weight: 600;
-    color: rgb(102, 102, 102);
+    color:green;
     box-sizing: border-box;
   }
 

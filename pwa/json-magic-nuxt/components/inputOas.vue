@@ -6,25 +6,17 @@
           <v-card>
             <v-toolbar dense>
               <v-toolbar-title>Import JSON from an OpenAPI Spec</v-toolbar-title>
-              <v-spacer />
             </v-toolbar>
-            <v-card-title class="pb-0">
-              <v-select
-                v-model="oasForm.specUrlsModel"
-                :items="oasForm.specUrls"
-                label="Open API Specs"
-                outlined
-                @change="onSpecUrlSelected($event)"
-              />
-            </v-card-title>
-            <div v-if="parsedSwagger.info">
-              <v-card-subtitle>
+            <v-spacer />
+            <input-oas-spec-select @change="onSpecUrlSelected($event)" />
+
+            <div v-if="parsedSwagger">
+              <v-card-subtitle v-if="parsedSwagger.info">
                 <v-toolbar dense>
                   <v-toolbar-title>{{ parsedSwagger.info.title }}</v-toolbar-title>
                   <v-card-subtitle dense>
                     {{ parsedSwagger.info.version }}
                   </v-card-subtitle>
-
                   <v-spacer />
                   <v-btn icon @click="showAdvanced=!showAdvanced">
                     <v-icon color="green">
@@ -33,9 +25,14 @@
                   </v-btn>
                 </v-toolbar>
 
-                <v-card v-if="showAdvanced">
-                  <api-key-input />
-                  <api-url-input />
+                <v-card>
+                  <!-- <api-key-input />
+                  <api-url-input />-->
+                  <api-security-input
+                    :open="showAdvanced"
+                    :security-definitions="allPaths.securityDefinitions"
+                    @change="onSecurityHeaders($event)"
+                  />
                   <!-- <v-label>API Host</v-label>
                   <v-card-actions>
                     <v-btn color="green">
@@ -44,57 +41,41 @@
                   </v-card-actions>-->
                 </v-card>
               </v-card-subtitle>
-              <v-card-text>
-                <v-layout>
-                  <!-- <v-flex xs12 sm6 d-flex>
-                    <v-select
-                      v-model="selectedGroup.domain"
-                      :items="domains"
-                      item-text="group"
-                      label="Domain"
-                      outline
-                      @change="onSelectedGroup"
-                    />
-                    <v-spacer />
-                  </v-flex>
+              <v-card-text v-if="tagFilters">
+                <v-form v-model="valid">
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <v-select
+                          v-model="selectedFilters.tag0"
+                          :items="tagFilters.tag0"
+                          label="Filter"
+                          outline
+                          @change="onFilterTag0"
+                        />
+                      </v-col>
 
-                  <v-flex sm12 sm6>
-                    <v-select
-                      v-model="selectedGroup.service"
-                      :items="getServiceGroups(selectedGroup.domain)"
-                      item-text="group"
-                      label="Service"
-                      outline
-                    />
-                  </v-flex>-->
-                  <!-- TESTING  -->
-                  <v-flex sm12 sm6>
-                    <v-select
-                      v-model="selectedFilters.tag0"
-                      :items="tagFilters.tag0"
-                      label="Filter"
-                      outline
-                      @change="onFilterTag0"
-                    />
-                  </v-flex>
-                  <v-flex v-if="tagFilters.tag1.length > 1" sm12 sm6>
-                    <v-select
-                      v-model="selectedFilters.tag1"
-                      :items="tagFilters.tag1"
-                      label="Filter"
-                      outline
-                      @change="onFilterTag1"
-                    />
-                  </v-flex>
-                  <v-flex v-if="tagFilters.tag2.length" sm12 sm6>
-                    <v-select
-                      v-model="selectedFilters.tag2"
-                      :items="tagFilters.tag2"
-                      label="Filter"
-                      outline
-                    />
-                  </v-flex>
-                </v-layout>
+                      <v-col v-if="tagFilters.tag1.length > 1" cols="12" md="4">
+                        <v-select
+                          v-model="selectedFilters.tag1"
+                          :items="tagFilters.tag1"
+                          label="Filter"
+                          outline
+                          @change="onFilterTag1"
+                        />
+                      </v-col>
+
+                      <v-col v-if="tagFilters.tag2.length" cols="12" md="4">
+                        <v-select
+                          v-model="selectedFilters.tag2"
+                          :items="tagFilters.tag2"
+                          label="Filter"
+                          outline
+                        />
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-form>
               </v-card-text>
             </div>
           </v-card>
@@ -105,6 +86,7 @@
                 :key="filteredPaths.key"
                 :spec="filteredPaths"
                 :base-url="apiUrl"
+                :security-headers="this.securityHeaders"
                 style="height:50vh"
                 @data="onData($event)"
               />
@@ -119,8 +101,10 @@
 <script>
 import axios from 'axios'
 import VSwagger from './v-swagger/src/v-swagger'
-import ApiKeyInput from './ApiKeyInput'
-import ApiUrlInput from './ApiUrlInput'
+// import ApiKeyInput from './ApiKeyInput'
+// import ApiUrlInput from './ApiUrlInput'
+import ApiSecurityInput from './ApiSecurityInput'
+import InputOasSpecSelect from './InputOasSpecSelect'
 
 const jsonata = require('jsonata')
 
@@ -130,12 +114,15 @@ export default {
 
   components: {
     VSwagger,
-    ApiKeyInput,
-    ApiUrlInput
+    // ApiKeyInput,
+    // ApiUrlInput,
+    InputOasSpecSelect,
+    ApiSecurityInput
   },
 
   data () {
     return {
+      securityHeaders: {},
       showAdvanced: false,
       selectedFilters: {
         tag0: '',
@@ -147,28 +134,28 @@ export default {
       allPaths: {},
       parsedSwagger: {},
       oasForm: {
-        selectedSpecUrl: '',
-        specUrlsModel: {},
-        specUrls: [
-          {
-            text: 'Meraki API v1-beta',
-            value:
-              'https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json'
-          },
-          {
-            text: 'Meraki API v0',
-            value:
-              'https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json'
-          },
-          {
-            text: 'Pet Store - OAS 2.0 Example',
-            value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v2.0/json/petstore-expanded.json'
-          },
-          {
-            text: 'uspto - OAS 3.0 Example',
-            value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/uspto.json'
-          }
-        ]
+        selectedSpecUrl: ''
+        // specUrlsModel: {},
+        // specUrls: [
+        //   {
+        //     text: 'Meraki API v1-beta',
+        //     value:
+        //       'https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json'
+        //   },
+        //   {
+        //     text: 'Meraki API v0',
+        //     value:
+        //       'https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json'
+        //   },
+        //   {
+        //     text: 'Pet Store - OAS 2.0 Example',
+        //     value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v2.0/json/petstore-expanded.json'
+        //   },
+        //   {
+        //     text: 'uspto - OAS 3.0 Example',
+        //     value: 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/uspto.json'
+        //   }
+        // ]
       }
     }
   },
@@ -260,12 +247,15 @@ export default {
     }
   },
   mounted () {
-    this.oasForm.specUrlsModel = this.oasForm.specUrls[0] // set default spec
-    this.oasForm.selectedSpecUrl = this.oasForm.specUrls[0].value
+    // this.oasForm.specUrlsModel = this.oasForm.specUrls[0] // set default spec
+    // this.oasForm.selectedSpecUrl = this.oasForm.specUrls[0].value
     this.initSwagger()
   },
 
   methods: {
+    onSecurityHeaders (data) {
+      this.securityHeaders = data
+    },
     onFilterTag0 () {
       if (!this.tagFilters) {
         return
@@ -290,8 +280,9 @@ export default {
     //   this.selectedFilters.tag3 = this.tagFilters.tag3[0]
     // },
     onSpecUrlSelected (data) {
-      this.oasForm.selectedSpecUrl = data // for posterity
-      this.initSwagger(this.oasForm.selectedSpecUrl)
+      console.log('onSpecUrlSelected', data)
+      this.oasForm.selectedSpecUrl = data.value
+      this.initSwagger(data.value)
     },
     onData (data) {
       console.log('inputOas relay data', data)
@@ -299,11 +290,13 @@ export default {
     },
 
     initSwagger () {
-      this.fetchOasSpec().then((parsed) => {
+      this.fetchOasSpec(this.oasForm.selectedSpecUrl).then((parsed) => {
         this.parsedSwagger = parsed
 
         // Swagger 2
-        if (!this.parsedSwagger) { return }
+        if (!this.parsedSwagger) {
+          return
+        }
         if (this.parsedSwagger.swagger) {
           const jsonExpression = jsonata(`(
             $requestArray := $.paths.*#$pi.*#$i.{
@@ -320,13 +313,14 @@ export default {
                 "host": schemes[0] & "://" & host & basePath,
                 "title": info.title,
                 "description": info.description,
+                "securityDefinitions":securityDefinitions,
                 "opened": true,
                 "request":$requestArray
             };
             )`)
           this.allPaths = jsonExpression.evaluate(parsed)
 
-        // OAS v3
+          // OAS v3
         } else if (this.parsedSwagger.openapi) {
           const jsonExpression = jsonata(`/* OAS v3 */
 (
@@ -362,7 +356,12 @@ export default {
       })
     },
     adjustDefaultSelections () {
-      if (!this.parsedSwagger.info) { return }
+      if (!this.parsedSwagger) {
+        return
+      }
+      if (!this.parsedSwagger.info) {
+        return
+      }
       let i = 0
       if (this.parsedSwagger.info.version.substring(0, 1) === '0') {
         i = this.tagFilters.tag0.indexOf('Organizations')
@@ -372,13 +371,16 @@ export default {
       this.selectedFilters.tag0 =
         i > 0 ? this.tagFilters.tag0[i] : this.tagFilters.tag0[0]
     },
-    fetchOasSpec () {
+    fetchOasSpec (specUrl) {
       return axios
-        .get(this.oasForm.selectedSpecUrl)
+        .get(specUrl)
         .then((res) => {
           return res.data
         })
-        .catch(e => console.log('axios openapiSpec get error ', e))
+        .catch((e) => {
+          console.log('axios openapiSpec get error ', e)
+          return e
+        })
     }
   }
 }

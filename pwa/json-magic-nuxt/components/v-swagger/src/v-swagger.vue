@@ -13,6 +13,8 @@
         :method="item.method"
         :url="item.url"
         :description="item.description"
+        :operation="item.operationId"
+        :security-headers="securityHeaders"
         :headers="item.headers"
         :path="item.path"
         :params="item.params"
@@ -37,7 +39,7 @@ export default {
     request
     // VueJsonPretty
   },
-  props: ['spec', 'baseUrl', 'openDetails'],
+  props: ['spec', 'baseUrl', 'openDetails', 'securityHeaders'],
   data () {
     return {
       lastResponseData: null,

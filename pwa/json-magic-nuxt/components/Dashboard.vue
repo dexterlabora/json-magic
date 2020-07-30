@@ -3,7 +3,7 @@
     <!-- OAS Dialog -->
     <template>
       <v-row justify="center">
-        <v-dialog v-model="oasDialog" max-width="700px" height="700px">
+        <v-dialog v-model="oasDialog" max-width="75%" height="700px">
           <input-oas @close="oasDialog = false" @data="onOasData($event)" />
         </v-dialog>
       </v-row>
@@ -27,12 +27,19 @@
       </v-row>
     </template>
 
-    <splitpanes class="default-theme">
-      <pane min-size="5" size="20">
+    <!-- <splitpanes class="default-theme"> -->
+    <splitpanes>
+      <pane min-size="5" :size="paneSizes.input">
         <!-- JSON Input  -->
         <v-card width="100%" class="m-2">
           <v-toolbar dense>
             <v-toolbar-title>Input</v-toolbar-title>
+            <!-- <v-btn small icon @click="paneSizes.input=100">
+              <v-icon>mdi-arrow-expand-all</v-icon>
+            </v-btn>
+            <v-btn small icon @click="paneSizes.input=25">
+              <v-icon>mdi-arrow-collapse-all</v-icon>
+            </v-btn> -->
             <v-spacer />
 
             <v-spacer />
@@ -56,8 +63,8 @@
             />
           </v-toolbar>
 
-          <v-card>
-            <v-card-subtitle dark>
+          <!-- <v-card> -->
+          <!-- <v-card-subtitle dark>
               Type or paste valid JSON data
               <v-btn
                 class="ml-2"
@@ -68,19 +75,35 @@
               >
                 Beautify
               </v-btn>
-            </v-card-subtitle>
-            <v-card-text style="overflow: auto;">
-              <vue-prism-editor
+          </v-card-subtitle>-->
+          <!-- <v-card-text style="overflow: auto;"> -->
+          <!-- <vue-prism-editor
                 v-model="form.inputJson"
                 language="js"
                 style="height:75vh"
+
                 @change="inputValue=form.inputJson"
-              />
-            </v-card-text>
+          />-->
+          <!-- <v-textarea v-model="form.inputJson" auto-grow style="height:70vh; " @change="inputValue=form.inputJson" /> -->
+          <input-editor v-model="form.inputJson" @change="onEditorData($event)" />
+          <!-- <MonacoEditor
+                v-model="form.inputJson"
+                width="1"
+                height="1"
+                theme="vs-light"
+
+                language="json"
+                :value="form.inputJson"
+                :options="monacoOptions"
+                @change="onInputJsonChange()"
+          />-->
+          <!-- </v-card-text>
           </v-card>
+          <v-card-text><v-label> Data Size: {{ inputJsonSize/1024 }} Kb</v-label></v-card-text>-->
+          <!-- </v-card> -->
         </v-card>
       </pane>
-      <pane min-size="5" size="25">
+      <pane min-size="5" :size="paneSizes.explore">
         <!-- JSONata Explorer -->
         <v-card width="100%">
           <v-toolbar dense>
@@ -115,26 +138,54 @@
               <v-icon>mdi-autorenew</v-icon>
             </v-btn>
           </v-card-actions>
-          <v-card-text>
-            <v-card>
-              <v-card-subtitle>Select a property to add to JSONata query</v-card-subtitle>
-              <v-card-text style="overflow: auto; font-size:.5em">
-                <vue-json-pretty
+
+          <div v-if="!isLargeJson">
+            <v-card-subtitle>Select a property to add to JSONata query</v-card-subtitle>
+            <v-card-text>
+              <vue-json-pretty
+                id="resultJsonPretty"
+                :data="result"
+                style="height:60vh; overflow: auto; "
+                @click="handleResultClick"
+              />
+            </v-card-text>
+          </div>
+          <div v-else>
+            <v-card-subtitle>Whoa, that's some big JSON... Here is a simple view</v-card-subtitle>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn small color="green" outlined @click="onGenerateTable">
+                Update Table
+              </v-btn>
+            </v-card-actions>
+
+            <!-- <vue-prism-editor readonly :code="JSON.stringify(result, null, 4)" language="js" class="pl-2" /> -->
+            <v-card-text>
+              <pre><v-textarea :value="JSON.stringify(result, null, 4)" style="max-height:55vh; " /></pre>
+            </v-card-text>
+          </div>
+          <small>
+            {{ jsonSize }} Kb
+          </small>
+          <!-- <vue-json-pretty
                   id="resultJsonPretty"
-                  :data="result"
+
                   style="height:60vh; "
                   @click="handleResultClick"
-                />
-              </v-card-text>
-            </v-card>
-          </v-card-text>
+          />-->
         </v-card>
+        <v-footer />
       </pane>
-      <pane>
+      <pane min-size="5" :size="paneSizes.table">
         <!-- Results Table -->
-        <v-card v-if="result" width="100%">
+        <v-card v-if="result" width="100%" height="100%">
           <v-toolbar dense>
-            <v-toolbar-title>Results</v-toolbar-title>
+            <v-toolbar-title>
+              Table
+              <!-- <v-btn @click="onGenerateTable">
+                Magic Table
+              </v-btn>-->
+            </v-toolbar-title>
 
             <v-spacer />
 
@@ -170,9 +221,11 @@ import 'prismjs/themes/prism.css'
 import VueJsonPretty from 'vue-json-pretty'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
+// import MonacoEditor from 'monaco-editor-vue'
 import InputWebsocket from './InputWebsocket'
 import InputApi from './InputApi'
 import InputOas from './InputOas'
+import InputEditor from './InputEditor'
 
 const tableify = require('tableify')
 const json2csv = require('json2csv')
@@ -190,110 +243,17 @@ export default {
     Pane,
     InputWebsocket,
     InputApi,
-    InputOas
-
+    InputOas,
+    // MonacoEditor,
+    InputEditor
   },
   data: () => ({
     panel: [0, 0],
-    example: [
-      {
-        FirstName: 'Fred',
-        Surname: 'Smith',
-        Age: 28,
-        Address: {
-          Street: 'Hursley Park',
-          City: 'Winchester',
-          Postcode: 'SO21 2JN'
-        },
-        Phone: [
-          {
-            type: 'home',
-            number: '0203 544 1234'
-          },
-          {
-            type: 'office',
-            number: '01962 001234'
-          },
-          {
-            type: 'office',
-            number: '01962 001235'
-          },
-          {
-            type: 'mobile',
-            number: '077 7700 1234'
-          }
-        ],
-        Email: [
-          {
-            type: 'work',
-            address: ['fred.smith@my-work.com', 'fsmith@my-work.com']
-          },
-          {
-            type: 'home',
-            address: ['freddy@my-social.com', 'frederic.smith@very-serious.com']
-          }
-        ],
-        Other: {
-          'Over 18 ?': true,
-          Misc: null,
-          'Alternative.Address': {
-            Street: 'Brick Lane',
-            City: 'London',
-            Postcode: 'E1 6RF'
-          }
-        }
-      },
-      {
-        FirstName: 'Miles',
-        Surname: 'Meraki',
-        Age: 28,
-        Address: {
-          Street: '123 Unicorn Ave',
-          City: 'Cloud City',
-          Postcode: '99991'
-        },
-        Phone: [
-          {
-            type: 'home',
-            number: '123 345 345'
-          },
-          {
-            type: 'office',
-            number: '3234 123123'
-          },
-          {
-            type: 'office',
-            number: '23423 234324'
-          },
-          {
-            type: 'mobile',
-            number: '111 23442 123234'
-          }
-        ],
-        Email: [
-          {
-            type: 'work',
-            address: ['miles.meraki@magical.com', 'mmiles@magical.net']
-          },
-          {
-            type: 'home',
-            address: [
-              'eenhorn@compushare.com',
-              'numberOneHorn@very-serious.com'
-            ]
-          }
-        ],
-        Other: {
-          'Over 18 ?': true,
-          Misc: null,
-          'Alternative.Address': {
-            Street: 'Brick Lane',
-            City: 'London',
-            Postcode: 'E1 6RF'
-          }
-        }
-      }
-    ],
+    paneSizes: { // TO DO - implement the buttons and links to this
+      input: 25,
+      explore: 25,
+      table: 50
+    },
     drawer: false,
     isLoading: false,
     apiDialog: false,
@@ -304,102 +264,174 @@ export default {
       inputJson: '',
       query: '$'
     },
+
     socket: null,
     inputValue: {},
     result: [],
-    tableFields: []
+    tableFields: [],
+    tableHtml: undefined,
+    parsedInput: {},
+    isLargeJson: false,
+    jsonSize: 0
   }),
-  computed: {
-    tableHtml () {
-      if (!this.result) {
+  computed: {},
+  watch: {
+    inputValue () {
+      // console.log('updating inputJson')
+      this.onGenerateParsedInput()
+    },
+    'form.query' () {
+      this.result = this.generateJsonataResult(
+        this.form.query,
+        this.parsedInput
+      )
+      // this.updateTableFields(this.result)
+    },
+
+    parsedInput () {
+      if (!this.parsedInput) {
         return
       }
-      // const resultWithUrlLinks = this.addUrlLinks(this.result)
-      console.log('tableHtml pre-', this.result)
-      let adjusted = this.result
-      if (Array.isArray(this.result)) {
-        adjusted = this.result.map((r) => { if (!r) { r = 'Nothing' } else { return r } })
+      this.result = this.generateJsonataResult(
+        this.form.query,
+        this.parsedInput
+      )
+    },
+    result () {
+      this.jsonSize = this.sizeInKb(this.result)
+      this.isLargeJson = this.jsonSize > 500 // Kb
+      if (!this.isLargeJson) {
+        this.onGenerateTable() // slowish
       }
+    }
+  },
+  created () {
+    // this.$vuetify.theme.dark = true;
+    // console.log('dashboard loading')
+    // this.onConnectWebsocket();
+
+    // initialize with example JSON
+    // this.form.inputJson = JSON.stringify(this.example, null, 4)
+    this.inputValue = this.form.inputJson
+    this.onGenerateParsedInput()
+    this.onGenerateTable()
+  },
+  methods: {
+    onGenerateParsedInput () {
+      // //console.log('generated parsedInput this.inputValue', this.inputValue)
+      if (!this.inputValue) {
+        return
+      }
+      if (
+        // !Array.isArray(this.inputValue) &&
+        // !this.isObject(this.inputValue) &&
+        !this.inputValue
+      ) {
+        return
+      }
+      try {
+        this.parsedInput = JSON.parse(this.inputValue)
+        // console.log('finished onGeneratedParsedInput')
+      } catch (e) {
+        // console.log('not JSON, just return raw data')
+        this.parsedInput = this.inputValue
+      }
+      Object.freeze(this.parsedInput) // makes the tree faster, since we are not modifying it
+    },
+    sizeInKb (obj) {
+      const str = JSON.stringify(obj)
+      return (
+        new Blob([str], { type: 'plain/text', endings: 'native' }).size / 1000
+      )
+    },
+    onGenerateTable () {
+      // console.log('onGenerateTable pre- result', this.result)
+      this.tableHtml = this.generateTableHtml(this.result)
+    },
+    generateTableHtml (object) {
+      if (!object) {
+        return
+      }
+      // cleans up JSON before tableify
+      function replacer (name, val) {
+        if (val === null) {
+          return 'null' // remove from result
+        } else {
+          return val
+        }
+      };
+      let adjusted = object
+      // if (Array.isArray(object)) {
+      //   adjusted = object.map((r) => {
+      //     if (!r) {
+      //       return 'Nothing'
+      //     } else {
+      //       return r
+      //     }
+      //   })
+      // }
+
+      if (this.isObject(object)) {
+        // sanitize
+        adjusted = JSON.parse(JSON.stringify(adjusted, replacer, 4))
+      }
+
+      // console.log('tableHtml pre-adjusted', adjusted)
       const table = `${tableify(adjusted).replace(
         '<table>',
         '<table id="resultTable">'
       )}`
       return this.addUrlLinks(table)
     },
+    // filterNull(value) {
+    //   function recursiveFix(o) {
+    //     // loop through each property in the provided value
+    //     for (var k in o) {
+    //       // make sure the value owns the key
+    //       if (o.hasOwnProperty(k)) {
+    //         if (o[k] === null) {
+    //           // if the value is null, set it to 'null'
+    //           o[k] = "null";
+    //         } else if (typeof o[k] !== "string" && o[k].length > 0) {
+    //           // if there are sub-keys, make a recursive call
+    //           recursiveFix(o[k]);
+    //         }
+    //       }
+    //     }
+    //   }
 
-    parsedInput () {
-      console.log('computed parsedInput this.inputValue', this.inputValue)
-      if (!this.inputValue) { return }
-      if (
-        !Array.isArray(this.inputValue) &&
-        !this.isObject(this.inputValue) &&
-        !this.inputValue
-      ) {
-        return {}
-      }
-      try {
-        return JSON.parse(this.inputValue)
-      } catch (e) {
-        return e
-      }
-    }
-
-  },
-  watch: {
-    'form.query' () {
-      this.result = this.generateJsonataResult(
-        this.form.query,
-        this.parsedInput
-      )
-      this.updateTableFields(this.result)
-    },
-    parsedInput () {
-      if (!this.parsedInput) { return }
-      this.result = this.generateJsonataResult(
-        this.form.query,
-        this.parsedInput
-      )
-      this.updateTableFields(this.result)
-    }
-  },
-  created () {
-    // this.$vuetify.theme.dark = true;
-    console.log('dashboard loading')
-    // this.onConnectWebsocket();
-
-    // initialize with example JSON
-    this.form.inputJson = JSON.stringify(this.example, null, 4)
-    this.inputValue = this.form.inputJson
-  },
-  methods: {
+    //   var cloned = jQuery.extend(true, {}, value);
+    //   recursiveFix(cloned);
+    //   return cloned;
+    // },
     addUrlLinks (string) {
-      if (!string) { return }
-      console.log('addUrlLinks string', string)
+      if (!string) {
+        return
+      }
+      // //console.log('addUrlLinks string', string)
       return linkifyHtml(string, {
         defaultProtocol: 'https'
       })
-
-      // const urlRegex = /(((https?:\/\/)|(www\.))[^\s]+)/g
-      // // var urlRegex = /(https?:\/\/[^\s]+)/g;
-      // return string.replace(urlRegex, function (url, b, c) {
-      //   const url2 = (c === 'www.') ? 'http://' + url : url
-      //   return '<a href="' + url2 + '" target="_blank">' + url + '</a>'
-      // })
+    },
+    onEditorData (data) {
+      // console.log('dash editor data', data)
+      this.form.inputJson = data
+      this.inputValue = this.form.inputJson
     },
     onOasData (data) {
-      console.log('dash api data', data)
+      // console.log('dash api data', data)
       this.form.inputJson = this.formatJsonString(JSON.stringify(data))
-      this.inputValue = this.form.inputJson
+      // this.inputValue = this.form.inputJson
     },
     onApiData (data) {
-      console.log('dash api data', data)
+      // console.log('dash api data', data)
       this.form.inputJson = this.formatJsonString(JSON.stringify(data))
-      this.inputValue = this.form.inputJson
+      // this.inputValue = this.form.inputJson
     },
     onWebsocketData (dataString) {
-      console.log('dash websocket data', dataString)
+      // console.log('dash websocket data', dataString)
       this.form.inputJson = this.formatJsonString(dataString)
-      this.inputValue = this.form.inputJson
+      // this.inputValue = this.form.inputJson
     },
     onDownloadTable () {
       const css = `
@@ -420,23 +452,27 @@ export default {
       this.download(`export_${new Date().toLocaleDateString()}.html`, html)
     },
     generateJsonataResult (query, jsonData) {
+      // console.log('generateJsonataResult')
+      let result
       try {
-        return jsonata(query).evaluate(jsonData, (error, result) => {
+        result = jsonata(query).evaluate(jsonData, (error, result) => {
           if (error) {
             console.error('jsonata error', error)
             return error.message
           }
 
-          console.log('Finished with', result)
+          // console.log('Finished JSONata')
           return result
         })
       } catch (e) {
-        console.log('JSONata expression error', e)
+        // console.log('JSONata expression error', e)
         return e.message
       }
+      // console.log('Finished final JSONata')
+      return result
     },
     onJsonFileUpload () {
-      console.log('updating JSON with user file upload')
+      // console.log('updating JSON with user file upload')
       if (!this.form.inputFile) {
         // this.form.inputJson = "No File Chosen"
         return
@@ -447,10 +483,10 @@ export default {
       // of the file in the v-model prop
       reader.readAsText(this.form.inputFile)
       reader.onload = () => {
-        console.log('input being parsed', reader.result)
+        // console.log('input being parsed', reader.result)
         this.form.inputJson = reader.result
         this.inputValue = JSON.parse(reader.result)
-        console.log('input updated', this.form.inputJson)
+        // console.log('input updated', this.form.inputJson)
       }
     },
     download (filename, data) {
@@ -485,7 +521,7 @@ export default {
         }
         const parser = new json2csv.Parser(options)
         const csv = parser.parse(this.result)
-        console.log(csv)
+        // console.log(csv)
         this.download('result.csv', csv)
       } catch (err) {
         console.error(err)
@@ -497,47 +533,13 @@ export default {
     isObject (val) {
       return val instanceof Object
     },
-    // fetchJson() {
-    //   let options = {
-    //     method: "get", // ONLY ALLOWING GET METHODS (For now)
-    //     url: this.apiForm.url,
-    //     headers: {}
-    //   };
 
-    //   options.headers[this.apiForm.headerKey] = this.apiForm.headerValue;
-    //   console.log("fetchJson", options);
-    //   this.isLoading = true;
-    //   axios
-    //     .post(this.serverOptions.proxyUrl, options)
-    //     .then(res => {
-    //       console.log("fetchJson ", this.form.url, res);
-    //       this.form.inputJson = JSON.stringify(res.data, null, 4);
-    //       this.inputValue = res.data;
-    //     })
-    //     .catch(e => {
-    //       console.log("fetch error", JSON.stringify(e));
-    //       //this.isLoading = false
-    //     })
-    //     .finally(() => {
-    //       this.isLoading = false;
-    //     });
-    // },
-    updateTableFields (object) {
-      if (!object || object == null) { return }
-      const keys = Object.keys(object)
-      this.tableFields = keys.map((r) => {
-        return {
-          name: r,
-          alias: r
-        }
-      })
-    },
     handleResultClick (value) {
-      console.log('handleResultClick value', value)
+      // console.log('handleResultClick value', value)
       let split = value.split('.')
       split.shift()
       split = split.map((s) => {
-        console.log('s', s)
+        // console.log('s', s)
         // if (s.includes(null)) {
         //   s = 'Nothing'
         // }
@@ -546,7 +548,7 @@ export default {
         }
         return s
       })
-      console.log('handleResultClick split', split)
+      // console.log('handleResultClick split', split)
       const query = `.${split.join('.')}`
       this.form.query = this.form.query + query
     },
@@ -557,32 +559,17 @@ export default {
       this.form.inputJson = this.formatJsonString(this.form.inputJson)
     },
     formatJsonString (jsonString) {
+      // console.log('formatJsonString')
       try {
         const jsonObj = JSON.parse(jsonString)
         const formattedString = JSON.stringify(jsonObj, null, 4)
-
+        // console.log('Finished - formatJsonString')
         return formattedString
       } catch (error) {
-        return error
+        // console.log('Finished - formatJsonString error', error)
+        return jsonString
       }
     }
-    // initWebsocket() {
-    //   this.socket.onopen = () => {
-    //     console.log("socket open");
-    //     this.wsForm.isConnected = true;
-    //   };
-    //   this.socket.onclose = () => {
-    //     this.wsForm.isConnected = false;
-    //   };
-    //   this.socket.onmessage = msg => {
-    //     //console.log('socket message', msg)
-
-    //     // sets raw and value data
-    //     this.form.inputJson = this.formatJsonString(msg.data);
-    //     this.inputValue = msg.data;
-    //   };
-    // },
-
   }
 }
 </script>
@@ -599,11 +586,27 @@ td {
   padding: 5px;
 }
 
-.splitpanes__pane {
+/* .splitpanes__pane {
   box-shadow: 2 0 12px rgba(256, 256, 256, 0.2) inset;
   display: flex;
   position: relative;
+} */
+.splitpanes {background-color: #f8f8f8;}
+
+.splitpanes__splitter {background-color: #ccc;position: relative;}
+.splitpanes__splitter:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: opacity 0.4s;
+  background-color: rgba(255, 0, 0, 0.3);
+  opacity: 0;
+  z-index: 1;
 }
+.splitpanes__splitter:hover:before {opacity: 1;}
+.splitpanes--vertical > .splitpanes__splitter:before {left: -20px;right: -20px;height: 100%;}
+.splitpanes--horizontal > .splitpanes__splitter:before {top: -20px;bottom: -20px;width: 100%;}
 
 em.specs {
   font-size: 0.5em;
@@ -624,5 +627,12 @@ em.specs {
 .vjs-tree {
   font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;
   font-size: 12px;
+}
+
+.v-textarea textarea{
+  font-size: 0.8em;
+  padding: 0;
+  height: 500px;
+  line-height: 0.8rem;
 }
 </style>

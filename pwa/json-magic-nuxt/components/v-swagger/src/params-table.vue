@@ -1,29 +1,38 @@
 <template>
   <div class="parameters">
-    <div class="section-header">
-      <div class="tab-header">
-        <h1>Parameters</h1>
-      </div>
-    </div>
-    <div class="table-container">
-      <table>
-        <tr v-for="(item) in dataParameters" :key="item.name">
-          <v-layout column>
-            <v-flex class="sm6 md6">
-              <div class="parameter-name">
-                <span>
-                  <div v-if="item.description">
-                    <v-tooltip right max-width="400px">
-                      <template v-slot:activator="{ on, attrs }">
-                        {{ item.name }}<v-btn icon v-bind="attrs" v-on="on">
-                          <v-icon color="grey lighten-1">mdi-information</v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{ item.description }}</span>
-                    </v-tooltip>
-                    <span v-if="item.required" class="required">* required</span>
+    <v-layout>
+      <!-- Param Form -->
+      <v-flex sm12 md6>
+        <div v-show="isExecute" class="execute-wrapper mt-4">
+          <v-btn :loading="isLoading" :color="methodColors[method]" class="mb-2 ml-2" @click="runApi">
+            Run API Call
+          </v-btn>
+        </div>
 
-                    <!-- <v-tooltip bottom>
+        <div class="section-header">
+          <div class="tab-header">
+            <h1>Parameters</h1>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <tr v-for="(item) in dataParameters" :key="item.name">
+              <v-layout column>
+                <v-flex class="sm6 md6">
+                  <div class="parameter-name">
+                    <span>
+                      <div v-if="item.description">
+                        <v-tooltip right max-width="400px">
+                          <template v-slot:activator="{ on, attrs }">
+                            {{ item.name }}<v-btn icon v-bind="attrs" v-on="on">
+                              <v-icon color="grey lighten-1">mdi-information</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>{{ item.description }}</span>
+                        </v-tooltip>
+                        <span v-if="item.required" class="required">* required</span>
+
+                        <!-- <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <v-icon color="grey lighten-1" v-on="on">mdi-information</v-icon>
 
@@ -32,101 +41,128 @@
                       </template>
 
                     </v-tooltip> -->
+                      </div>
+                      <div v-else>
+
+                        {{ item.name || item.key }}
+                        <span v-if="item.required" class="required">* required</span>
+                      </div>
+                    </span>
                   </div>
-                  <div v-else>
-
-                    {{ item.name || item.key }}
-                    <span v-if="item.required" class="required">* required</span>
+                  <div v-if="item.type" class="parameter-type">
+                    {{ item.type }}
                   </div>
-                </span>
-              </div>
-              <div v-if="item.type" class="parameter-type">
-                {{ item.type }}
-              </div>
 
-              <div class="source">
-                ({{ item.source }})
-              </div>
-              <!-- </td> -->
-            </v-flex>
-            <!-- <td class="vtop"> -->
-
-            <!-- INPUT AREA -->
-
-            <v-flex class="sm8 md8">
-              <div v-if="item.dataValue && !isExecute" class="data">
-                <pre>{{ item.dataValue }}</pre>
-              </div>
-
-              <div v-if="isExecute && item.source !== 'body'" class="value-input">
-                <select v-if="item.items" v-model="item.inputValue">
-                  <option
-                    v-for="(enumData, selectedItemIndex) in item.items"
-                    :key="selectedItemIndex"
-                    :value="enumData.value"
-                    selected="enumData.selected"
-                  >
-                    {{ enumData.text }}
-                  </option>
-                </select>
-                <div v-else-if="item.source === 'header' && item.params.length" class="params">
-                  <div
-                    v-for="(param, paramIndex) in item.params"
-                    :key="paramIndex"
-                    class="param-item"
-                  >
-                    <span>{{ param.key }}</span>
-                    <v-input v-model="param.value" :placeholder="getPlaceholder(param)" />
+                  <div class="source">
+                    ({{ item.source }})
                   </div>
-                </div>
+                  <!-- </td> -->
+                </v-flex>
+                <!-- <td class="vtop"> -->
 
-                <v-text-field
-                  v-else
-                  outlined
-                  type="text"
-                  :placeholder="getPlaceholder(item)"
-                  :value="getValue(item) "
-                  @change="item.inputValue = $event"
-                />
-              </div>
-              <div v-if="isExecute && item.source === 'body'" class="value-input">
-                <v-textarea v-model="item.dataValue" outlined :placeholder="getPlaceholder(item)" />
-              </div>
-              <div v-if="item.contentType" class="value-input">
-                <div class="title">
-                  Parameter content type
-                </div>
-                <select v-model="item.contentType">
-                  <option :value="item.contentType">
-                    {{ item.contentType }}
-                  </option>
-                </select>
-              </div>
-              <!-- </td> -->
-            </v-flex>
-          </v-layout>
-        </tr>
+                <!-- INPUT AREA -->
 
-        <tr v-if="params.length === 0">
-          <td colspan="2" class="no-items">
-            No Parameters.
-          </td>
-        </tr>
-      </table>
-      <div v-show="isExecute" class="execute-wrapper mt-4">
+                <v-flex class="sm8 md8">
+                  <div v-if="item.dataValue && !isExecute" class="data">
+                    <pre>{{ item.dataValue }}</pre>
+                  </div>
+
+                  <div v-if="isExecute && item.source !== 'body'" class="value-input">
+                    <select v-if="item.items" v-model="item.inputValue">
+                      <option
+                        v-for="(enumData, selectedItemIndex) in item.items"
+                        :key="selectedItemIndex"
+                        :value="enumData.value"
+                        selected="enumData.selected"
+                      >
+                        {{ enumData.text }}
+                      </option>
+                    </select>
+                    <div v-else-if="item.source === 'header' && item.params.length" class="params">
+                      <div
+                        v-for="(param, paramIndex) in item.params"
+                        :key="paramIndex"
+                        class="param-item"
+                      >
+                        <span>{{ param.key }}</span>
+                        <v-input v-model="param.value" :placeholder="getPlaceholder(param)" />
+                      </div>
+                    </div>
+
+                    <v-text-field
+                      v-else
+                      outlined
+                      type="text"
+                      :placeholder="getPlaceholder(item)"
+                      :value="getValue(item) "
+                      @change="item.inputValue = $event"
+                    />
+                  </div>
+                  <div v-if="isExecute && item.source === 'body'" class="value-input">
+                    <v-textarea v-model="item.dataValue" outlined :placeholder="getPlaceholder(item)" />
+                  </div>
+                  <div v-if="item.contentType" class="value-input">
+                    <div class="title">
+                      Parameter content type
+                    </div>
+                    <select v-model="item.contentType">
+                      <option :value="item.contentType">
+                        {{ item.contentType }}
+                      </option>
+                    </select>
+                  </div>
+                  <!-- </td> -->
+                </v-flex>
+              </v-layout>
+            </tr>
+
+            <tr v-if="params.length === 0">
+              <td colspan="2" class="no-items">
+                No Parameters.
+              </td>
+            </tr>
+          </table>
+          <!-- <div v-show="isExecute" class="execute-wrapper mt-4">
         <v-btn :loading="isLoading" :color="methodColors[method]" @click="runApi">
           Run API Call
         </v-btn>
-      </div>
-    </div>
-    <div v-if="lastResponseData" class="section-header">
-      <v-layout column>
+      </div> -->
+        </div>
+      </v-flex>
+      <v-flex sm12 md6>
+        <!-- Response Output -->
+        <div v-if="lastResponseData" class="section-header">
+          <v-toolbar dense>
+            <v-toolbar-title>Results</v-toolbar-title>
+            <v-spacer />
+            <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
+              To Sheet
+            </v-btn>
+            <!-- <v-btn class small outlined @click="copyToClipboard">
+              Copy
+            </v-btn> -->
+            <v-chip
+              v-show="showCopyResult"
+              pill
+              :class="{'copy-result': true, success: isCopySuccess}"
+            >
+              Successfully copied
+            </v-chip>
+          </v-toolbar>
+          <!-- <v-layout column>
         <v-flex class="sm12 md12">
-          <v-label>
+          <v-label color="green">
             Response
           </v-label>
         </v-flex>
         <v-flex class="sm12 md12">
+          <v-spacer />
+          <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
+            To Sheet
+          </v-btn>
+          <v-btn class small outlined @click="copyToClipboard">
+            Copy
+          </v-btn>
           <v-chip
             v-show="showCopyResult"
             pill
@@ -134,27 +170,22 @@
           >
             Successfully copied
           </v-chip>
-          <v-spacer />
-          <v-btn class="mr-2" small rounded color="primary" @click="onWriteSheet">
-            To Sheet
-          </v-btn>
-          <v-btn class small @click="copyToClipboard">
-            Copy
-          </v-btn>
         </v-flex>
-      </v-layout>
-    </div>
-    <div v-if="lastResponseData != null">
-      <div v-if="lastResponseData" class="response">
-        <!-- <pre id="responseData">{{JSON.stringify(lastResponseData, null, 4)}}</pre> -->
-        <vue-json-pretty show-length :data="lastResponseData" />
-      </div>
-    </div>
-    <div v-if="lastErrorMessage">
-      <div class="response error">
-        <pre>{{ JSON.stringify(lastErrorMessage, null, 4) }}</pre>
-      </div>
-    </div>
+      </v-layout> -->
+        </div>
+        <div v-if="lastResponseData != null">
+          <div v-if="lastResponseData" class="response">
+            <!-- <pre id="responseData">{{JSON.stringify(lastResponseData, null, 4)}}</pre> -->
+            <vue-json-pretty show-length :data="lastResponseData" />
+          </div>
+        </div>
+        <div v-if="lastErrorMessage">
+          <div class="response error">
+            <pre>{{ JSON.stringify(lastErrorMessage, null, 4) }}</pre>
+          </div>
+        </div>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
@@ -167,7 +198,7 @@ export default {
   components: {
     VueJsonPretty
   },
-  props: ['params', 'method', 'description'],
+  props: ['params', 'method', 'description', 'securityHeaders'],
   data () {
     return {
       serverOptions: {
@@ -234,7 +265,7 @@ export default {
       // }
 
       // options.headers[this.apiForm.headerKey] = this.apiForm.headerValue
-      options.headers['X-Cisco-Meraki-API-Key'] = this.apiKey // TODO - make this dynamic
+      // options.headers['X-Cisco-Meraki-API-Key'] = this.apiKey // TODO - make this dynamic
       console.log('fetchJson', options)
       this.isLoading = true
       const url = this.serverOptions.proxyUrl
@@ -256,7 +287,7 @@ export default {
     },
     onWriteSheet () {
       console.log('onWriteSheet', this.lastResponseData)
-      this.$emit('data', this.lastResponseData)
+      this.$emit('data', this.lastResponseData || this.lastErrorMessage)
       this.$emit('description', this.description)
       // if (!Array.isArray(this.lastResponseData)) {
       //   let arrayData = [];
@@ -304,7 +335,12 @@ export default {
       })
 
       config.url = config.baseUrl + '/' + config.url
-      console.log('config.url', config.url)
+
+      // Append API Key header for Meraki (move this)
+      // if (config.url.includes('meraki.com')) { config.headers['X-Cisco-Meraki-API-Key'] = this.apiKey }
+      // merge user submited header values
+      config.headers = this.securityHeaders
+      console.log('config', config)
       this.fetchJson(config)
         .then(res => this.success(res))
         .catch(e => this.error(e))
@@ -494,7 +530,7 @@ table {
 .section-header {
   padding: 8px 20px;
   min-height: 20px;
-  background: hsla(0, 0%, 100%, 0.8);
+  //background: hsla(0, 0%, 100%, 0.8);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;

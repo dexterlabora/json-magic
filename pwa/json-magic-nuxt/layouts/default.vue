@@ -37,8 +37,14 @@
       >
         <v-icon>mdi-home</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title color="green" v-text="title" />
+
       <v-spacer />
+      <!-- might implement later -->
+      <!-- <v-btn small icon @click="toggleView = !toggleView">
+        <v-icon>{{ toggleView ? "mdi-arrow-expand-all" : "mdi-arrow-collapse-all" }}</v-icon>
+      </v-btn> -->
+
       <v-btn
         icon
         to="/inspire"
@@ -107,6 +113,7 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
+      toggleView: false,
       items: [
         {
           icon: 'mdi-apps',

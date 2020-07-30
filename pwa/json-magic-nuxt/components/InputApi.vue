@@ -24,10 +24,13 @@
           <v-label dark>
             API Proxy Server
           </v-label>
-
+          <v-checkbox v-model="serverOptions.enabled" label="Use Proxy" />
           <v-text-field v-model="serverOptions.proxyUrl" small label="URL Path" />
         </v-card>
       </v-card>
+      <v-tile v-if="error" color="red">
+        {{ error }}
+      </v-tile>
     </v-card-text>
     <v-card-actions>
       <v-btn color="blue darken-1" text @click="$emit('close', true)">
@@ -49,6 +52,7 @@ export default {
 
   data: () => ({
     serverOptions: {
+      enabled: true,
       proxyUrl: '/api/proxy'
     },
     isLoading: false,
@@ -81,9 +85,18 @@ export default {
       }
 
       console.log('fetchJson', options)
+      this.error = undefined
       this.isLoading = true
+      let url = ''
+      if (this.serverOptions.enabled) {
+        url = this.serverOptions.proxyUrl
+      } else {
+        url = options.url
+        options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      }
+
       axios
-        .post(this.serverOptions.proxyUrl, options)
+        .post(url, options)
         .then((res) => {
           console.log('fetchJson response', this.apiForm.url, res)
           this.inputValue = res.data
@@ -91,7 +104,9 @@ export default {
         })
         .catch((e) => {
           console.log('fetch error', e)
-          // this.isLoading = false
+          this.isLoading = false
+          this.inputValue = e
+          this.$emit('data', this.inputValue)
         })
         .finally(() => {
           this.isLoading = false

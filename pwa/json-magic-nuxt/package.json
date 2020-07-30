@@ -13,13 +13,15 @@
     "deploy": "nuxt build && gcloud app deploy app.yaml --project meraki-micro-services"
   },
   "dependencies": {
-    "@nuxtjs/vuetify": "^1.11.2",
     "@nuxtjs/axios": "^5.12.0",
     "@nuxtjs/proxy": "^2.0.1",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
+    "@nuxtjs/vuetify": "^1.11.2",
     "json2csv": "^5.0.1",
     "jsonata": "^1.8.3",
     "linkifyjs": "^2.1.9",
+    "monaco-editor": "0.20.0",
+    "monaco-editor-vue": "^1.0.10",
     "nuxt": "^2.13.0",
     "prismjs": "^1.20.0",
     "splitpanes": "^2.2.1",

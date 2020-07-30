@@ -3,15 +3,17 @@
     <v-flex>
       <v-flex class="text-center">
         <blockquote class="blockquote">
-          <div class="text-h1">
-            Making sense of <v-icon size="200px">
+          <div class="text-h2">
+            Making sense of <v-icon size="50px">
               mdi-code-json
-            </v-icon> like magic.
+            </v-icon> like <v-icon size="50px">
+              mdi-auto-fix
+            </v-icon>
           </div>
         </blockquote>
 
         <h2>
-          An open source tool to explore complex JSON data using JSONata that dynamically builds tables using Tableify.
+          An open source tool to explore complex JSON.
         </h2>
         <p>
           Easily interact with Open APIs such as the Cisco Meraki Dashboard API, or just paste in JSON data to begin the magic.

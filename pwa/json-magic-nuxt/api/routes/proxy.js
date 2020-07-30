@@ -42,13 +42,16 @@ function request(requestOptions) {
     })
     .catch(e => {
       console.log("request-handler error: ", e);
+      return e
     });
 }
 
 
-router.post('/proxy', jsonParser, (req, res, next) => {
+router.post('/proxy', jsonParser, async (req, res, next) => {
   //console.log('/proxy req.body', req.body)
-  request(req.body).then(data => res.json(data))
+  await request(req.body).then(data => res.json(data)).catch(e => {
+    res.json(e)
+  })
 });
 
 module.exports = router
