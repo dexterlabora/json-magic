@@ -1,5 +1,5 @@
 <template id="input-oas">
-  <v-card height="900px">
+  <v-card height="800px">
     <v-card-text>
       <v-container>
         <v-flex xs12 md12>

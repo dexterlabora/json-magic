@@ -4,7 +4,12 @@
       <!-- Param Form -->
       <v-flex sm12 md6>
         <div v-show="isExecute" class="execute-wrapper mt-4">
-          <v-btn :loading="isLoading" :color="methodColors[method]" class="mb-2 ml-2" @click="runApi">
+          <v-btn
+            :loading="isLoading"
+            :color="methodColors[method]"
+            class="mb-2 ml-2"
+            @click="runApi"
+          >
             Run API Call
           </v-btn>
         </div>
@@ -24,7 +29,8 @@
                       <div v-if="item.description">
                         <v-tooltip right max-width="400px">
                           <template v-slot:activator="{ on, attrs }">
-                            {{ item.name }}<v-btn icon v-bind="attrs" v-on="on">
+                            {{ item.name }}
+                            <v-btn icon v-bind="attrs" v-on="on">
                               <v-icon color="grey lighten-1">mdi-information</v-icon>
                             </v-btn>
                           </template>
@@ -40,12 +46,14 @@
                         {{ item.description }}
                       </template>
 
-                    </v-tooltip> -->
+                        </v-tooltip>-->
                       </div>
                       <div v-else>
-
                         {{ item.name || item.key }}
-                        <span v-if="item.required" class="required">* required</span>
+                        <span
+                          v-if="item.required"
+                          class="required"
+                        >* required</span>
                       </div>
                     </span>
                   </div>
@@ -99,7 +107,11 @@
                     />
                   </div>
                   <div v-if="isExecute && item.source === 'body'" class="value-input">
-                    <v-textarea v-model="item.dataValue" outlined :placeholder="getPlaceholder(item)" />
+                    <v-textarea
+                      v-model="item.dataValue"
+                      outlined
+                      :placeholder="getPlaceholder(item)"
+                    />
                   </div>
                   <div v-if="item.contentType" class="value-input">
                     <div class="title">
@@ -126,64 +138,63 @@
         <v-btn :loading="isLoading" :color="methodColors[method]" @click="runApi">
           Run API Call
         </v-btn>
-      </div> -->
+          </div>-->
         </div>
       </v-flex>
-      <v-flex sm12 md6>
+      <v-flex sm12 md12>
         <!-- Response Output -->
-        <div v-if="lastResponseData" class="section-header">
-          <v-toolbar dense>
-            <v-toolbar-title>Results</v-toolbar-title>
-            <v-spacer />
-            <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
-              To Sheet
-            </v-btn>
-            <!-- <v-btn class small outlined @click="copyToClipboard">
-              Copy
-            </v-btn> -->
-            <v-chip
-              v-show="showCopyResult"
-              pill
-              :class="{'copy-result': true, success: isCopySuccess}"
-            >
-              Successfully copied
-            </v-chip>
-          </v-toolbar>
-          <!-- <v-layout column>
-        <v-flex class="sm12 md12">
-          <v-label color="green">
-            Response
-          </v-label>
-        </v-flex>
-        <v-flex class="sm12 md12">
-          <v-spacer />
-          <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
-            To Sheet
-          </v-btn>
-          <v-btn class small outlined @click="copyToClipboard">
-            Copy
-          </v-btn>
-          <v-chip
-            v-show="showCopyResult"
-            pill
-            :class="{'copy-result': true, success: isCopySuccess}"
-          >
-            Successfully copied
-          </v-chip>
-        </v-flex>
-      </v-layout> -->
-        </div>
-        <div v-if="lastResponseData != null">
-          <div v-if="lastResponseData" class="response">
-            <!-- <pre id="responseData">{{JSON.stringify(lastResponseData, null, 4)}}</pre> -->
-            <vue-json-pretty show-length :data="lastResponseData" />
+        <template>
+          <div class="text-center">
+            <v-dialog v-model="resultDialog" width="700">
+              <!-- <template v-slot:activator="{ on, attrs }">
+                <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
+                  Click Me
+                </v-btn>
+              </template> -->
+
+              <v-card>
+                <v-toolbar dense>
+                  <v-toolbar-title>Results</v-toolbar-title>
+                  <v-spacer />
+                  <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
+                    To Sheet
+                  </v-btn>
+                  <!-- <v-btn class small outlined @click="copyToClipboard">
+                    Copy
+                  </v-btn>-->
+                  <v-chip
+                    v-show="showCopyResult"
+                    pill
+                    :class="{'copy-result': true, success: isCopySuccess}"
+                  >
+                    Successfully copied
+                  </v-chip>
+                </v-toolbar>
+
+                <div v-if="lastResponseData != null">
+                  <div v-if="lastResponseData" class="response">
+                    <!-- <pre id="responseData">{{JSON.stringify(lastResponseData, null, 4)}}</pre> -->
+                    <vue-json-pretty show-length :data="lastResponseData" />
+                  </div>
+                </div>
+                <div v-if="lastErrorMessage">
+                  <div class="response error">
+                    <pre>{{ JSON.stringify(lastErrorMessage, null, 4) }}</pre>
+                  </div>
+
+                  <v-divider />
+
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="primary" text @click="resultDialog = false">
+                      I accept
+                    </v-btn>
+                  </v-card-actions>
+                </div>
+              </v-card>
+            </v-dialog>
           </div>
-        </div>
-        <div v-if="lastErrorMessage">
-          <div class="response error">
-            <pre>{{ JSON.stringify(lastErrorMessage, null, 4) }}</pre>
-          </div>
-        </div>
+        </template>
       </v-flex>
     </v-layout>
   </div>
@@ -211,6 +222,7 @@ export default {
         delete: 'red',
         post: 'blue'
       },
+      resultDialog: false,
       execute: true,
       lastResponseData: undefined,
       lastErrorMessage: null,
@@ -344,7 +356,10 @@ export default {
       this.fetchJson(config)
         .then(res => this.success(res))
         .catch(e => this.error(e))
-        .finally(() => (this.isLoading = false))
+        .finally(() => {
+          this.isLoading = false
+          this.resultDialog = true
+        })
 
       // try {
       //   this.isLoading = true
@@ -374,7 +389,9 @@ export default {
         return it.source.includes('body')
       })[0]
 
-      if (!body) { return undefined }
+      if (!body) {
+        return undefined
+      }
       try {
         return JSON.parse(body.dataValue) || undefined
       } catch (e) {
@@ -686,14 +703,14 @@ table {
 }
 
 .theme--dark.v-label {
-    color: rgb(30 30 30);
+  color: rgb(30 30 30);
 }
 
 .response {
   font-size: 12px;
-  height: 200px;
+  height: 500px;
   overflow: auto;
-  color:#41444e;
+  color: #41444e;
   margin-bottom: 10px;
   pre {
     padding: 10px;

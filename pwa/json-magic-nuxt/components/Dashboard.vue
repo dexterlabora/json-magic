@@ -164,9 +164,12 @@
               <pre><v-textarea :value="JSON.stringify(result, null, 4)" style="max-height:55vh; " /></pre>
             </v-card-text>
           </div>
-          <small>
-            {{ jsonSize }} Kb
-          </small>
+          <v-card-text class="pt-0 mt-0">
+            <small>
+              {{ jsonSize }} Kb
+            </small>
+          </v-card-text>
+
           <!-- <vue-json-pretty
                   id="resultJsonPretty"
 
@@ -178,7 +181,7 @@
       </pane>
       <pane min-size="5" :size="paneSizes.table">
         <!-- Results Table -->
-        <v-card v-if="result" width="100%" height="100%">
+        <v-card v-if="result">
           <v-toolbar dense>
             <v-toolbar-title>
               Table
@@ -201,7 +204,7 @@
             </v-btn>
           </v-toolbar>
           <v-card-text>
-            <v-simple-table dense fixed-header light>
+            <v-simple-table dense fixed-header light height="800px" style="overflow: auto; ">
               <div id="resultTable" ref="resultTable" v-html="tableHtml" />
             </v-simple-table>
           </v-card-text>
@@ -605,8 +608,8 @@ td {
   z-index: 1;
 }
 .splitpanes__splitter:hover:before {opacity: 1;}
-.splitpanes--vertical > .splitpanes__splitter:before {left: -20px;right: -20px;height: 100%;}
-.splitpanes--horizontal > .splitpanes__splitter:before {top: -20px;bottom: -20px;width: 100%;}
+.splitpanes--vertical > .splitpanes__splitter:before {left: -10px;right: -10px;height: 100%;}
+.splitpanes--horizontal > .splitpanes__splitter:before {top: -10px;bottom: -10px;width: 100%;}
 
 em.specs {
   font-size: 0.5em;
