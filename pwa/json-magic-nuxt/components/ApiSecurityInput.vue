@@ -3,7 +3,7 @@
     <v-card-text>
       <v-select v-model="form.selectedDef" label="Authorization Method" :items="definitionKeys" />
       <div v-if="selectedDefinitionObj">
-        <v-text-field v-model="form.securityValue" :label="form.securityProperty" type="password" />
+        <v-text-field v-model="form.securityValue" :label="form.securityProperty" type="password" @change="onChange" />
       </div>
     </v-card-text>
   </v-card>
@@ -81,6 +81,7 @@ export default {
     onChange () {
       const headers = {}
       headers[this.form.securityProperty] = this.form.securityValue
+      console.log('new headers', headers)
       this.$emit('change', headers)
     }
   },

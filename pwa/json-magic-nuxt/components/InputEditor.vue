@@ -6,7 +6,7 @@
         Beautify
       </v-btn>
     </v-card-subtitle>
-    <v-card-text style="overflow: auto;">
+    <v-card-text style="overflow: auto; position: relative" height="100%">
       <!-- <vue-prism-editor
                 v-model="form.inputJson"
                 language="js"
@@ -18,8 +18,9 @@
 
       <MonacoEditor
         v-model="form.inputJson"
+        style="overflow: auto; position: relative"
         width="400"
-        height="740"
+        height="850"
         theme="vs-light"
         language="javascript"
         :value="form.inputJson"

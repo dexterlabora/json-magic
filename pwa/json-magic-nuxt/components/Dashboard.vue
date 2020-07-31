@@ -22,7 +22,7 @@
     <template>
       <v-row justify="center">
         <v-dialog v-model="apiDialog" max-width="700px">
-          <input-api @close="apiDialog = false" @data="onApiData($event)" />
+          <input-api @close="apiDialog = false" @data="onApiData($event)" @url="onApiName($event)" />
         </v-dialog>
       </v-row>
     </template>
@@ -31,7 +31,7 @@
     <splitpanes>
       <pane min-size="5" :size="paneSizes.input">
         <!-- JSON Input  -->
-        <v-card width="100%" class="m-2">
+        <v-card width="100%" height="100%" style="position: relative" class="mr-2">
           <v-toolbar dense>
             <v-toolbar-title>Input</v-toolbar-title>
             <!-- <v-btn small icon @click="paneSizes.input=100">
@@ -63,49 +63,18 @@
             />
           </v-toolbar>
 
-          <!-- <v-card> -->
-          <!-- <v-card-subtitle dark>
-              Type or paste valid JSON data
-              <v-btn
-                class="ml-2"
-                color="grey lighten-2"
-                small
-                outlined
-                @click="onFormatJson()"
-              >
-                Beautify
-              </v-btn>
-          </v-card-subtitle>-->
-          <!-- <v-card-text style="overflow: auto;"> -->
-          <!-- <vue-prism-editor
-                v-model="form.inputJson"
-                language="js"
-                style="height:75vh"
+          <input-editor v-model="form.inputJson" height="100%" style="position: relative" @change="onEditorData($event)" />
 
-                @change="inputValue=form.inputJson"
-          />-->
-          <!-- <v-textarea v-model="form.inputJson" auto-grow style="height:70vh; " @change="inputValue=form.inputJson" /> -->
-          <input-editor v-model="form.inputJson" @change="onEditorData($event)" />
-          <!-- <MonacoEditor
-                v-model="form.inputJson"
-                width="1"
-                height="1"
-                theme="vs-light"
-
-                language="json"
-                :value="form.inputJson"
-                :options="monacoOptions"
-                @change="onInputJsonChange()"
-          />-->
-          <!-- </v-card-text>
-          </v-card>
-          <v-card-text><v-label> Data Size: {{ inputJsonSize/1024 }} Kb</v-label></v-card-text>-->
-          <!-- </v-card> -->
+          <v-label>
+            <div style="font-size: 0.8em;">
+              {{ form.inputName }}
+            </div>
+          </v-label>
         </v-card>
       </pane>
       <pane min-size="5" :size="paneSizes.explore">
         <!-- JSONata Explorer -->
-        <v-card width="100%">
+        <v-card width="100%" height="100%" style="position: relative" class="m-2">
           <v-toolbar dense>
             <v-toolbar-title>JSONata Explorer</v-toolbar-title>
 
@@ -151,7 +120,7 @@
             </v-card-text>
           </div>
           <div v-else>
-            <v-card-subtitle>Whoa, that's some big JSON... Here is a simple view</v-card-subtitle>
+            <v-card-subtitle>Whoa, that's some big JSON... Here's a simpler view</v-card-subtitle>
             <v-card-actions>
               <v-spacer />
               <v-btn small color="green" outlined @click="onGenerateTable">
@@ -177,11 +146,11 @@
                   @click="handleResultClick"
           />-->
         </v-card>
-        <v-footer />
       </pane>
       <pane min-size="5" :size="paneSizes.table">
         <!-- Results Table -->
-        <v-card v-if="result">
+
+        <v-card v-if="result" width="100%" height="100%" style="position: relative" class="m-2">
           <v-toolbar dense>
             <v-toolbar-title>
               Table
@@ -203,8 +172,8 @@
               </v-icon>HTML Table
             </v-btn>
           </v-toolbar>
-          <v-card-text>
-            <v-simple-table dense fixed-header light height="800px" style="overflow: auto; ">
+          <v-card-text class="m-2">
+            <v-simple-table dense fixed-header light class="m-2" style="position: relative" height="900px">
               <div id="resultTable" ref="resultTable" v-html="tableHtml" />
             </v-simple-table>
           </v-card-text>
@@ -263,6 +232,7 @@ export default {
     wsDialog: false,
     oasDialog: false,
     form: {
+      inputName: '',
       inputFile: undefined,
       inputJson: '',
       query: '$'
@@ -429,6 +399,11 @@ export default {
     onApiData (data) {
       // console.log('dash api data', data)
       this.form.inputJson = this.formatJsonString(JSON.stringify(data))
+      // this.inputValue = this.form.inputJson
+    },
+    onInputName (data) {
+      // console.log('dash api data', data)
+      this.form.inputName = data
       // this.inputValue = this.form.inputJson
     },
     onWebsocketData (dataString) {

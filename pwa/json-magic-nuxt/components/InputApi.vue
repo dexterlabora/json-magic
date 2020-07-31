@@ -101,12 +101,14 @@ export default {
           console.log('fetchJson response', this.apiForm.url, res)
           this.inputValue = res.data
           this.$emit('data', this.inputValue)
+          this.$emit('url', this.apiForm.url)
         })
         .catch((e) => {
           console.log('fetch error', e)
           this.isLoading = false
           this.inputValue = e
           this.$emit('data', this.inputValue)
+          this.$emit('url', this.apiForm.url)
         })
         .finally(() => {
           this.isLoading = false

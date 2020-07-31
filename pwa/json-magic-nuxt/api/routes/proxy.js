@@ -48,7 +48,7 @@ function request(requestOptions) {
 
 
 router.post('/proxy', jsonParser, async (req, res, next) => {
-  //console.log('/proxy req.body', req.body)
+  console.log('/proxy req.body', req.body)
   await request(req.body).then(data => res.json(data)).catch(e => {
     res.json(e)
   })
