@@ -3,7 +3,7 @@
         "description": "A JSONata query expression, the input JSON data and resulting JSON data"
     },
     "name": "Meraki Scanning API v3 Clients with AP MAP",
-    "query": "(\n    /* Meraki Scanning API v3 Clients with AP Details */\n    \n    /* -- Shortcut vars -- */\n    $aps := $.`data`.`reportingAps`;\n    $clients := $.`data`.`observations`;\n    \n    /* Finds location history, defaults to last AP's location */\n    $getLocations := function($c){\n        $c.locations ? $c.locations^(>time).{\n            \"lat\":lat,\n            \"lng\":lng,\n            \"time\":time\n        } : $findApDetails($c.latestRecord.nearestApMac).[{\n            \"lat\":lat,\n            \"lng\":lng\n        }]\n    };\n    \n     /* -- Google Static map Functions -- */\n    \n    /*\n        $gMapExampleString := \"<img src='https://maps.googleapis.com/maps/api/staticmap?center=Brooklyn+Bridge,New+York,NY&zoom=13&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.702147,-74.015794&markers=color:green%7Clabel:G%7C40.711614,-74.012318&markers=color:red%7Clabel:C%7C40.718217,-73.998284&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc'>\";\n    */\n   \n    $gMapKey := \"key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc\";\n    $gMapBase := \"<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on\" & \"&\" & $gMapKey;\n    \n    $getMapCenter := function($lat,$lng){\"center=\" & $lat & $lng};\n    $getPathMarkers := function($markers){\n        \"path=color:0x0000ff|weight:5|\" & $join($markers, \"|\")\n    };\n    $getMapMarkers := function($markers){\n        \"markers=color:blue|\" & $markers[0].lat & \",\" & $markers[0].lng\n    };\n    /* Build Google Map URL String */\n    $getMap := function($locations){\n        (\n            $markers := $locations.(lat & \",\" & lng);\n            $gMapBase & \"&\" & $getMapCenter($locations[0].lat,$locations[0].lng) & \"&\" &  $getPathMarkers($markers) & \"&\" & $getMapMarkers($locations) & \"' >\" \n        )\n    };\n    \n    \n    /* -- Helper Functions -- */\n    /* Find an AP by MAC */\n    $findApDetails := function($apMac){\n                        $filter($aps, function($v) {\n                            $v.mac = $apMac\n                        }\n                    )};\n                    \n    /* -- Final Results -- */\n    {\n        \"networkId\":$.data.networkId,\n        \"startTime\": $.data.startTime,\n        \"endTime\":$.data.endTime,\n        \"stats\": {\n            \"clientCount\":$count($clients),\n            \"apCount\":$count($aps)\n        },\n        /* for each client build payload, sorted by clientMac */\n        \"clients\": $clients@$c^(clientMac).{\n            \n        \"clientMac\":$c.clientMac,\n        \"name\":$c.name,\n        \"bleBeacons\":$c.bleBeacons,\n        \"map\": $getMap($getLocations($c)),\n        /* use known locations first then default to APs location sort by time */\n        \"locations\":$getLocations($c),\n  \n        \"lastRecord\": $c.latestRecord.time,\n        \"apDetails\": $findApDetails($c.latestRecord.nearestApMac)\n        }\n    };\n    \n)",
+    "query": "(\n    /* Meraki Scanning API v3 Clients with AP Details */\n    \n    /* -- Shortcut vars -- */\n    $aps := $.`data`.`reportingAps`;\n    $clients := $.`data`.`observations`;\n    \n    /* Finds location history, defaults to last AP's location */\n    $getLocations := function($c){\n        $c.locations ? $c.locations^(>time).{\n            \"lat\":lat,\n            \"lng\":lng,\n            \"time\":time\n        } : $findApDetails($c.latestRecord.nearestApMac).[{\n            \"lat\":lat,\n            \"lng\":lng\n        }]\n    };\n    \n     /* -- Google Static map Functions -- */\n    \n    /*\n        $gMapExampleString := \"<img src='https://maps.googleapis.com/maps/api/staticmap?center=Brooklyn+Bridge,New+York,NY&zoom=13&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.702147,-74.015794&markers=color:green%7Clabel:G%7C40.711614,-74.012318&markers=color:red%7Clabel:C%7C40.718217,-73.998284&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc'>\";\n    */\n   \n    $gMapKey := \"key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc\";\n    $gMapBase := \"https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on\" & \"&\" & $gMapKey;\n    \n    $getMapCenter := function($lat,$lng){\"center=\" & $lat & $lng};\n    $getPathMarkers := function($locations){\n        (\n         $markers := $locations.(lat & \",\" & lng);\n        \"path=color:0x0000ff|weight:5|\" & $join($markers, \"|\")\n        )\n    };\n    $getMapMarkers := function($locations){\n        \"markers=color:blue|\" & $locations[0].lat & \",\" & $locations[0].lng\n    };\n    \n    /* Build Google Map URL String */\n    $getMapUrl := function($locations){\n        (\n            $gMapBase & \"&\" & $getMapCenter($locations[0].lat,$locations[0].lng) & \"&\" &  $getPathMarkers($locations) & \"&\" & $getMapMarkers($locations)\n        )\n    };\n    \n    \n    /* -- Scanning API Helper Functions -- */\n    /* Find an AP by MAC */\n    $findApDetails := function($apMac){\n                        $filter($aps, function($v) {\n                            $v.mac = $apMac\n                        }\n                    )};\n                    \n    /* -- Final Results -- */\n    {\n        \"networkId\":$.data.networkId,\n        \"startTime\": $.data.startTime,\n        \"endTime\":$.data.endTime,\n        \"stats\": {\n            \"clientCount\":$count($clients),\n            \"apCount\":$count($aps)\n        },\n        /* for each client build payload, sorted by clientMac */\n        \"clients\": $clients@$c^(clientMac).{\n            \n        \"clientMac\":$c.clientMac,\n        \"name\":$c.name,\n        \"bleBeacons\":$c.bleBeacons,\n        \"map\": \"<img src='\" & $getMapUrl($getLocations($c)) & \"' >\",\n        \"mapLink\":\"<a href='\" & $getMapUrl($getLocations($c)) & \"' target='_blank'>Map</a>\",\n        /* use known locations first then default to APs location sort by time */\n        \"locations\":$getLocations($c),\n  \n        \"lastRecord\": $c.latestRecord.time,\n        \"apDetails\": $findApDetails($c.latestRecord.nearestApMac)\n        }\n    };\n    \n)",
     "inputJson": {
         "version": "3.0",
         "secret": "supersecret",
@@ -5782,6 +5782,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35342888258084.9957942896844&path=color:0x0000ff|weight:5|52.3534288825808,4.9957942896844|52.3534210867674,4.99579012537419|52.353423671938,4.99579270946708|52.3534237233877,4.99579212578257|52.3534250540409,4.99578921312249|52.3534229068253,4.99579119968203&markers=color:blue|52.3534288825808,4.9957942896844' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35342888258084.9957942896844&path=color:0x0000ff|weight:5|52.3534288825808,4.9957942896844|52.3534210867674,4.99579012537419|52.353423671938,4.99579270946708|52.3534237233877,4.99579212578257|52.3534250540409,4.99578921312249|52.3534229068253,4.99579119968203&markers=color:blue|52.3534288825808,4.9957942896844' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35342888258077,
@@ -5845,6 +5846,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35338763208824.99584680423141&path=color:0x0000ff|weight:5|52.3533876320882,4.99584680423141&markers=color:blue|52.3533876320882,4.99584680423141' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35338763208824.99584680423141&path=color:0x0000ff|weight:5|52.3533876320882,4.99584680423141&markers=color:blue|52.3533876320882,4.99584680423141' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35338763208821,
@@ -5884,6 +5886,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340229673914.99575785696297&path=color:0x0000ff|weight:5|52.3534022967391,4.99575785696297|52.3534028126528,4.99576106340905|52.3534027455324,4.99575800916307|52.3534016795622,4.99576013852331|52.3534029252611,4.99576096464065|52.3534025117024,4.99576331810323&markers=color:blue|52.3534022967391,4.99575785696297' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340229673914.99575785696297&path=color:0x0000ff|weight:5|52.3534022967391,4.99575785696297|52.3534028126528,4.99576106340905|52.3534027455324,4.99575800916307|52.3534016795622,4.99576013852331|52.3534029252611,4.99576096464065|52.3534025117024,4.99576331810323&markers=color:blue|52.3534022967391,4.99575785696297' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340229673911,
@@ -5950,6 +5953,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35341097736056,
@@ -5987,6 +5991,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35338763208824.99584680423141&path=color:0x0000ff|weight:5|52.3533876320882,4.99584680423141&markers=color:blue|52.3533876320882,4.99584680423141' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35338763208824.99584680423141&path=color:0x0000ff|weight:5|52.3533876320882,4.99584680423141&markers=color:blue|52.3533876320882,4.99584680423141' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35338763208821,
@@ -6024,6 +6029,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340610116074.99578248053771&path=color:0x0000ff|weight:5|52.3534061011607,4.99578248053771|52.3534066916721,4.99578368034449|52.3534064811764,4.99578334342087|52.3534062698942,4.9957829242133|52.3534062145893,4.99578271002775&markers=color:blue|52.3534061011607,4.99578248053771' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340610116074.99578248053771&path=color:0x0000ff|weight:5|52.3534061011607,4.99578248053771|52.3534066916721,4.99578368034449|52.3534064811764,4.99578334342087|52.3534062698942,4.9957829242133|52.3534062145893,4.99578271002775&markers=color:blue|52.3534061011607,4.99578248053771' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340610116065,
@@ -6085,6 +6091,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340540687264.99578585255236&path=color:0x0000ff|weight:5|52.3534054068726,4.99578585255236|52.3534052850209,4.99578529305245|52.3534053523369,4.99578514091399|52.3534053861196,4.99578556664645|52.3534054833556,4.99578629011376|52.353405428726,4.9957851757745&markers=color:blue|52.3534054068726,4.99578585255236' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340540687264.99578585255236&path=color:0x0000ff|weight:5|52.3534054068726,4.99578585255236|52.3534052850209,4.99578529305245|52.3534053523369,4.99578514091399|52.3534053861196,4.99578556664645|52.3534054833556,4.99578629011376|52.353405428726,4.9957851757745&markers=color:blue|52.3534054068726,4.99578585255236' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353405406872625,
@@ -6149,6 +6156,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340661664494.99578877353301&path=color:0x0000ff|weight:5|52.3534066166449,4.99578877353301|52.3534057358272,4.99578607856387|52.3534060221633,4.99578723230715|52.3534060221633,4.99578723230715|52.3534057358272,4.99578607856387|52.3534061692371,4.99578776827238&markers=color:blue|52.3534066166449,4.99578877353301' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340661664494.99578877353301&path=color:0x0000ff|weight:5|52.3534066166449,4.99578877353301|52.3534057358272,4.99578607856387|52.3534060221633,4.99578723230715|52.3534060221633,4.99578723230715|52.3534057358272,4.99578607856387|52.3534061692371,4.99578776827238&markers=color:blue|52.3534066166449,4.99578877353301' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353406616644854,
@@ -6215,6 +6223,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35341097736056,
@@ -6255,6 +6264,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35341097736056,
@@ -6292,6 +6302,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35339275166655,
@@ -6332,6 +6343,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345035796314.99581432919416&path=color:0x0000ff|weight:5|52.3534503579631,4.99581432919416|52.3534503579631,4.99581432919416|52.3534503589855,4.9958143299624|52.3534502450465,4.99581424446345|52.3534503589855,4.9958143299624|52.3534503579631,4.99581432919416&markers=color:blue|52.3534503579631,4.99581432919416' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345035796314.99581432919416&path=color:0x0000ff|weight:5|52.3534503579631,4.99581432919416|52.3534503579631,4.99581432919416|52.3534503589855,4.9958143299624|52.3534502450465,4.99581424446345|52.3534503589855,4.9958143299624|52.3534503579631,4.99581432919416&markers=color:blue|52.3534503579631,4.99581432919416' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353450357963055,
@@ -6390,6 +6402,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340581711234.99578720993992&path=color:0x0000ff|weight:5|52.3534058171123,4.99578720993992|52.3534061848813,4.99578805515105|52.3534056930162,4.99578629315499|52.3534058811752,4.99578645248681|52.3534061876118,4.99578761864385&markers=color:blue|52.3534058171123,4.99578720993992' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340581711234.99578720993992&path=color:0x0000ff|weight:5|52.3534058171123,4.99578720993992|52.3534061848813,4.99578805515105|52.3534056930162,4.99578629315499|52.3534058811752,4.99578645248681|52.3534061876118,4.99578761864385&markers=color:blue|52.3534058171123,4.99578720993992' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340581711231,
@@ -6448,6 +6461,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339948584014.99576165013752&path=color:0x0000ff|weight:5|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752&markers=color:blue|52.3533994858401,4.99576165013752' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339948584014.99576165013752&path=color:0x0000ff|weight:5|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752|52.3533994858401,4.99576165013752&markers=color:blue|52.3533994858401,4.99576165013752' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35339948584008,
@@ -6511,6 +6525,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340446556574.99578276102645&path=color:0x0000ff|weight:5|52.3534044655657,4.99578276102645|52.3534046062126,4.99578292512879|52.3534044655657,4.99578276102645|52.3534046062126,4.99578292512879|52.3534046062126,4.99578292512879|52.3534046062126,4.99578292512879&markers=color:blue|52.3534044655657,4.99578276102645' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340446556574.99578276102645&path=color:0x0000ff|weight:5|52.3534044655657,4.99578276102645|52.3534046062126,4.99578292512879|52.3534044655657,4.99578276102645|52.3534046062126,4.99578292512879|52.3534046062126,4.99578292512879|52.3534046062126,4.99578292512879&markers=color:blue|52.3534044655657,4.99578276102645' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340446556567,
@@ -6581,6 +6596,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345848699954.99586490914226&path=color:0x0000ff|weight:5|52.3534584869995,4.99586490914226&markers=color:blue|52.3534584869995,4.99586490914226' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345848699954.99586490914226&path=color:0x0000ff|weight:5|52.3534584869995,4.99586490914226&markers=color:blue|52.3534584869995,4.99586490914226' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35345848699952,
@@ -6621,6 +6637,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35339275166655,
@@ -6661,6 +6678,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340420578294.99578169537716&path=color:0x0000ff|weight:5|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042443537,4.99578219903896|52.3534042443537,4.99578219903896&markers=color:blue|52.3534042057829,4.99578169537716' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340420578294.99578169537716&path=color:0x0000ff|weight:5|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042057829,4.99578169537716|52.3534042443537,4.99578219903896|52.3534042443537,4.99578219903896&markers=color:blue|52.3534042057829,4.99578169537716' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340420578291,
@@ -6726,6 +6744,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340424435374.99578219903896&path=color:0x0000ff|weight:5|52.3534042443537,4.99578219903896|52.3534043984415,4.99578246801633|52.3534041714745,4.99578190703525|52.3534042443537,4.99578219903896|52.3534042443537,4.99578219903896|52.3534043984415,4.99578246801633&markers=color:blue|52.3534042443537,4.99578219903896' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340424435374.99578219903896&path=color:0x0000ff|weight:5|52.3534042443537,4.99578219903896|52.3534043984415,4.99578246801633|52.3534041714745,4.99578190703525|52.3534042443537,4.99578219903896|52.3534042443537,4.99578219903896|52.3534043984415,4.99578246801633&markers=color:blue|52.3534042443537,4.99578219903896' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340424435369,
@@ -6792,6 +6811,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340461260014.99578306794319&path=color:0x0000ff|weight:5|52.3534046126001,4.99578306794319|52.3534046532134,4.99578323089517|52.3534046532134,4.99578323089517|52.3534046126001,4.99578306794319|52.3534046059341,4.99578258822388|52.3534046126001,4.99578306794319&markers=color:blue|52.3534046126001,4.99578306794319' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340461260014.99578306794319&path=color:0x0000ff|weight:5|52.3534046126001,4.99578306794319|52.3534046532134,4.99578323089517|52.3534046532134,4.99578323089517|52.3534046126001,4.99578306794319|52.3534046059341,4.99578258822388|52.3534046126001,4.99578306794319&markers=color:blue|52.3534046126001,4.99578306794319' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340461260006,
@@ -6858,6 +6878,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534050561874.99578480733064&path=color:0x0000ff|weight:5|52.353405056187,4.99578480733064|52.3534049357259,4.99578504957159|52.3534037732036,4.99578057898688|52.3534043381508,4.9957814371858|52.3534041044167,4.99578157189288|52.353404220004,4.99578094713718&markers=color:blue|52.353405056187,4.99578480733064' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534050561874.99578480733064&path=color:0x0000ff|weight:5|52.353405056187,4.99578480733064|52.3534049357259,4.99578504957159|52.3534037732036,4.99578057898688|52.3534043381508,4.9957814371858|52.3534041044167,4.99578157189288|52.353404220004,4.99578094713718&markers=color:blue|52.353405056187,4.99578480733064' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353405056187015,
@@ -6922,6 +6943,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3533991239174.99576740576452&path=color:0x0000ff|weight:5|52.353399123917,4.99576740576452|52.35340762379,4.99576721889198|52.3534011176495,4.99576641417542|52.3534031098152,4.99575493042147|52.3534052486305,4.99576231987925&markers=color:blue|52.353399123917,4.99576740576452' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3533991239174.99576740576452&path=color:0x0000ff|weight:5|52.353399123917,4.99576740576452|52.35340762379,4.99576721889198|52.3534011176495,4.99576641417542|52.3534031098152,4.99575493042147|52.3534052486305,4.99576231987925&markers=color:blue|52.353399123917,4.99576740576452' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353399123916965,
@@ -6980,6 +7002,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340497976514.99575904593286&path=color:0x0000ff|weight:5|52.3534049797651,4.99575904593286|52.3534026008147,4.99576695928798|52.3534026694661,4.99577167305401|52.3534032605639,4.99577080709048|52.3534027088263,4.99575491129795&markers=color:blue|52.3534049797651,4.99575904593286' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340497976514.99575904593286&path=color:0x0000ff|weight:5|52.3534049797651,4.99575904593286|52.3534026008147,4.99576695928798|52.3534026694661,4.99577167305401|52.3534032605639,4.99577080709048|52.3534027088263,4.99575491129795&markers=color:blue|52.3534049797651,4.99575904593286' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340497976506,
@@ -7037,6 +7060,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340202424524.99576329452978&path=color:0x0000ff|weight:5|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534021355766,4.99576023355147|52.3534020242452,4.99576329452978|52.3534025117024,4.99576331810323|52.3534020242452,4.99576329452978&markers=color:blue|52.3534020242452,4.99576329452978' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340202424524.99576329452978&path=color:0x0000ff|weight:5|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534021355766,4.99576023355147|52.3534020242452,4.99576329452978|52.3534025117024,4.99576331810323|52.3534020242452,4.99576329452978&markers=color:blue|52.3534020242452,4.99576329452978' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340202424523,
@@ -7103,6 +7127,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534010710964.99575923629322&path=color:0x0000ff|weight:5|52.353401071096,4.99575923629322|52.3534033854972,4.99575570140163|52.3534026800565,4.99574936060861|52.3534039201143,4.99576114329071|52.3534034303929,4.99576106339336&markers=color:blue|52.353401071096,4.99575923629322' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534010710964.99575923629322&path=color:0x0000ff|weight:5|52.353401071096,4.99575923629322|52.3534033854972,4.99575570140163|52.3534026800565,4.99574936060861|52.3534039201143,4.99576114329071|52.3534034303929,4.99576106339336&markers=color:blue|52.353401071096,4.99575923629322' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340107109602,
@@ -7161,6 +7186,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345848699954.99586490914226&path=color:0x0000ff|weight:5|52.3534584869995,4.99586490914226&markers=color:blue|52.3534584869995,4.99586490914226' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35345848699954.99586490914226&path=color:0x0000ff|weight:5|52.3534584869995,4.99586490914226&markers=color:blue|52.3534584869995,4.99586490914226' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35345848699952,
@@ -7201,6 +7227,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341939381854.99579153863348&path=color:0x0000ff|weight:5|52.3534193938185,4.99579153863348|52.3534175933121,4.99579000013117|52.3534215702621,4.99579736601785|52.3534134909962,4.99578743929834|52.3534265972954,4.99579792817076|52.3534132769175,4.99578740978558&markers=color:blue|52.3534193938185,4.99579153863348' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341939381854.99579153863348&path=color:0x0000ff|weight:5|52.3534193938185,4.99579153863348|52.3534175933121,4.99579000013117|52.3534215702621,4.99579736601785|52.3534134909962,4.99578743929834|52.3534265972954,4.99579792817076|52.3534132769175,4.99578740978558&markers=color:blue|52.3534193938185,4.99579153863348' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35341939381847,
@@ -7264,6 +7291,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340505081564.99578413412513&path=color:0x0000ff|weight:5|52.3534050508156,4.99578413412513|52.3534052803844,4.99578087762649|52.3534048973562,4.99578421916689|52.3534047429456,4.99578455951118|52.3534042915898,4.99578234926926&markers=color:blue|52.3534050508156,4.99578413412513' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340505081564.99578413412513&path=color:0x0000ff|weight:5|52.3534050508156,4.99578413412513|52.3534052803844,4.99578087762649|52.3534048973562,4.99578421916689|52.3534047429456,4.99578455951118|52.3534042915898,4.99578234926926&markers=color:blue|52.3534050508156,4.99578413412513' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.3534050508156,
@@ -7322,6 +7350,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340465321344.99578323089517&path=color:0x0000ff|weight:5|52.3534046532134,4.99578323089517|52.3534046512915,4.99578274431798|52.3534047438067,4.99578346064138|52.3534046512915,4.99578274431798|52.3534046532134,4.99578323089517|52.3534046532134,4.99578323089517&markers=color:blue|52.3534046532134,4.99578323089517' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340465321344.99578323089517&path=color:0x0000ff|weight:5|52.3534046532134,4.99578323089517|52.3534046512915,4.99578274431798|52.3534047438067,4.99578346064138|52.3534046512915,4.99578274431798|52.3534046532134,4.99578323089517|52.3534046532134,4.99578323089517&markers=color:blue|52.3534046532134,4.99578323089517' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340465321335,
@@ -7385,6 +7414,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35339275166654.99576952308416&path=color:0x0000ff|weight:5|52.3533927516665,4.99576952308416&markers=color:blue|52.3533927516665,4.99576952308416' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35339275166655,
@@ -7425,6 +7455,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341609083844.99576173843531&path=color:0x0000ff|weight:5|52.3534160908384,4.99576173843531|52.3534160908384,4.99576173843531|52.3534158153968,4.99576169135241|52.3534193352497,4.99576660532603|52.3534159898575,4.99576161557096&markers=color:blue|52.3534160908384,4.99576173843531' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341609083844.99576173843531&path=color:0x0000ff|weight:5|52.3534160908384,4.99576173843531|52.3534160908384,4.99576173843531|52.3534158153968,4.99576169135241|52.3534193352497,4.99576660532603|52.3534159898575,4.99576161557096&markers=color:blue|52.3534160908384,4.99576173843531' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353416090838444,
@@ -7485,6 +7516,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340202424524.99576329452978&path=color:0x0000ff|weight:5|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534016795622,4.99576013852331|52.3534021355766,4.99576023355147|52.3534016795622,4.99576013852331&markers=color:blue|52.3534020242452,4.99576329452978' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340202424524.99576329452978&path=color:0x0000ff|weight:5|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534020242452,4.99576329452978|52.3534016795622,4.99576013852331|52.3534021355766,4.99576023355147|52.3534016795622,4.99576013852331&markers=color:blue|52.3534020242452,4.99576329452978' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340202424523,
@@ -7548,6 +7580,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340152064444.99577164348349&path=color:0x0000ff|weight:5|52.3534015206444,4.99577164348349|52.3534003270341,4.99577022040987|52.3534002981548,4.99576575918258|52.3534013995299,4.9957766354938|52.353401586792,4.99576326271705&markers=color:blue|52.3534015206444,4.99577164348349' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340152064444.99577164348349&path=color:0x0000ff|weight:5|52.3534015206444,4.99577164348349|52.3534003270341,4.99577022040987|52.3534002981548,4.99576575918258|52.3534013995299,4.9957766354938|52.353401586792,4.99576326271705&markers=color:blue|52.3534015206444,4.99577164348349' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340152064445,
@@ -7606,6 +7639,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534057572154.99578153832681&path=color:0x0000ff|weight:5|52.353405757215,4.99578153832681|52.353405757215,4.99578153832681|52.3534057327966,4.99578152568535&markers=color:blue|52.353405757215,4.99578153832681' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.3534057572154.99578153832681&path=color:0x0000ff|weight:5|52.353405757215,4.99578153832681|52.353405757215,4.99578153832681|52.3534057327966,4.99578152568535&markers=color:blue|52.353405757215,4.99578153832681' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353405757214986,
@@ -7654,6 +7688,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340524591654.99576458754419&path=color:0x0000ff|weight:5|52.3534052459165,4.99576458754419|52.3534047732371,4.99576285989042|52.3534074580248,4.99576581120135|52.3534074371487,4.99576130698233|52.353400371509,4.99575629161509|52.3534021700615,4.9957609960328&markers=color:blue|52.3534052459165,4.99576458754419' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340524591654.99576458754419&path=color:0x0000ff|weight:5|52.3534052459165,4.99576458754419|52.3534047732371,4.99576285989042|52.3534074580248,4.99576581120135|52.3534074371487,4.99576130698233|52.353400371509,4.99575629161509|52.3534021700615,4.9957609960328&markers=color:blue|52.3534052459165,4.99576458754419' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.353405245916484,
@@ -7712,6 +7747,7 @@
                 "name": "",
                 "bleBeacons": [],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340460593414.99578258822388&path=color:0x0000ff|weight:5|52.3534046059341,4.99578258822388|52.3534046512915,4.99578274431798|52.3534046512915,4.99578274431798|52.3534046126001,4.99578306794319|52.3534047708019,4.99578306524745|52.3534046059341,4.99578258822388&markers=color:blue|52.3534046059341,4.99578258822388' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340460593414.99578258822388&path=color:0x0000ff|weight:5|52.3534046059341,4.99578258822388|52.3534046512915,4.99578274431798|52.3534046512915,4.99578274431798|52.3534046126001,4.99578306794319|52.3534047708019,4.99578306524745|52.3534046059341,4.99578258822388&markers=color:blue|52.3534046059341,4.99578258822388' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340460593406,
@@ -7775,6 +7811,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340540892094.99578575731948&path=color:0x0000ff|weight:5|52.3534054089209,4.99578575731948|52.3534053142656,4.99578492959199|52.3534055466339,4.99578655174244|52.353405291461,4.99578498986395|52.3534053717277,4.99578520517298|52.35340530132,4.99578551202191&markers=color:blue|52.3534054089209,4.99578575731948' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340540892094.99578575731948&path=color:0x0000ff|weight:5|52.3534054089209,4.99578575731948|52.3534053142656,4.99578492959199|52.3534055466339,4.99578655174244|52.353405291461,4.99578498986395|52.3534053717277,4.99578520517298|52.35340530132,4.99578551202191&markers=color:blue|52.3534054089209,4.99578575731948' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340540892094,
@@ -7841,6 +7878,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35341097736064.99573834240437&path=color:0x0000ff|weight:5|52.3534109773606,4.99573834240437&markers=color:blue|52.3534109773606,4.99573834240437' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35341097736056,
@@ -7881,6 +7919,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.353432429674.99576590727264&path=color:0x0000ff|weight:5|52.35343242967,4.99576590727264|52.3534324264984,4.99576591545394|52.3534324020031,4.99576612115754|52.3534324264984,4.99576591545394|52.3534324473143,4.99576548560449&markers=color:blue|52.35343242967,4.99576590727264' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.353432429674.99576590727264&path=color:0x0000ff|weight:5|52.35343242967,4.99576590727264|52.3534324264984,4.99576591545394|52.3534324020031,4.99576612115754|52.3534324264984,4.99576591545394|52.3534324473143,4.99576548560449&markers=color:blue|52.35343242967,4.99576590727264' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35343242967002,
@@ -7939,6 +7978,7 @@
                     }
                 ],
                 "map": "<img src='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340605302654.99578645979739&path=color:0x0000ff|weight:5|52.3534060530265,4.99578645979739|52.3534060248355,4.99578705158123|52.3534060259208,4.99578649129973|52.3534062182813,4.99578700910246|52.3534062753705,4.99578772022446|52.3534058421809,4.99578626054725&markers=color:blue|52.3534060530265,4.99578645979739' >",
+                "mapLink": "<a href='https://maps.googleapis.com/maps/api/staticmap?maptype=roadmap&zoom=21&size=400x300&style=visibility:on&key=AIzaSyC44dPQFhdDKl2FP5debdlS9Po0X-OmALc&center=52.35340605302654.99578645979739&path=color:0x0000ff|weight:5|52.3534060530265,4.99578645979739|52.3534060248355,4.99578705158123|52.3534060259208,4.99578649129973|52.3534062182813,4.99578700910246|52.3534062753705,4.99578772022446|52.3534058421809,4.99578626054725&markers=color:blue|52.3534060530265,4.99578645979739' target='_blank'>Map</a>",
                 "locations": [
                     {
                         "lat": 52.35340605302652,

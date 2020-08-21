@@ -95,8 +95,8 @@
 
     <!-- <splitpanes class="default-theme"> -->
 
-    <splitpanes>
-      <pane v-if="toggleViewInput" min-size="5" :size="paneSizes.input">
+    <splitpanes @resize="paneResize($event)">
+      <pane v-if="toggleViewInput" min-size="1" :size="paneSizes.input">
         <!-- JSON Input  -->
         <v-card width="100%" style="position: relative" class="mr-2">
           <v-toolbar dense>
@@ -192,10 +192,10 @@
         </v-card>
       </pane>
       <!-- v-show breaks splitpanes -- FIX THIS (split query and result components) -->
-      <pane v-show="toggleViewFilter" min-size="5" :size="paneSizes.explore">
+      <pane min-size="1" :size="toggleViewFilter ? paneSizes.explore : 1">
         <jsonata-explorer :value="parsedInput" :query="form.query" @change="form.query=($event)" @data="result = $event" />
       </pane>
-      <pane v-if="toggleViewTable" min-size="5">
+      <pane v-if="toggleViewTable" min-size="1" :size="paneSizes.table">
         <!-- Results Table -->
 
         <v-card v-if="result" width="100%" height="100%" style="position: relative" class="m-2">
@@ -220,14 +220,14 @@
               </v-icon>HTML Table
             </v-btn>
           </v-toolbar>
-          <v-card-text class="m-2">
+          <v-card-text class="m-2" style="position: relative; overflow: auto;" height="100%">
             <v-simple-table
               dense
               fixed-header
               light
-              class="m-2"
-              style="position: relative"
-              height="800px"
+              class="m-2 tableView"
+
+              min-height="800px"
             >
               <div id="resultTable" ref="resultTable" v-html="tableHtml" />
             </v-simple-table>
@@ -464,6 +464,12 @@ export default {
   //   next()
   // },
   methods: {
+    paneResize (sizes) {
+      console.log('paneResize', sizes)
+      const elCard = document.querySelector('.tableView')
+      const adjustedSize = sizes[(sizes.length - 1)].size + 80
+      elCard.style.width = (adjustedSize.toString() + '%')
+    },
     preventNav (event) {
       if (!this.isEditing) { return }
       event.preventDefault()
