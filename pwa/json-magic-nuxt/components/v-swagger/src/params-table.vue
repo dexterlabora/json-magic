@@ -23,10 +23,10 @@
           <table>
             <tr v-for="(item) in dataParameters" :key="item.name">
               <v-layout column>
-                <v-flex class="sm6 md6">
-                  <div class="parameter-name">
+                <v-flex class="sm6 md6" style="padding-top:'0px'; padding-bottom:'0px'">
+                  <div class="parameter-name ">
                     <span>
-                      <div v-if="item.description">
+                      <div v-if="item.description" class="pb-0">
                         <v-tooltip right max-width="400px">
                           <template v-slot:activator="{ on, attrs }">
                             {{ item.name }}
@@ -70,13 +70,13 @@
 
                 <!-- INPUT AREA -->
 
-                <v-flex class="sm8 md8">
+                <v-flex class="sm8 md8" style="padding-top:'0px'; padding-bottom:'0px'">
                   <div v-if="item.dataValue && !isExecute" class="data">
                     <pre>{{ item.dataValue }}</pre>
                   </div>
 
                   <div v-if="isExecute && item.source !== 'body'" class="value-input">
-                    <select v-if="item.items" v-model="item.inputValue">
+                    <v-combobox v-if="item.items" v-model="item.inputValue" dense>
                       <option
                         v-for="(enumData, selectedItemIndex) in item.items"
                         :key="selectedItemIndex"
@@ -85,7 +85,7 @@
                       >
                         {{ enumData.text }}
                       </option>
-                    </select>
+                    </v-combobox>
                     <div v-else-if="item.source === 'header' && item.params.length" class="params">
                       <div
                         v-for="(param, paramIndex) in item.params"
@@ -99,16 +99,28 @@
 
                     <v-text-field
                       v-else
+
+                      dense
                       outlined
                       type="text"
                       :placeholder="getPlaceholder(item)"
-                      :value="getValue(item) "
                       @change="item.inputValue = $event"
                     />
+
+                    <!-- :value="getValue(item) " -->
+                    <!-- <v-text-field
+                      v-else
+                      outlined
+                      type="text"
+                      :placeholder="getPlaceholder(item)"
+
+                      @change="item.inputValue = $event"
+                    />-->
                   </div>
                   <div v-if="isExecute && item.source === 'body'" class="value-input">
                     <v-textarea
                       v-model="item.dataValue"
+                      dense
                       outlined
                       :placeholder="getPlaceholder(item)"
                     />
@@ -150,13 +162,14 @@
                 <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
                   Click Me
                 </v-btn>
-              </template> -->
+              </template>-->
 
-              <v-card>
+              <v-card light>
                 <v-toolbar dense>
                   <v-toolbar-title>Results</v-toolbar-title>
+
                   <v-spacer />
-                  <v-btn class="mr-2" small outlined color="green" @click="onWriteSheet">
+                  <v-btn class="mr-2" small color="green" @click="onWriteSheet">
                     To Sheet
                   </v-btn>
                   <!-- <v-btn class small outlined @click="copyToClipboard">
@@ -204,7 +217,7 @@
 import axios from 'axios'
 import VueJsonPretty from 'vue-json-pretty'
 // const rh = require('./request-handler.js')
-
+// const qs = require('qs')
 export default {
   components: {
     VueJsonPretty
@@ -301,6 +314,7 @@ export default {
       console.log('onWriteSheet', this.lastResponseData)
       this.$emit('data', this.lastResponseData || this.lastErrorMessage)
       this.$emit('description', this.description)
+      this.resultDialog = false
       // if (!Array.isArray(this.lastResponseData)) {
       //   let arrayData = [];
       //   arrayData.push(this.lastResponseData);
@@ -320,33 +334,44 @@ export default {
     },
     runApi () {
       const url = this.getUrl()
-
+      const params = this.getParams()
+      // const qsString = qs.stringify(params, { encode: false }) // TESTING
+      // console.log('qsString', qsString)
       const config = {
         baseUrl: this.apiUrl,
         // apiKey: this.apiKey,
         url,
         method: this.$parent.method,
         headers: this.getHeaders(),
-        params: this.getParams(),
+        // params: qsString,
         body: this.getData()
+        // params: (params) => {
+        //   return qs.stringify(params)
+        // }
       }
 
       // Append query params
-      const paramNames = Object.keys(config.params)
+      // const paramNames = Object.keys(config.params)
+      const paramNames = Object.keys(params)
       let count = 0
       paramNames.forEach((pn) => {
-        if (config.params[pn]) {
+        if (params[pn]) {
           if (count > 0) {
             config.url += '&'
           } else {
             config.url += '?'
           }
-          config.url += `${pn}=${config.params[pn]}`
+
+          if (params[pn].type === 'array') {
+            config.url += `${pn}[]=${params[pn].inputValue}`
+          } else {
+            config.url += `${pn}=${params[pn].inputValue}`
+          }
           count++
         }
       })
 
-      config.url = config.baseUrl + '/' + config.url
+      config.url = config.baseUrl + '/' + config.url // + '?' + qsString
 
       // Append API Key header for Meraki (move this)
       // if (config.url.includes('meraki.com')) { config.headers['X-Cisco-Meraki-API-Key'] = this.apiKey }
@@ -403,12 +428,28 @@ export default {
 
       this.dataParameters
         .filter((it) => {
-          return it.source.includes('query')
+          console.log('filter it', it)
+          return it.source.includes('query') && it.inputValue
         })
         .forEach((it) => {
-          params[it.key] = it.inputValue
-        })
+          console.log('it', it)
+          console.log('filter found, applying value', it.inputValue)
+          params[it.name] = it
+          // if (it.type === 'array') {
+          //   params[it.name] = [it.inputValue] // TESTING THIS
+          // } else {
+          //   params[it.name] = it.inputValue
+          // }
 
+          // params[it.name] = {
+          //   value: it.inputValue,
+          //   type: it.type
+          // }
+          // params[it.name].value = it.inputValue
+          // params[it.name].type = it.type
+          console.log('params', params)
+        })
+      console.log('returning params', params)
       return params
     },
     getUrl () {

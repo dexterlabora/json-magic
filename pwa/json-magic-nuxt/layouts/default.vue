@@ -1,56 +1,58 @@
 <template>
   <v-app dark>
-    <!-- <v-navigation-drawer
+    <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
       fixed
       app
     >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
+      <about />
+    </v-navigation-drawer>
     <v-app-bar
       :clipped-left="clipped"
 
       app
       dense
     >
-      <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
-      <v-btn
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <!-- <v-btn
         icon
         to="/"
       >
         <v-icon>mdi-home</v-icon>
-      </v-btn>
+      </v-btn> -->
       <v-toolbar-title color="green" v-text="title" />
 
       <v-spacer />
-      <!-- might implement later -->
-      <!-- <v-btn small icon @click="toggleView = !toggleView">
-        <v-icon>{{ toggleView ? "mdi-arrow-expand-all" : "mdi-arrow-collapse-all" }}</v-icon>
-      </v-btn> -->
 
-      <v-btn
+      <v-btn small @click="onToggleView('a')">
+        <v-icon>{{ form.toggleView.a ? "mdi-arrow-expand-all" : "mdi-arrow-collapse-all" }}</v-icon> Input
+      </v-btn>
+      <v-btn small @click="onToggleView('b')">
+        <v-icon>{{ form.toggleView.b ? "mdi-arrow-expand-all" : "mdi-arrow-collapse-all" }}</v-icon> Filter
+      </v-btn>
+      <v-btn small @click="onToggleView('c')">
+        <v-icon>{{ form.toggleView.c ? "mdi-arrow-expand-all" : "mdi-arrow-collapse-all" }}</v-icon> Table
+      </v-btn>
+      <v-spacer />
+      <v-btn class="mr-2" color="grey darken-2" small @click="$nuxt.$emit('toggleImportReportDialog')">
+        <v-icon>mdi-upload</v-icon> Import Report
+      </v-btn>
+
+      <v-text-field v-model="form.reportName" color="green" dense style="padding-top: 25px; padding-right: 10px; width: 20px" outlined label="Report Name" />
+      <v-btn small color="green" tile dark @click="onExportReport($event)">
+        <v-icon small>
+          mdi-content-save
+        </v-icon>Save
+      </v-btn>
+
+      <!-- <v-btn
         icon
         to="/inspire"
       >
         <v-icon>mdi-information</v-icon>
-      </v-btn>
+      </v-btn> -->
       <!-- <v-btn
         icon
         @click.stop="miniVariant = !miniVariant"
@@ -107,13 +109,26 @@
 </template>
 
 <script>
+import about from '../pages/about'
 export default {
+  components: {
+    about
+  },
   data () {
     return {
       clipped: false,
       drawer: false,
       fixed: false,
-      toggleView: false,
+      form: {
+        inputReportFile: undefined,
+        toggleView: {
+          a: true,
+          b: true,
+          c: true
+        },
+        reportName: `New JSON Magic Report ${this.getDateString()}`
+      },
+
       items: [
         {
           icon: 'mdi-apps',
@@ -121,7 +136,7 @@ export default {
           to: '/'
         },
         {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-information',
           title: 'About',
           to: '/inspire'
         }
@@ -131,6 +146,50 @@ export default {
       rightDrawer: false,
       title: 'JSON Magic'
     }
+  },
+
+  created () {
+    this.$nuxt.$on('reportName', (name) => {
+      console.log('new report name', name)
+      this.form.reportName = name
+    })
+  },
+
+  methods: {
+    getDateString () {
+      const date = new Date()
+      const year = date.getFullYear()
+      const month = `${date.getMonth() + 1}`.padStart(2, '0')
+      const day = `${date.getDate()}`.padStart(2, '0')
+      return `${day}-${month}-${year}`
+    },
+
+    onExportReport (event) {
+      event.stopPropagation()
+      this.$nuxt.$emit('exportReport', this.form.reportName)
+    },
+    onToggleView (event) {
+      console.log('event', event)
+      console.log('this.form.toggleView[event]', this.form.toggleView[event])
+      this.form.toggleView[event] = !this.form.toggleView[event]
+
+      switch (event) {
+        case 'a':
+          this.$nuxt.$emit('toggleViewInput', this.form.toggleView.a)
+          break
+        case 'b':
+          this.$nuxt.$emit('toggleViewFilter', this.form.toggleView.b)
+          break
+        case 'c':
+          this.$nuxt.$emit('toggleViewTable', this.form.toggleView.c)
+      }
+    }
   }
 }
 </script>
+<style >
+.v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
+    min-height: 38px;
+    width: 150px;
+}
+</style>

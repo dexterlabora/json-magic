@@ -79,6 +79,12 @@ export default {
     items: [
       { header: 'Select an API or paste in an OAS JSON link' },
       {
+        text: 'Meraki API v1',
+        value:
+            'https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json',
+        color: 'green'
+      },
+      {
         text: 'Meraki API v1-beta',
         value:
             'https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json',
@@ -87,7 +93,7 @@ export default {
       {
         text: 'Meraki API v0',
         value:
-            'https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json',
+            'https://raw.githubusercontent.com/meraki/openapi/v0/openapi/spec2.json',
         color: 'green'
       },
       {

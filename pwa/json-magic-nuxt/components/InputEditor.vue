@@ -2,31 +2,12 @@
   <div>
     <v-card-subtitle dark>
       Type or paste valid JSON data
-      <v-btn class="ml-2" color="grey lighten-2" small outlined @click="onFormatJson()">
-        Beautify
-      </v-btn>
     </v-card-subtitle>
+    <v-btn class="mt-4 ml-2" color="grey darken-2" small fab icon absolute right @click="onFormatJson()">
+      <v-icon>mdi-format-align-left</v-icon>
+    </v-btn>
     <v-card-text style="overflow: auto; position: relative" height="100%">
-      <!-- <vue-prism-editor
-                v-model="form.inputJson"
-                language="js"
-                style="height:75vh"
-
-                @change="inputValue=form.inputJson"
-        />-->
-      <!-- <v-textarea v-model="form.inputJson" auto-grow style="height:70vh; " @change="inputValue=form.inputJson" /> -->
-
-      <MonacoEditor
-        v-model="form.inputJson"
-        style="overflow: auto; position: relative"
-        width="400"
-        height="850"
-        theme="vs-light"
-        language="javascript"
-        :value="form.inputJson"
-        :options="options"
-        @change="onInputJsonChange($event)"
-      />
+      <editor ref="aceEditor" v-model="form.inputJson" lang="json" theme="chrome" width="100%" height="80vh" @init="editorInit" @change="onInputJsonChange($event)" />
     </v-card-text>
     <!-- <v-card-text>
         <v-label>Data Size: {{ inputJsonSize/1024 }} Kb</v-label>
@@ -36,15 +17,12 @@
 
 <script>
 
-import MonacoEditor from 'monaco-editor-vue'
-
 export default {
   name: 'InputEditor',
   components: {
 
-    MonacoEditor
+    editor: require('vue2-ace-editor')
   },
-  // props: ['value'],
   props: {
     value: {
       type: String,
@@ -52,162 +30,76 @@ export default {
     }
   },
   data: () => ({
-    options: {
-      lineNumbers: 'off',
-      roundedSelection: false,
-      scrollBeyondLastLine: false,
-      ariaLabel: 'online code editor',
-      accessibilityHelpUrl: 'Nothing yet...',
-      readOnly: false,
-      theme: 'vs-light',
-      language: 'javascript',
 
-      foldingHighlight: true,
-      foldingStrategy: 'auto',
-      slider: false,
-      fontSize: '10px',
-      // Resizes Based on Screen & Container Size.
-      automaticLayout: true
-    },
-    example: [
-      {
-        FirstName: 'Fred',
-        Surname: 'Smith',
-        Age: 28,
-        Address: {
-          Street: 'Hursley Park',
-          City: 'Winchester',
-          Postcode: 'SO21 2JN'
-        },
-        Phone: [
-          {
-            type: 'home',
-            number: '0203 544 1234'
-          },
-          {
-            type: 'office',
-            number: '01962 001234'
-          },
-          {
-            type: 'office',
-            number: '01962 001235'
-          },
-          {
-            type: 'mobile',
-            number: '077 7700 1234'
-          }
-        ],
-        Email: [
-          {
-            type: 'work',
-            address: ['fred.smith@my-work.com', 'fsmith@my-work.com']
-          },
-          {
-            type: 'home',
-            address: [
-              'freddy@my-social.com',
-              'frederic.smith@very-serious.com'
-            ]
-          }
-        ],
-        Other: {
-          'Over 18 ?': true,
-          Misc: null,
-          'Alternative.Address': {
-            Street: 'Brick Lane',
-            City: 'London',
-            Postcode: 'E1 6RF'
-          }
-        }
-      },
-      {
-        FirstName: 'Miles',
-        Surname: 'Meraki',
-        Age: 28,
-        Address: {
-          Street: '123 Unicorn Ave',
-          City: 'Cloud City',
-          Postcode: '99991'
-        },
-        Phone: [
-          {
-            type: 'home',
-            number: '123 345 345'
-          },
-          {
-            type: 'office',
-            number: '3234 123123'
-          },
-          {
-            type: 'office',
-            number: '23423 234324'
-          },
-          {
-            type: 'mobile',
-            number: '111 23442 123234'
-          }
-        ],
-        Email: [
-          {
-            type: 'work',
-            address: ['miles.meraki@magical.com', 'mmiles@magical.net']
-          },
-          {
-            type: 'home',
-            address: [
-              'eenhorn@compushare.com',
-              'numberOneHorn@very-serious.com'
-            ]
-          }
-        ],
-        Other: {
-          'Over 18 ?': true,
-          Misc: null,
-          'Alternative.Address': {
-            Street: 'Brick Lane',
-            City: 'London',
-            Postcode: 'E1 6RF'
-          }
-        }
-      }
-    ],
     form: {
       inputJson: ''
     }
   }),
+  computed: {
+    selectedRow () {
+      const editor = this.$refs.aceEditor.editor
+      const selectionRange = editor.getSelectionRange()
+      const content = editor.session.getTextRange(selectionRange)
+      return content
+    }
+  },
   watch: {
     'value' () {
       this.form.inputJson = this.value
+      console.log('value', this.value)
+    },
+    'form.inputJson' () {
+      this.onInputJsonChange(this.form.inputJson)
     }
+
   },
   created () {
-    this.form.inputJson = JSON.stringify(this.example, null, 4)
+    this.form.inputJson = this.value// JSON.stringify(this.example, null, 4)
     this.$emit('change', this.form.inputJson) // init
   },
+
   methods: {
+    editorInit (editor) {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/javascript') // language
+      require('brace/mode/json') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      // const editor = this.$refs.aceEditor.editor
+      // const selectionRange = editor.getSelectionRange()
+
+      // const startLine = selectionRange.start.row
+      // const endLine = selectionRange.end.row
+
+      // const content = editor.session.getTextRange(selectionRange)
+      // this.selectedRow = content
+    },
+
+    onSelected (event) { console.log('selected', event) },
     onInputJsonChange ($event) {
-      console.log('monaco change event', $event)
       this.$emit('input', $event)
-      this.$emit('change', $event) // possibly better way
+      this.$emit('change', $event)
     },
     onFormatJson () {
       this.form.inputJson = this.formatJsonString(this.form.inputJson)
     },
     formatJsonString (jsonString) {
-      console.log('formatJsonString')
+      // console.log('formatJsonString')
       try {
         const jsonObj = JSON.parse(jsonString)
         const formattedString = JSON.stringify(jsonObj, null, 4)
-        console.log('Finished - formatJsonString')
+        // console.log('Finished - formatJsonString')
         return formattedString
       } catch (error) {
-        console.log('Finished - formatJsonString error', error)
+        // console.log('Finished - formatJsonString error', error)
         return jsonString
       }
     }
   }
 }
 </script>
-<style scoped>
+<style >
 
 </style>

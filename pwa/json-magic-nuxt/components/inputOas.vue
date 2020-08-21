@@ -1,100 +1,114 @@
 <template id="input-oas">
   <v-card height="800px">
-    <v-card-text>
-      <v-container>
-        <v-flex xs12 md12>
-          <v-card>
-            <v-toolbar dense>
-              <v-toolbar-title>Import JSON from an OpenAPI Spec</v-toolbar-title>
-            </v-toolbar>
+    <!-- <v-card-text> -->
+    <!-- <v-container> -->
+    <v-flex xs12 md12>
+      <!-- <v-card> -->
+      <v-toolbar dense>
+        <v-btn
+          @click="$emit('close',true)"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-toolbar-title>Import from an OpenAPI</v-toolbar-title>
+      </v-toolbar>
+
+      <v-spacer />
+      <input-oas-spec-select @change="onSpecUrlSelected($event)" />
+
+      <div v-if="parsedSwagger">
+        <v-div v-if="parsedSwagger.info">
+          <v-toolbar dense>
+            <v-toolbar-title>{{ parsedSwagger.info.title }}</v-toolbar-title>
+            <v-card-subtitle dense>
+              {{ parsedSwagger.info.version }}
+            </v-card-subtitle>
             <v-spacer />
-            <input-oas-spec-select @change="onSpecUrlSelected($event)" />
+            <v-btn icon @click="showAdvanced=!showAdvanced">
+              <v-icon color="green">
+                mdi-cogs
+              </v-icon>
+            </v-btn>
+          </v-toolbar>
 
-            <div v-if="parsedSwagger">
-              <v-card-subtitle v-if="parsedSwagger.info">
-                <v-toolbar dense>
-                  <v-toolbar-title>{{ parsedSwagger.info.title }}</v-toolbar-title>
-                  <v-card-subtitle dense>
-                    {{ parsedSwagger.info.version }}
-                  </v-card-subtitle>
-                  <v-spacer />
-                  <v-btn icon @click="showAdvanced=!showAdvanced">
-                    <v-icon color="green">
-                      mdi-cogs
-                    </v-icon>
-                  </v-btn>
-                </v-toolbar>
-
-                <v-card>
-                  <!-- <api-key-input />
+          <v-card width="800px">
+            <!-- <api-key-input />
                   <api-url-input />-->
-                  <api-security-input
-                    :open="showAdvanced"
-                    :security-definitions="allPaths.securityDefinitions"
-                    @change="onSecurityHeaders($event)"
-                  />
-                  <!-- <v-label>API Host</v-label>
+            <api-security-input
+              :open="showAdvanced"
+              :security-definitions="allPaths.securityDefinitions"
+              @change="onSecurityHeaders($event)"
+            />
+            <!-- <v-label>API Host</v-label>
                   <v-card-actions>
                     <v-btn color="green">
                       Update
                     </v-btn>
                   </v-card-actions>-->
-                </v-card>
-              </v-card-subtitle>
-              <v-card-text v-if="tagFilters">
-                <v-form v-model="valid">
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="selectedFilters.tag0"
-                          :items="tagFilters.tag0"
-                          label="Filter"
-                          outline
-                          @change="onFilterTag0"
-                        />
-                      </v-col>
-
-                      <v-col v-if="tagFilters.tag1.length > 1" cols="12" md="4">
-                        <v-select
-                          v-model="selectedFilters.tag1"
-                          :items="tagFilters.tag1"
-                          label="Filter"
-                          outline
-                          @change="onFilterTag1"
-                        />
-                      </v-col>
-
-                      <v-col v-if="tagFilters.tag2.length" cols="12" md="4">
-                        <v-select
-                          v-model="selectedFilters.tag2"
-                          :items="tagFilters.tag2"
-                          label="Filter"
-                          outline
-                        />
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
-              </v-card-text>
-            </div>
           </v-card>
+        </v-div>
+        <v-card-text v-if="tagFilters">
+          <v-form v-model="valid">
+            <!-- <v-container> -->
+            <v-row>
+              <v-col cols="12" md="4" class="pt-0">
+                <v-select
+                  v-model="selectedFilters.tag0"
+                  class="pt-0"
+                  :items="tagFilters.tag0"
+                  label="Filter"
+                  outline
+                  @change="onFilterTag0"
+                />
+              </v-col>
 
-          <v-card v-if="filteredPaths">
-            <v-card-text style="overflow: auto;">
-              <v-swagger
-                :key="filteredPaths.key"
-                :spec="filteredPaths"
-                :base-url="apiUrl"
-                :security-headers="this.securityHeaders"
-                style="height:50vh"
-                @data="onData($event)"
-              />
-            </v-card-text>
-          </v-card>
-        </v-flex>
-      </v-container>
-    </v-card-text>
+              <v-col v-if="tagFilters.tag1.length > 1" cols="12" md="4" class="pt-0">
+                <v-select
+                  v-model="selectedFilters.tag1"
+                  class="pt-0"
+                  :items="tagFilters.tag1"
+                  label="Filter"
+                  outline
+                  @change="onFilterTag1"
+                />
+              </v-col>
+
+              <v-col v-if="tagFilters.tag2.length" cols="12" md="4" class="pt-0">
+                <v-select
+                  v-model="selectedFilters.tag2"
+                  class="pt-0"
+                  :items="tagFilters.tag2"
+                  label="Filter"
+                  outline
+                />
+              </v-col>
+            </v-row>
+            <v-row style="background-color: grey;">
+              <v-col cols="12" md="12">
+                <div v-if="filteredPaths">
+                  <!-- <v-card-text style="overflow: auto; position: relative;"> -->
+                  <v-swagger
+                    :key="filteredPaths.key"
+                    background-color="grey"
+                    style="overflow: auto; position: relative; height:50vh"
+                    :spec="filteredPaths"
+                    :base-url="apiUrl"
+                    :security-headers="this.securityHeaders"
+
+                    @data="onData($event)"
+                  />
+                  <!-- </v-card-text> -->
+                </div>
+              </v-col>
+            </v-row>
+            <!-- </v-container> -->
+          </v-form>
+        </v-card-text>
+      </div>
+      <!-- </v-card> -->
+    </v-flex>
+    <!-- </v-container> -->
+    <!-- </v-card-text> -->
   </v-card>
 </template>
 

@@ -266,7 +266,7 @@ export default {
         }
 
         if (index === 0) {
-          it.selected = true
+          it.selected = false
           item.inputValue = it.value
         }
 
@@ -340,7 +340,7 @@ export default {
     padding: 0 10px;
     font-family: monospace;
     font-weight: 600;
-    color:green;
+    color:black;
     box-sizing: border-box;
   }
 

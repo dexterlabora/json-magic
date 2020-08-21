@@ -6,9 +6,23 @@ export const state = () => ({
   nets: [],
   org: {},
   orgs: []
+  // toggleView: {
+  //   a: true,
+  //   b: true,
+  //   c: true
+  // },
+  // toggleInput: true,
+  // toggleJsonata: true,
+  // toggleTableify: true
 })
 
 export const mutations = {
+  // setToggleView: (state, payload) => { Object.assign(state.toggleView, payload) },
+  // setToggleView (state, payload) {
+  //   console.log('adding toggle to state', payload)
+  //   // state.toggleView = payload
+  //   state.toggleView.splice(index, 1, payload)
+  // },
   setApiKey: (state, payload) => {
     state.apiKey = payload
     // meraki.setApiKey(payload);
@@ -25,6 +39,9 @@ export const mutations = {
   setNets: (state, payload) => (state.nets = payload),
   setOrg (state, payload) {
     state.org = payload
-  },
-  setOrgs: (state, payload) => (state.orgs = payload)
+  }
+  // toggleInput: (state, payload) => { console.log('toggleInput state payload', payload); state.toggleInput = payload },
+  // toggleJsonata: (state, payload) => { state.toggleJsonata = payload },
+  // toggleTableify: (state, payload) => { state.toggleTableify = payload }
+
 }

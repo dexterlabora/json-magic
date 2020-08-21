@@ -1,0 +1,21 @@
+(
+$opParams := $.paths.*.*.operationId@$p.{
+"operationId":$p,
+"pathParams":$distinct([$.parameters[in="path"].name]),
+"queryParams":$distinct([$.parameters[in="query"].name]),
+"responseParams":$distinct([$.**."application/json".$keys($)])
+};
+$dResponseParams := $distinct($opParams.responseParams^($));
+$dQueryParams := $distinct($opParams.queryParams^($));
+$dPathParams := $distinct($opParams.pathParams^($));
+
+/* Final View */
+{
+  "distinctParams":{
+    "path":$dPathParams,
+    "query": $dQueryParams,
+    "response":$dResponseParams
+  },
+  "operationParamMap":$opParams
+}
+)

@@ -65,7 +65,9 @@ export default {
       inputHeaders: '{ "X-Cisco-Meraki-API-Key": "093b24e85df15a3e66f1fc359f4c48493eaa1b73"}', // DEMO API KEY
       headerKey: 'X-Cisco-Meraki-API-Key',
       headerValue: '093b24e85df15a3e66f1fc359f4c48493eaa1b73'
-    }
+    },
+    error: undefined
+
   }),
   watch: {
     open () {
@@ -85,7 +87,7 @@ export default {
       }
 
       console.log('fetchJson', options)
-      this.error = undefined
+      this.error = null
       this.isLoading = true
       let url = ''
       if (this.serverOptions.enabled) {

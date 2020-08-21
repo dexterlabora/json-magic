@@ -1,0 +1,410 @@
+{
+    "info": {
+        "description": "A JSONata query expression, the input JSON data and resulting JSON data"
+    },
+    "name": "Meraki Event Log",
+    "query": "$.`events`",
+    "inputJson": {
+        "message": null,
+        "pageStartAt": "2020-08-20T11:47:30.368725Z",
+        "pageEndAt": "2020-08-20T11:50:41.810170Z",
+        "events": [
+            {
+                "occurredAt": "2020-08-20T11:49:01.148435Z",
+                "networkId": "L_646829496481100388",
+                "type": "disassociation",
+                "description": "802.11 disassociation",
+                "clientId": "k823139",
+                "clientDescription": "Rudolf Diesel",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "client_mac": "F0:03:8C:48:BA:33",
+                    "channel": "165",
+                    "reason": "3",
+                    "instigator": "2",
+                    "duration": "60.087079651",
+                    "auth_neg_failed": "1",
+                    "is_8021x": "1",
+                    "identity": "mclouduser01@meraki.com",
+                    "aid": "1861105901"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:39.970963Z",
+                "networkId": "L_646829496481100388",
+                "type": "disassociation",
+                "description": "802.11 disassociation",
+                "clientId": "k73224b",
+                "clientDescription": "Grace Hopper",
+                "deviceSerial": "Q2MD-PHZT-T9WR",
+                "deviceName": "CAMPUS-SFO-3.7-MR53",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "client_mac": "F0:03:8C:48:97:DD",
+                    "channel": "165",
+                    "reason": "3",
+                    "instigator": "2",
+                    "duration": "60.081098582",
+                    "identity": "mclouduser01@meraki.com",
+                    "aid": "839206038"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:33.444212Z",
+                "networkId": "L_646829496481100388",
+                "type": "8021x_auth",
+                "description": "802.1X authentication",
+                "clientId": "k09fc59",
+                "clientDescription": "Albert Einstein",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "client_mac": "80:C5:F2:7A:C8:83",
+                    "last_known_client_ip": "0.0.0.0",
+                    "identity": "mclouduser01@meraki.com",
+                    "aid": "736107762"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:33.393526Z",
+                "networkId": "L_646829496481100388",
+                "type": "association",
+                "description": "802.11 association",
+                "clientId": "k09fc59",
+                "clientDescription": "Albert Einstein",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "channel": "165",
+                    "rssi": "52"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:33.392304Z",
+                "networkId": "L_646829496481100388",
+                "type": "cli_set_rad_okc_parms",
+                "description": "OKC match",
+                "clientId": "k09fc59",
+                "clientDescription": "Albert Einstein",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "group": "",
+                    "attr": "11"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:01.070631Z",
+                "networkId": "L_646829496481100388",
+                "type": "8021x_deauth",
+                "description": "802.1X deauthentication",
+                "clientId": "k823139",
+                "clientDescription": "Rudolf Diesel",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "client_mac": "F0:03:8C:48:BA:33",
+                    "client_ip": "0.0.0.0",
+                    "identity": "mclouduser01@meraki.com",
+                    "aid": "1861105901"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:48:01.063661Z",
+                "networkId": "L_646829496481100388",
+                "type": "association",
+                "description": "802.11 association",
+                "clientId": "k823139",
+                "clientDescription": "Rudolf Diesel",
+                "deviceSerial": "Q2PD-5UPC-QH9P",
+                "deviceName": "CAMPUS-SFO-1.1-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "channel": "165",
+                    "rssi": "59"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:47:49.858510Z",
+                "networkId": "L_646829496481100388",
+                "type": "disassociation",
+                "description": "802.11 disassociation",
+                "clientId": "ke22f14",
+                "clientDescription": "Humphry Davy",
+                "deviceSerial": "Q2PD-4JFV-UJMD",
+                "deviceName": "CAMPUS-SFO-3.3-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "0",
+                    "vap": "0",
+                    "client_mac": "80:C5:F2:7A:CA:17",
+                    "channel": "1",
+                    "duration": "85.162590836",
+                    "identity": "mclouduser01@meraki.com",
+                    "aid": "1345523881"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:47:39.901990Z",
+                "networkId": "L_646829496481100388",
+                "type": "association",
+                "description": "802.11 association",
+                "clientId": "k73224b",
+                "clientDescription": "Grace Hopper",
+                "deviceSerial": "Q2MD-PHZT-T9WR",
+                "deviceName": "CAMPUS-SFO-3.7-MR53",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "channel": "165",
+                    "rssi": "54"
+                }
+            },
+            {
+                "occurredAt": "2020-08-20T11:47:30.368725Z",
+                "networkId": "L_646829496481100388",
+                "type": "disassociation",
+                "description": "802.11 disassociation",
+                "clientId": "ke22f14",
+                "clientDescription": "Humphry Davy",
+                "deviceSerial": "Q2PD-ZB9G-NRM3",
+                "deviceName": "CAMPUS-SFO-1.5-MR33",
+                "ssidNumber": 0,
+                "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+                "eventData": {
+                    "radio": "1",
+                    "vap": "0",
+                    "client_mac": "80:C5:F2:7A:CA:17",
+                    "channel": "165",
+                    "reason": "3",
+                    "instigator": "2",
+                    "duration": "60.061472796",
+                    "aid": "273858221"
+                }
+            }
+        ]
+    },
+    "outputJson": [
+        {
+            "occurredAt": "2020-08-20T11:49:01.148435Z",
+            "networkId": "L_646829496481100388",
+            "type": "disassociation",
+            "description": "802.11 disassociation",
+            "clientId": "k823139",
+            "clientDescription": "Rudolf Diesel",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "client_mac": "F0:03:8C:48:BA:33",
+                "channel": "165",
+                "reason": "3",
+                "instigator": "2",
+                "duration": "60.087079651",
+                "auth_neg_failed": "1",
+                "is_8021x": "1",
+                "identity": "mclouduser01@meraki.com",
+                "aid": "1861105901"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:39.970963Z",
+            "networkId": "L_646829496481100388",
+            "type": "disassociation",
+            "description": "802.11 disassociation",
+            "clientId": "k73224b",
+            "clientDescription": "Grace Hopper",
+            "deviceSerial": "Q2MD-PHZT-T9WR",
+            "deviceName": "CAMPUS-SFO-3.7-MR53",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "client_mac": "F0:03:8C:48:97:DD",
+                "channel": "165",
+                "reason": "3",
+                "instigator": "2",
+                "duration": "60.081098582",
+                "identity": "mclouduser01@meraki.com",
+                "aid": "839206038"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:33.444212Z",
+            "networkId": "L_646829496481100388",
+            "type": "8021x_auth",
+            "description": "802.1X authentication",
+            "clientId": "k09fc59",
+            "clientDescription": "Albert Einstein",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "client_mac": "80:C5:F2:7A:C8:83",
+                "last_known_client_ip": "0.0.0.0",
+                "identity": "mclouduser01@meraki.com",
+                "aid": "736107762"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:33.393526Z",
+            "networkId": "L_646829496481100388",
+            "type": "association",
+            "description": "802.11 association",
+            "clientId": "k09fc59",
+            "clientDescription": "Albert Einstein",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "channel": "165",
+                "rssi": "52"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:33.392304Z",
+            "networkId": "L_646829496481100388",
+            "type": "cli_set_rad_okc_parms",
+            "description": "OKC match",
+            "clientId": "k09fc59",
+            "clientDescription": "Albert Einstein",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "group": "",
+                "attr": "11"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:01.070631Z",
+            "networkId": "L_646829496481100388",
+            "type": "8021x_deauth",
+            "description": "802.1X deauthentication",
+            "clientId": "k823139",
+            "clientDescription": "Rudolf Diesel",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "client_mac": "F0:03:8C:48:BA:33",
+                "client_ip": "0.0.0.0",
+                "identity": "mclouduser01@meraki.com",
+                "aid": "1861105901"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:48:01.063661Z",
+            "networkId": "L_646829496481100388",
+            "type": "association",
+            "description": "802.11 association",
+            "clientId": "k823139",
+            "clientDescription": "Rudolf Diesel",
+            "deviceSerial": "Q2PD-5UPC-QH9P",
+            "deviceName": "CAMPUS-SFO-1.1-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "channel": "165",
+                "rssi": "59"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:47:49.858510Z",
+            "networkId": "L_646829496481100388",
+            "type": "disassociation",
+            "description": "802.11 disassociation",
+            "clientId": "ke22f14",
+            "clientDescription": "Humphry Davy",
+            "deviceSerial": "Q2PD-4JFV-UJMD",
+            "deviceName": "CAMPUS-SFO-3.3-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "0",
+                "vap": "0",
+                "client_mac": "80:C5:F2:7A:CA:17",
+                "channel": "1",
+                "duration": "85.162590836",
+                "identity": "mclouduser01@meraki.com",
+                "aid": "1345523881"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:47:39.901990Z",
+            "networkId": "L_646829496481100388",
+            "type": "association",
+            "description": "802.11 association",
+            "clientId": "k73224b",
+            "clientDescription": "Grace Hopper",
+            "deviceSerial": "Q2MD-PHZT-T9WR",
+            "deviceName": "CAMPUS-SFO-3.7-MR53",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "channel": "165",
+                "rssi": "54"
+            }
+        },
+        {
+            "occurredAt": "2020-08-20T11:47:30.368725Z",
+            "networkId": "L_646829496481100388",
+            "type": "disassociation",
+            "description": "802.11 disassociation",
+            "clientId": "ke22f14",
+            "clientDescription": "Humphry Davy",
+            "deviceSerial": "Q2PD-ZB9G-NRM3",
+            "deviceName": "CAMPUS-SFO-1.5-MR33",
+            "ssidNumber": 0,
+            "ssidName": "mCLOUD-CAMPUS-SFO-Corp",
+            "eventData": {
+                "radio": "1",
+                "vap": "0",
+                "client_mac": "80:C5:F2:7A:CA:17",
+                "channel": "165",
+                "reason": "3",
+                "instigator": "2",
+                "duration": "60.061472796",
+                "aid": "273858221"
+            }
+        }
+    ]
+}

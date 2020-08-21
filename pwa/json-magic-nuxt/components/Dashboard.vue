@@ -1,9 +1,71 @@
 <template>
-  <v-container class="fill-height" fluid>
+  <v-layout class="fill-height">
+    <!-- Import Report Dialog -->
+    <template>
+      <v-row justify="center">
+        <v-dialog
+          v-model="importReportDialog"
+          max-width="800"
+          max-height="800"
+          :fullscreen="$vuetify.breakpoint.mobile"
+        >
+          <v-card>
+            <v-card-title>
+              Upload an existing JSON Magic report
+            </v-card-title>
+            <v-card-text>
+              <v-file-input
+                v-model="form.inputReportFile"
+                style="padding-top: 25px; padding-right: 5px; width:'50'"
+
+                color="green"
+                height="5"
+                width="25"
+                show-size
+                solo
+                prepend-icon=""
+                prepend-inner-icon="mdi-upload"
+                dense
+                label="Import Report"
+                dark
+                outlined
+                small
+                small-chips
+                accept="application/JSON"
+                @change="onImportReport"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="importReportDialog=false">
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <!-- History Dialog -->
+    <template>
+      <v-row justify="center">
+        <v-dialog
+          v-model="historyDialog"
+          max-width="800"
+          max-height="800"
+          :fullscreen="$vuetify.breakpoint.mobile"
+        >
+          <input-history :history="inputValueHistory" @close="historyDialog = false" @data="onHistoryData($event)" />
+        </v-dialog>
+      </v-row>
+    </template>
     <!-- OAS Dialog -->
     <template>
       <v-row justify="center">
-        <v-dialog v-model="oasDialog" max-width="75%" height="700px">
+        <v-dialog
+          v-model="oasDialog"
+          max-width="75%"
+          height="700px"
+          :fullscreen="$vuetify.breakpoint.mobile"
+        >
           <input-oas @close="oasDialog = false" @data="onOasData($event)" />
         </v-dialog>
       </v-row>
@@ -12,7 +74,7 @@
     <!-- Websocket Dialog -->
     <template>
       <v-row justify="center">
-        <v-dialog v-model="wsDialog" max-width="700px">
+        <v-dialog v-model="wsDialog" max-width="700px" :fullscreen="$vuetify.breakpoint.mobile">
           <input-websocket @close="wsDialog = false" @data="onWebsocketData($event)" />
         </v-dialog>
       </v-row>
@@ -21,49 +83,106 @@
     <!-- User API Dialog -->
     <template>
       <v-row justify="center">
-        <v-dialog v-model="apiDialog" max-width="700px">
-          <input-api @close="apiDialog = false" @data="onApiData($event)" @url="onApiName($event)" />
+        <v-dialog v-model="apiDialog" max-width="700px" :fullscreen="$vuetify.breakpoint.mobile">
+          <input-api
+            @close="apiDialog = false"
+            @data="onApiData($event)"
+            @url="onInputName($event)"
+          />
         </v-dialog>
       </v-row>
     </template>
 
     <!-- <splitpanes class="default-theme"> -->
+
     <splitpanes>
-      <pane min-size="5" :size="paneSizes.input">
+      <pane v-if="toggleViewInput" min-size="5" :size="paneSizes.input">
         <!-- JSON Input  -->
-        <v-card width="100%" height="100%" style="position: relative" class="mr-2">
+        <v-card width="100%" style="position: relative" class="mr-2">
           <v-toolbar dense>
-            <v-toolbar-title>Input</v-toolbar-title>
+            <v-toolbar-title dense>
+              Input
+            </v-toolbar-title>
             <!-- <v-btn small icon @click="paneSizes.input=100">
               <v-icon>mdi-arrow-expand-all</v-icon>
             </v-btn>
             <v-btn small icon @click="paneSizes.input=25">
               <v-icon>mdi-arrow-collapse-all</v-icon>
-            </v-btn> -->
-            <v-spacer />
+            </v-btn>-->
 
             <v-spacer />
-            <v-btn icon dark @click="oasDialog=true">
-              <v-icon>mdi-api</v-icon>
+            <v-btn small class="mr-2" icon @click="historyDialog=true">
+              <v-icon color="grey lighten-1">
+                mdi-clock
+              </v-icon>
             </v-btn>
-            <v-btn icon dark @click="apiDialog=true">
-              <v-icon>mdi-console</v-icon>
-            </v-btn>
-            <v-btn icon dark @click="wsDialog=true">
-              <v-icon>mdi-cloud</v-icon>
-            </v-btn>
+            <div class="text-center">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="green"
+                    outlined
+                    dark
+                    small
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon>mdi-plus</v-icon>
+                    Add JSON
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-title>
+                      <v-btn dark outlined color="green" @click="oasDialog=true">
+                        <v-icon class="pr-2">
+                          mdi-api
+                        </v-icon> OpenAPI
+                      </v-btn>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title>
+                      <v-btn outlined dark color="green" @click="apiDialog=true">
+                        <v-icon class="pr-2">
+                          mdi-console
+                        </v-icon>URL
+                      </v-btn>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title>
+                      <v-btn outlined dark color="green" @click="wsDialog=true">
+                        <v-icon class="pr-2">
+                          mdi-cloud
+                        </v-icon>Websocket
+                      </v-btn>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title>
+                      <v-file-input
+                        v-model="form.inputFile"
+                        dense
 
-            <v-file-input
-              v-model="form.inputFile"
-              dense
-              hide-input
-              dark
-              accept="application/JSON"
-              @change="onJsonFileUpload"
-            />
+                        dark
+                        label="JSON File"
+                        accept="application/JSON"
+                        @change="onJsonFileUpload"
+                      />
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
           </v-toolbar>
 
-          <input-editor v-model="form.inputJson" height="100%" style="position: relative" @change="onEditorData($event)" />
+          <input-editor
+            v-model="form.inputJson"
+
+            style="position: relative"
+            @change="onEditorData($event)"
+          />
 
           <v-label>
             <div style="font-size: 0.8em;">
@@ -72,82 +191,11 @@
           </v-label>
         </v-card>
       </pane>
-      <pane min-size="5" :size="paneSizes.explore">
-        <!-- JSONata Explorer -->
-        <v-card width="100%" height="100%" style="position: relative" class="m-2">
-          <v-toolbar dense>
-            <v-toolbar-title>JSONata Explorer</v-toolbar-title>
-
-            <v-spacer />
-            <v-btn small color="green" tile outlined dark @click="download('query.txt',form.query)">
-              <v-icon small>
-                mdi-arrow-down-bold
-              </v-icon>Query
-            </v-btn>
-            <v-btn small color="green" tile outlined dark @click="download('result.json',result)">
-              <v-icon small>
-                mdi-arrow-down-bold
-              </v-icon>JSON
-            </v-btn>
-          </v-toolbar>
-
-          <v-card-subtitle>
-            Use any valid
-            <a
-              href="http://docs.jsonata.org/overview.html"
-              target="_blank"
-            >JSONata expression.</a>
-          </v-card-subtitle>
-          <v-card-actions>
-            <div style="width:100%">
-              <vue-prism-editor v-model="form.query" language="js" class="pl-2" />
-            </div>
-
-            <v-btn small color="green" class="ml-2" icon @click="form.query='$'">
-              <v-icon>mdi-autorenew</v-icon>
-            </v-btn>
-          </v-card-actions>
-
-          <div v-if="!isLargeJson">
-            <v-card-subtitle>Select a property to add to JSONata query</v-card-subtitle>
-            <v-card-text>
-              <vue-json-pretty
-                id="resultJsonPretty"
-                :data="result"
-                style="height:60vh; overflow: auto; "
-                @click="handleResultClick"
-              />
-            </v-card-text>
-          </div>
-          <div v-else>
-            <v-card-subtitle>Whoa, that's some big JSON... Here's a simpler view</v-card-subtitle>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn small color="green" outlined @click="onGenerateTable">
-                Update Table
-              </v-btn>
-            </v-card-actions>
-
-            <!-- <vue-prism-editor readonly :code="JSON.stringify(result, null, 4)" language="js" class="pl-2" /> -->
-            <v-card-text>
-              <pre><v-textarea :value="JSON.stringify(result, null, 4)" style="max-height:55vh; " /></pre>
-            </v-card-text>
-          </div>
-          <v-card-text class="pt-0 mt-0">
-            <small>
-              {{ jsonSize }} Kb
-            </small>
-          </v-card-text>
-
-          <!-- <vue-json-pretty
-                  id="resultJsonPretty"
-
-                  style="height:60vh; "
-                  @click="handleResultClick"
-          />-->
-        </v-card>
+      <!-- v-show breaks splitpanes -- FIX THIS (split query and result components) -->
+      <pane v-show="toggleViewFilter" min-size="5" :size="paneSizes.explore">
+        <jsonata-explorer :value="parsedInput" :query="form.query" @change="form.query=($event)" @data="result = $event" />
       </pane>
-      <pane min-size="5" :size="paneSizes.table">
+      <pane v-if="toggleViewTable" min-size="5">
         <!-- Results Table -->
 
         <v-card v-if="result" width="100%" height="100%" style="position: relative" class="m-2">
@@ -173,35 +221,35 @@
             </v-btn>
           </v-toolbar>
           <v-card-text class="m-2">
-            <v-simple-table dense fixed-header light class="m-2" style="position: relative" height="900px">
+            <v-simple-table
+              dense
+              fixed-header
+              light
+              class="m-2"
+              style="position: relative"
+              height="800px"
+            >
               <div id="resultTable" ref="resultTable" v-html="tableHtml" />
             </v-simple-table>
           </v-card-text>
         </v-card>
       </pane>
     </splitpanes>
-  </v-container>
+  </v-layout>
 </template>
 
 <script>
-// Vue.component('vue-prism-editor', VuePrismEditor)
-//         Vue.component('vue-json-pretty', VueJsonPretty.default)
-
-import VuePrismEditor from 'vue-prism-editor'
-import 'prismjs'
-import 'prismjs/themes/prism.css'
-import VueJsonPretty from 'vue-json-pretty'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-// import MonacoEditor from 'monaco-editor-vue'
 import InputWebsocket from './InputWebsocket'
 import InputApi from './InputApi'
+import InputHistory from './InputHistory'
 import InputOas from './InputOas'
 import InputEditor from './InputEditor'
+import JsonataExplorer from './JsonataExplorer'
 
 const tableify = require('tableify')
 const json2csv = require('json2csv')
-const jsonata = require('jsonata')
 const linkify = require('linkifyjs')
 require('linkifyjs/plugins/hashtag')(linkify) // optional
 const linkifyHtml = require('linkifyjs/html')
@@ -209,107 +257,259 @@ const linkifyHtml = require('linkifyjs/html')
 export default {
   name: 'Dashboard',
   components: {
-    VuePrismEditor,
-    VueJsonPretty,
     Splitpanes,
     Pane,
     InputWebsocket,
     InputApi,
     InputOas,
-    // MonacoEditor,
-    InputEditor
+    InputEditor,
+    InputHistory,
+    JsonataExplorer
   },
+
   data: () => ({
     panel: [0, 0],
-    paneSizes: { // TO DO - implement the buttons and links to this
+    paneSizes: {
       input: 25,
       explore: 25,
       table: 50
     },
+
     drawer: false,
     isLoading: false,
     apiDialog: false,
+    historyDialog: false,
+    importReportDialog: false,
     wsDialog: false,
     oasDialog: false,
     form: {
       inputName: '',
       inputFile: undefined,
-      inputJson: '',
+      inputJson: `{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "SKU": "0406654608",
+            "Description": {
+              "Colour": "Purple",
+              "Width": 300,
+              "Height": 200,
+              "Weight": 0.75
+            },
+            "Price": 34.45,
+            "Quantity": 2
+          },
+          {
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "SKU": "0406634348",
+            "Description": {
+              "Colour": "Orange",
+              "Width": 300,
+              "Height": 200,
+              "Depth": 210,
+              "Weight": 0.6
+            },
+            "Price": 21.67,
+            "Quantity": 1
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "SKU": "040657863",
+            "Description": {
+              "Colour": "Purple",
+              "Width": 300,
+              "Height": 200,
+              "Depth": 210,
+              "Weight": 0.75
+            },
+            "Price": 34.45,
+            "Quantity": 4
+          },
+          {
+            "ProductID": 345664,
+            "SKU": "0406654603",
+            "Product Name": "Cloak",
+            "Description": {
+              "Colour": "Black",
+              "Width": 30,
+              "Height": 20,
+              "Depth": 210,
+              "Weight": 2
+            },
+            "Price": 107.99,
+            "Quantity": 1
+          }
+        ]
+      }
+    ]
+  }
+}`,
+      inputReportFile: undefined,
+      inputReport: {},
       query: '$'
     },
 
     socket: null,
     inputValue: {},
-    result: [],
+    combinedInputValue: [],
+    inputValueHistory: [],
+    historyLimit: 20, // prevents memory issues
+    result: {},
     tableFields: [],
     tableHtml: undefined,
     parsedInput: {},
     isLargeJson: false,
-    jsonSize: 0
+    jsonSize: 0,
+    toggleViewInput: true,
+    toggleViewFilter: true,
+    toggleViewTable: true,
+    isEditing: true
   }),
-  computed: {},
-  watch: {
-    inputValue () {
-      // console.log('updating inputJson')
-      this.onGenerateParsedInput()
+  computed: {
+    toggleInput () {
+      return this.$store.state.toggleInput
     },
-    'form.query' () {
-      this.result = this.generateJsonataResult(
-        this.form.query,
-        this.parsedInput
-      )
-      // this.updateTableFields(this.result)
+    toggleJsonata () {
+      return this.$store.state.toggleJsonata
+    },
+    toggleTableify () {
+      return this.$store.state.toggleTableify
     },
 
-    parsedInput () {
-      if (!this.parsedInput) {
-        return
-      }
-      this.result = this.generateJsonataResult(
-        this.form.query,
-        this.parsedInput
-      )
-    },
-    result () {
-      this.jsonSize = this.sizeInKb(this.result)
-      this.isLargeJson = this.jsonSize > 500 // Kb
-      if (!this.isLargeJson) {
-        this.onGenerateTable() // slowish
+    report () {
+      return {
+        info: {
+          description:
+            'A JSONata query expression, the input JSON data and resulting JSON data'
+        },
+        name: this.form.inputName,
+        query: this.form.query,
+        inputJson: this.parsedInput,
+
+        outputJson: this.result
       }
     }
   },
-  created () {
-    // this.$vuetify.theme.dark = true;
-    // console.log('dashboard loading')
-    // this.onConnectWebsocket();
+  watch: {
+    inputValue () {
+      this.onGenerateParsedInput()
+    },
 
-    // initialize with example JSON
-    // this.form.inputJson = JSON.stringify(this.example, null, 4)
+    result () {
+      this.jsonSize = this.sizeInKb(this.result)
+      this.isLargeJson = this.jsonSize > 50 // 500 // Kb
+      // if (!this.isLargeJson) {
+      this.onGenerateTable() // slowish
+      // }
+      // this.resultJsonPretty = { ...{}, ...this.result }
+      // Object.freeze(this.resultJsonPretty)
+    }
+  },
+  created () {
+    this.$nuxt.$on('importReport', (file) => {
+      this.form.inputReportFile = file
+      this.onImportReport()
+    })
+    this.$nuxt.$on('toggleImportReportDialog', () => {
+      this.importReportDialog = !this.importReportDialog
+    })
+    this.$nuxt.$on('toggleViewInput', () => {
+      this.toggleViewInput = !this.toggleViewInput
+    })
+    this.$nuxt.$on('toggleViewFilter', () => {
+      this.toggleViewFilter = !this.toggleViewFilter
+    })
+    this.$nuxt.$on('toggleViewTable', () => {
+      this.toggleViewTable = !this.toggleViewTable
+    })
+    this.$nuxt.$on('exportReport', (name) => {
+      // download report
+      this.form.inputName = name
+      this.onSaveReport()
+    })
     this.inputValue = this.form.inputJson
+    this.combinedInputValue = [JSON.parse(this.form.inputJson)]
     this.onGenerateParsedInput()
     this.onGenerateTable()
   },
+  // mounted () {
+  //   window.addEventListener('beforeunload', this.onBeforeUnload)
+  // },
+  beforeMount () {
+    window.addEventListener('beforeunload', this.preventNav)
+    this.$once('hook:beforeDestroy', () => {
+      window.removeEventListener('beforeunload', this.preventNav)
+    })
+  },
+
+  // beforeRouteLeave (to, from, next) {
+  //   if (this.isEditing) {
+  //     if (!window.confirm('Leave without saving?')) {
+  //       return
+  //     }
+  //   }
+  //   next()
+  // },
   methods: {
+    preventNav (event) {
+      if (!this.isEditing) { return }
+      event.preventDefault()
+      event.returnValue = ''
+    },
+    onInputSelection (event) {
+      console.log('inputSelection event', event.text)
+    },
+    onSaveReport () {
+      this.download((this.report.name || 'JSON-Magic-report') + '.json', this.report)
+    },
+    onImportReport () {
+      if (!this.form.inputReportFile) {
+        console.log('reportReader no file')
+        return
+      }
+      const reportReader = new FileReader()
+      // Use the javascript reader object to load the contents
+      // of the file in the v-model prop
+      reportReader.readAsText(this.form.inputReportFile)
+      reportReader.onload = () => {
+        console.log('reportReader', reportReader.result)
+        this.form.inputReport = JSON.parse(reportReader.result)
+        this.form.inputJson = this.formatJsonString(
+          JSON.stringify(this.form.inputReport.inputJson)
+        )
+        this.form.name = this.form.inputReport.name
+        this.form.query = this.form.inputReport.query
+        this.$nuxt.$emit('reportName', this.form.inputReport.name)
+      }
+    },
     onGenerateParsedInput () {
-      // //console.log('generated parsedInput this.inputValue', this.inputValue)
       if (!this.inputValue) {
         return
       }
-      if (
-        // !Array.isArray(this.inputValue) &&
-        // !this.isObject(this.inputValue) &&
-        !this.inputValue
-      ) {
+      if (!this.inputValue) {
         return
       }
       try {
         this.parsedInput = JSON.parse(this.inputValue)
+
         // console.log('finished onGeneratedParsedInput')
       } catch (e) {
         // console.log('not JSON, just return raw data')
         this.parsedInput = this.inputValue
       }
-      Object.freeze(this.parsedInput) // makes the tree faster, since we are not modifying it
     },
     sizeInKb (obj) {
       const str = JSON.stringify(obj)
@@ -318,7 +518,6 @@ export default {
       )
     },
     onGenerateTable () {
-      // console.log('onGenerateTable pre- result', this.result)
       this.tableHtml = this.generateTableHtml(this.result)
     },
     generateTableHtml (object) {
@@ -332,17 +531,8 @@ export default {
         } else {
           return val
         }
-      };
+      }
       let adjusted = object
-      // if (Array.isArray(object)) {
-      //   adjusted = object.map((r) => {
-      //     if (!r) {
-      //       return 'Nothing'
-      //     } else {
-      //       return r
-      //     }
-      //   })
-      // }
 
       if (this.isObject(object)) {
         // sanitize
@@ -356,60 +546,57 @@ export default {
       )}`
       return this.addUrlLinks(table)
     },
-    // filterNull(value) {
-    //   function recursiveFix(o) {
-    //     // loop through each property in the provided value
-    //     for (var k in o) {
-    //       // make sure the value owns the key
-    //       if (o.hasOwnProperty(k)) {
-    //         if (o[k] === null) {
-    //           // if the value is null, set it to 'null'
-    //           o[k] = "null";
-    //         } else if (typeof o[k] !== "string" && o[k].length > 0) {
-    //           // if there are sub-keys, make a recursive call
-    //           recursiveFix(o[k]);
-    //         }
-    //       }
-    //     }
-    //   }
-
-    //   var cloned = jQuery.extend(true, {}, value);
-    //   recursiveFix(cloned);
-    //   return cloned;
-    // },
     addUrlLinks (string) {
       if (!string) {
         return
       }
-      // //console.log('addUrlLinks string', string)
       return linkifyHtml(string, {
         defaultProtocol: 'https'
       })
     },
+    updateInputHistory (obj) {
+      this.inputValueHistory.push({
+        time: new Date().toISOString(),
+        name: JSON.stringify(obj).substring(0, 100), // get first few characters of JSON for quick summary
+        value: obj
+      }
+      )
+      if (this.inputValueHistory.length > this.historyLimit) {
+        this.inputValueHistory.shift()
+      }
+    },
     onEditorData (data) {
-      // console.log('dash editor data', data)
       this.form.inputJson = data
       this.inputValue = this.form.inputJson
     },
-    onOasData (data) {
-      // console.log('dash api data', data)
-      this.form.inputJson = this.formatJsonString(JSON.stringify(data))
-      // this.inputValue = this.form.inputJson
+    onOasData (obj) {
+      this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
+      this.updateInputHistory(obj)
     },
-    onApiData (data) {
-      // console.log('dash api data', data)
-      this.form.inputJson = this.formatJsonString(JSON.stringify(data))
-      // this.inputValue = this.form.inputJson
+    onHistoryData (obj) {
+      this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
+    },
+    onApiData (obj) {
+      // const useCombinedInput = true // temp
+      // // console.log('updating inputJson')
+      // if (useCombinedInput) {
+      //   this.combinedInputValue.push(obj)
+      //   this.form.inputJson = this.formatJsonString(JSON.stringify(this.combinedInputValue))
+      // } else {
+      this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
+      this.updateInputHistory(obj)
+      // }
     },
     onInputName (data) {
-      // console.log('dash api data', data)
       this.form.inputName = data
-      // this.inputValue = this.form.inputJson
     },
-    onWebsocketData (dataString) {
-      // console.log('dash websocket data', dataString)
-      this.form.inputJson = this.formatJsonString(dataString)
-      // this.inputValue = this.form.inputJson
+    onWebsocketData (string) {
+      this.form.inputJson = this.formatJsonString(string)
+      this.updateInputHistory(JSON.parse(string))
+    },
+    onJsonataData (query, data) {
+      this.form.query = query
+      this.result = data
     },
     onDownloadTable () {
       const css = `
@@ -429,26 +616,7 @@ export default {
       const html = this.tableHtml + css
       this.download(`export_${new Date().toLocaleDateString()}.html`, html)
     },
-    generateJsonataResult (query, jsonData) {
-      // console.log('generateJsonataResult')
-      let result
-      try {
-        result = jsonata(query).evaluate(jsonData, (error, result) => {
-          if (error) {
-            console.error('jsonata error', error)
-            return error.message
-          }
 
-          // console.log('Finished JSONata')
-          return result
-        })
-      } catch (e) {
-        // console.log('JSONata expression error', e)
-        return e.message
-      }
-      // console.log('Finished final JSONata')
-      return result
-    },
     onJsonFileUpload () {
       // console.log('updating JSON with user file upload')
       if (!this.form.inputFile) {
@@ -464,6 +632,7 @@ export default {
         // console.log('input being parsed', reader.result)
         this.form.inputJson = reader.result
         this.inputValue = JSON.parse(reader.result)
+        this.updateInputHistory(this.inputValue)
         // console.log('input updated', this.form.inputJson)
       }
     },
@@ -511,37 +680,14 @@ export default {
     isObject (val) {
       return val instanceof Object
     },
-
-    handleResultClick (value) {
-      // console.log('handleResultClick value', value)
-      let split = value.split('.')
-      split.shift()
-      split = split.map((s) => {
-        // console.log('s', s)
-        // if (s.includes(null)) {
-        //   s = 'Nothing'
-        // }
-        if (!s.includes('[')) {
-          s = `\`${s}\``
-        }
-        return s
-      })
-      // console.log('handleResultClick split', split)
-      const query = `.${split.join('.')}`
-      this.form.query = this.form.query + query
-    },
-    onQueryChange (value) {
-      this.form.query = value
-    },
     onFormatJson () {
       this.form.inputJson = this.formatJsonString(this.form.inputJson)
     },
     formatJsonString (jsonString) {
-      // console.log('formatJsonString')
       try {
         const jsonObj = JSON.parse(jsonString)
         const formattedString = JSON.stringify(jsonObj, null, 4)
-        // console.log('Finished - formatJsonString')
+
         return formattedString
       } catch (error) {
         // console.log('Finished - formatJsonString error', error)
@@ -561,19 +707,25 @@ td {
 
 th,
 td {
+  font-size: x-small;
   padding: 5px;
 }
 
-/* .splitpanes__pane {
+.splitpanes__pane {
   box-shadow: 2 0 12px rgba(256, 256, 256, 0.2) inset;
   display: flex;
   position: relative;
-} */
-.splitpanes {background-color: #f8f8f8;}
+}
+.splitpanes {
+  background-color: #f8f8f8;
+}
 
-.splitpanes__splitter {background-color: #ccc;position: relative;}
+.splitpanes__splitter {
+  background-color: #ccc;
+  position: relative;
+}
 .splitpanes__splitter:before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -582,9 +734,19 @@ td {
   opacity: 0;
   z-index: 1;
 }
-.splitpanes__splitter:hover:before {opacity: 1;}
-.splitpanes--vertical > .splitpanes__splitter:before {left: -10px;right: -10px;height: 100%;}
-.splitpanes--horizontal > .splitpanes__splitter:before {top: -10px;bottom: -10px;width: 100%;}
+.splitpanes__splitter:hover:before {
+  opacity: 1;
+}
+.splitpanes--vertical > .splitpanes__splitter:before {
+  left: -10px;
+  right: -10px;
+  height: 100%;
+}
+.splitpanes--horizontal > .splitpanes__splitter:before {
+  top: -10px;
+  bottom: -10px;
+  width: 100%;
+}
 
 em.specs {
   font-size: 0.5em;
@@ -607,10 +769,15 @@ em.specs {
   font-size: 12px;
 }
 
-.v-textarea textarea{
+.v-textarea textarea {
   font-size: 0.8em;
   padding: 0;
   height: 500px;
   line-height: 0.8rem;
+}
+.v-icon.v-icon.v-icon--link {
+  cursor: pointer;
+  outline: none;
+  color: green;
 }
 </style>
