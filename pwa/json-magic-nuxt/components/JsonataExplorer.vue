@@ -3,7 +3,7 @@
   <v-card width="100%" style="overflow: auto;position: relative; max-height:94vh;" class="mr-2">
     <!-- Filter  -->
 
-    <splitpanes vertical horizontal>
+    <splitpanes vertical horizontal @resize="paneResize($event)">
       <pane min-size="5" :size="paneSizes.input" class="pb-2">
         <v-card v-if="true" width="100%">
           <v-toolbar dense>
@@ -85,14 +85,14 @@
             <editor
               ref="aceQueryEditor"
               v-model="form.query"
-              class="dynamicHeight"
+              class="dynamicHeight ml-0 mb-0"
               name="aceQueryEditor"
 
               lang="javascript"
               theme="chrome"
               width="100%"
 
-              style="max-height:40vh; overflow: auto;position: relative;"
+              style="min-height:10vh;max-height:70vh; overflow: auto;position: relative;"
               @init="editorQueryInit"
             />
             <!-- style="overflow: auto;position: relative; max-height:94vh;" -->
@@ -401,15 +401,23 @@ export default {
       const minHeight = '100'
       if (newHeight < minHeight) { newHeight = minHeight }
       element.style.height = (newHeight.toString() + 'px')
-      if (parent) {
-        const pElement = document.querySelector('.aceQueryCard')
-        pElement.style.height = ((newHeight + 10).toString() + 'px')
-      }
+      // if (parent) {
+      //   const pElement = document.querySelector('.aceQueryCard')
+      //   pElement.style.height = ((newHeight + 10).toString() + 'px')
+      // }
       // document.querySelector('#editor-section').height(newHeight.toString() + 'px')
 
       // This call is required for the editor to fix all of
       // its inner structure for adapting to a change in size
       editor.resize()
+    },
+    paneResize (sizes) {
+      console.log('paneResize', sizes)
+      const elCard = document.querySelector('.aceQueryCard')
+      const elEditor = document.querySelector('.dynamicHeight')
+      elCard.style.height = (sizes[0].size.toString() + '%')
+      const adjustedSize = sizes[0].size + 80
+      elEditor.style.height = (adjustedSize.toString() + '%')
     },
     onRunQuery () {
       this.result = this.generateJsonataResult(
