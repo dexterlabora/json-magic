@@ -1,204 +1,204 @@
 <template>
   <!-- JSONata Explorer -->
-  <v-card width="100%" style="overflow: auto;position: relative; max-height:94vh;" class="mr-2">
+  <splitpanes vertical horizontal @resize="paneResize($event)">
+    <!-- <v-card width="100%" style="overflow: auto;position: absolute; max-height:94vh;" class="mr-2"> -->
     <!-- Filter  -->
 
-    <splitpanes vertical horizontal @resize="paneResize($event)">
-      <pane min-size="5" :size="paneSizes.input" class="pb-2">
-        <v-card v-if="true" width="100%">
-          <v-toolbar dense>
-            <v-toolbar-title>Filter</v-toolbar-title>
+    <pane min-size="5" :size="paneSizes.input" class="pb-2">
+      <v-card v-if="true" width="100%" class="pb-0">
+        <v-toolbar dense>
+          <v-toolbar-title>Filter</v-toolbar-title>
 
-            <v-spacer />
+          <v-spacer />
 
-            <v-btn small color="green" tile outlined dark @click="download('query.txt',form.query)">
-              <v-icon small>
-                mdi-arrow-down-bold
-              </v-icon>Query
-            </v-btn>
-            <v-btn small color="green" tile outlined dark @click="download('result.json',result)">
-              <v-icon small>
-                mdi-arrow-down-bold
-              </v-icon>JSON
-            </v-btn>
-          </v-toolbar>
+          <v-btn small color="green" tile outlined dark @click="download('query.txt',form.query)">
+            <v-icon small>
+              mdi-arrow-down-bold
+            </v-icon>Query
+          </v-btn>
+          <v-btn small color="green" tile outlined dark @click="download('result.json',result)">
+            <v-icon small>
+              mdi-arrow-down-bold
+            </v-icon>JSON
+          </v-btn>
+        </v-toolbar>
 
-          <!-- <v-card-subtitle>
+        <!-- <v-card-subtitle>
             Use any valid
             <a
               href="http://docs.jsonata.org/overview.html"
               target="_blank"
             >JSONata expression.</a>
           </v-card-subtitle> -->
-          <v-card-actions class="mt-2">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  v-shortkey="['meta', '\\']"
-                  v-bind="attrs"
-                  label="cmd+ \\"
-                  small
-                  right
-                  color="yellow"
-                  outlined
-                  class="ml-2"
-                  v-on="on"
-                  @click="handleClearClick()"
-                  @shortkey="handleClearClick()"
-                >
-                  Clear
-                </v-btn>
-              </template>
-              <span small>Command + \</span>
-            </v-tooltip>
-            <v-spacer />
-            <v-card-subtitle class="ml-4 pb-0 mb-0">
-              <v-btn icon dark href="http://docs.jsonata.org/overview.html" target="_blank">
-                <v-icon>mdi-book-open-variant</v-icon>
+        <v-card-actions class="mt-2">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-shortkey="['meta', '\\']"
+                v-bind="attrs"
+                label="cmd+ \\"
+                small
+                right
+                color="yellow"
+                outlined
+                class="ml-2"
+                v-on="on"
+                @click="handleClearClick()"
+                @shortkey="handleClearClick()"
+              >
+                Clear
               </v-btn>
-              JSONata expression
-            </v-card-subtitle>
-            <v-spacer />
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  v-shortkey="['meta', 'enter']"
-                  v-bind="attrs"
-                  label="cmd+enter"
-                  small
-                  right
-                  color="blue"
-                  outlined
-                  class="ml-2"
-                  v-on="on"
-                  @click="onRunQuery"
-                  @shortkey="handleRunClick()"
-                >
-                  Run
-                </v-btn>
-              </template>
-              <span small>Command + Enter</span>
-            </v-tooltip>
-          </v-card-actions>
-          <v-card-text class="pb-0 aceQueryCard">
-            <vue-prism-editor v-if="false" v-model.lazy="form.query" v-debounce="delay" language="js" class="ml-0 mb-0 my-editor" />
-            <editor
-              ref="aceQueryEditor"
-              v-model="form.query"
-              class="dynamicHeight ml-0 mb-0"
-              name="aceQueryEditor"
+            </template>
+            <span small>Command + \</span>
+          </v-tooltip>
+          <v-spacer />
+          <v-card-subtitle class="ml-4 pb-0 mb-0">
+            <v-btn icon dark href="http://docs.jsonata.org/overview.html" target="_blank">
+              <v-icon>mdi-book-open-variant</v-icon>
+            </v-btn>
+            JSONata expression
+          </v-card-subtitle>
+          <v-spacer />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-shortkey="['meta', 'enter']"
+                v-bind="attrs"
+                label="cmd+enter"
+                small
+                right
+                color="blue"
+                outlined
+                class="ml-2"
+                v-on="on"
+                @click="onRunQuery"
+                @shortkey="handleRunClick()"
+              >
+                Run
+              </v-btn>
+            </template>
+            <span small>Command + Enter</span>
+          </v-tooltip>
+        </v-card-actions>
+        <v-card class="mr-2 aceQueryCard" style="height:100px; overflow: auto; position: relative;">
+          <vue-prism-editor v-if="false" v-model.lazy="form.query" v-debounce="delay" language="js" class="ml-0 mb-0 my-editor" />
+          <editor
+            ref="aceQueryEditor"
+            v-model="form.query"
+            class="dynamicHeight ml-2 mb-2"
+            name="aceQueryEditor"
 
-              lang="javascript"
-              theme="chrome"
-              width="100%"
+            lang="javascript"
+            theme="chrome"
+            width="98%"
 
-              style="min-height:10vh;max-height:70vh; overflow: auto;position: relative;"
-              @init="editorQueryInit"
-            />
-            <!-- style="overflow: auto;position: relative; max-height:94vh;" -->
-            <!-- <vue-prism-editor v-model.lazy="term" v-debounce="delay" language="js" class="pl-2" /> -->
-          </v-card-text>
+            style="max-height:80vh;  position: absolute;"
+            @init="editorQueryInit"
+          />
+          <!-- style="overflow: auto;position: relative; max-height:94vh;" -->
+          <!-- <vue-prism-editor v-model.lazy="term" v-debounce="delay" language="js" class="pl-2" /> -->
         </v-card>
-      </pane>
-      <pane min-size="5" :size="paneSizes.result">
-        <!-- Result -->
-        <v-card v-if="true" width="100%" height="100%" style="overflow: auto;">
-          <v-card-text>
-            <v-card-subtitle class="pt-0 pb-0 mb-0 mt-0">
-              JSONata Results
-            </v-card-subtitle>
-            <div v-if="!isLargeJson">
-              <v-card-text style="overflow: auto; max-height:800px" class="pt-3">
-                <v-slider
-                  v-model="form.jsonDeapth"
+      </v-card>
+    </pane>
+    <pane min-size="5" :size="paneSizes.result">
+      <!-- Result -->
+      <v-card v-if="true" width="100%" height="100%" style=" position: absolute; overflow: auto;">
+        <v-card-text>
+          <v-card-subtitle class="pt-0 pb-0 mb-0 mt-0">
+            JSONata Results
+          </v-card-subtitle>
+          <div v-if="!isLargeJson">
+            <v-card-text style="overflow: auto; max-height:800px" class="pt-3">
+              <v-slider
+                v-model="form.jsonDeapth"
 
-                  min="0"
-                  max="10"
-                  ticks
-                  thumb-label
-                  thumb-size="10"
-                  color="green"
-                  tick-size="7"
-                  dense
-                  width="50px"
-                />
+                min="0"
+                max="10"
+                ticks
+                thumb-label
+                thumb-size="10"
+                color="green"
+                tick-size="7"
+                dense
+                width="50px"
+              />
 
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      class="mr-8"
-                      fab small icon right absolute :color="usingSelectMode ? 'green' : 'white'" v-bind="attrs"
-                      @click="onSelectPropMode($event)"
-                      v-on="on"
-                    >
-                      <v-icon>mdi-target</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Enables ability to target a property name and add it's tree path to the JSONata query</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      active-class="color:'green'"
-                      fab small icon right absolute v-bind="attrs"
-                      @click="copyResult()"
-                      v-on="on"
-                    >
-                      <v-icon>mdi-clipboard-text-multiple-outline</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Copy JSON to clipboard</span>
-                </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="mr-8"
+                    fab small icon right absolute :color="usingSelectMode ? 'green' : 'white'" v-bind="attrs"
+                    @click="onSelectPropMode($event)"
+                    v-on="on"
+                  >
+                    <v-icon>mdi-target</v-icon>
+                  </v-btn>
+                </template>
+                <span>Enables ability to target a property name and add it's tree path to the JSONata query</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    active-class="color:'green'"
+                    fab small icon right absolute v-bind="attrs"
+                    @click="copyResult()"
+                    v-on="on"
+                  >
+                    <v-icon>mdi-clipboard-text-multiple-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Copy JSON to clipboard</span>
+              </v-tooltip>
 
-                <vue-json-pretty
-                  id="resultJsonPretty"
-                  :deep="form.jsonDeapth"
-                  :data="result"
+              <vue-json-pretty
+                id="resultJsonPretty"
+                :deep="form.jsonDeapth"
+                :data="result"
 
-                  @click="handleResultClick"
+                @click="handleResultClick"
+              />
+            </v-card-text>
+          </div>
+          <div v-else>
+            <div v-if="!isHugeJson">
+              <v-card-subtitle>Whoa, that's some big JSON... Here's a simpler view</v-card-subtitle>
+              <v-btn class="mr-6 mt-4" small icon fab right absolute @click="copyResult()">
+                <v-icon>mdi-clipboard-text-multiple-outline</v-icon>
+              </v-btn>
+              <v-card-text>
+                <editor
+                  ref="aceEditor"
+                  v-model="resultString"
+                  lang="json"
+                  theme="ambiance"
+                  height="500"
+                  @init="editorInit"
                 />
               </v-card-text>
             </div>
             <div v-else>
-              <div v-if="!isHugeJson">
-                <v-card-subtitle>Whoa, that's some big JSON... Here's a simpler view</v-card-subtitle>
-                <v-btn class="mr-6 mt-4" small icon fab right absolute @click="copyResult()">
-                  <v-icon>mdi-clipboard-text-multiple-outline</v-icon>
+              <v-card-subtitle>Okay, that's some HUGE JSON... I'm not even going to show that.</v-card-subtitle>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn small color="warning" outlined @click="download('HUGEdata.json',result)">
+                  <v-icon class="pr-2">
+                    mdi-download
+                  </v-icon>Give it to me anyways.
+                  <br>
                 </v-btn>
-                <v-card-text>
-                  <editor
-                    ref="aceEditor"
-                    v-model="resultString"
-                    lang="json"
-                    theme="ambiance"
-                    height="500"
-                    @init="editorInit"
-                  />
-                </v-card-text>
-              </div>
-              <div v-else>
-                <v-card-subtitle>Okay, that's some HUGE JSON... I'm not even going to show that.</v-card-subtitle>
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn small color="warning" outlined @click="download('HUGEdata.json',result)">
-                    <v-icon class="pr-2">
-                      mdi-download
-                    </v-icon>Give it to me anyways.
-                    <br>
-                  </v-btn>
-                </v-card-actions>
+              </v-card-actions>
 
-                <v-card-text />
-              </div>
+              <v-card-text />
             </div>
-          </v-card-text>
-          <v-footer style="overflow: auto; position: relative" class="pt-0 mt-0">
-            <small>{{ jsonSize }} Kb</small>
-          </v-footer>
-        </v-card>
-      </pane>
-    </splitpanes>
-  </v-card>
+          </div>
+        </v-card-text>
+        <v-footer style="overflow: auto; position: relative" class="pt-0 mt-0">
+          <small>{{ jsonSize }} Kb</small>
+        </v-footer>
+      </v-card>
+    </pane>
+    <!-- </v-card> -->
+  </splitpanes>
 </template>
 
 <script>
@@ -358,7 +358,7 @@ export default {
       // require('brace/snippets/javascript') // snippet
       editor.setOption('showLineNumbers', false)
       editor.getSession().foldAll()
-      this.heightUpdateFunction(editor)
+      // this.heightUpdateFunction(editor)
       this.editor = editor
       // const editor = this.$refs.aceEditor.editor
       // const selectionRange = editor.getSelectionRange()
@@ -377,11 +377,14 @@ export default {
       require('brace/mode/less')
       require('brace/theme/ambiance')
       // require('brace/snippets/javascript') // snippet
-      editor.setOption('showLineNumbers', false)
+      editor.setOption('showLineNumbers', true)
       editor.getSession().setUseWorker(false)
       editor.getSession().foldAll()
-      this.heightUpdateFunction(editor, parent)
+
+      //
       this.editorQuery = editor
+      // editor.setOption('maxLines', 200)
+      this.heightUpdateFunction(editor, parent)
       // const editor = this.$refs.aceEditor.editor
       // const selectionRange = editor.getSelectionRange()
 
@@ -391,33 +394,55 @@ export default {
       // const content = editor.session.getTextRange(selectionRange)
       // this.selectedRow = content
     },
-    heightUpdateFunction (editor, parent) {
-      // http://stackoverflow.com/questions/11584061/
-      let newHeight = editor.getSession().getScreenLength() * editor.renderer.lineHeight + editor.renderer.scrollBar.getWidth()
-      console.log('new ace Editor Height', newHeight)
-      const element = document.querySelector('.dynamicHeight')
-      console.log('element', element)
-      console.log('element.style', element.style)
-      const minHeight = '100'
-      if (newHeight < minHeight) { newHeight = minHeight }
-      element.style.height = (newHeight.toString() + 'px')
-      // if (parent) {
-      //   const pElement = document.querySelector('.aceQueryCard')
-      //   pElement.style.height = ((newHeight + 10).toString() + 'px')
-      // }
-      // document.querySelector('#editor-section').height(newHeight.toString() + 'px')
-
-      // This call is required for the editor to fix all of
-      // its inner structure for adapting to a change in size
+    heightUpdateFunction (editor) {
+      const lines = editor.getSession().getDocument().getLength()
+      console.log('lines', lines)
+      // editor.setOption('maxLines', lines + 50)
       editor.resize()
     },
+
+    // heightUpdateFunction (editor, parent) {
+    //   // http://stackoverflow.com/questions/11584061/
+    //   let newHeight = editor.getSession().getScreenLength() * editor.renderer.lineHeight + editor.renderer.scrollBar.getWidth()
+    //   console.log('new ace Editor Height', newHeight)
+    //   const element = document.querySelector('.dynamicHeight')
+    //   console.log('element', element)
+    //   console.log('element.style', element.style)
+    //   const minHeight = '100'
+    //   if (newHeight < minHeight) { newHeight = minHeight }
+    //   element.style.height = (newHeight.toString() + 'px')
+    //   // if (parent) {
+    //   //   const pElement = document.querySelector('.aceQueryCard')
+    //   //   pElement.style.height = ((newHeight + 10).toString() + 'px')
+    //   // }
+    //   // document.querySelector('#editor-section').height(newHeight.toString() + 'px')
+
+    //   // This call is required for the editor to fix all of
+    //   // its inner structure for adapting to a change in size
+    //   editor.resize()
+    // },
     paneResize (sizes) {
-      console.log('paneResize', sizes)
+      // console.log('paneResize', sizes)
+      // A very hacky function to resize the editor area when resizing the pane -- MAKE THIS BETTER
       const elCard = document.querySelector('.aceQueryCard')
-      const elEditor = document.querySelector('.dynamicHeight')
-      elCard.style.height = (sizes[0].size.toString() + '%')
-      const adjustedSize = sizes[0].size + 80
-      elEditor.style.height = (adjustedSize.toString() + '%')
+      let size = sizes[0].size
+      if (size < 30) {
+        size = size * 1.2
+      } else if (size < 50) {
+        size = sizes[0].size * 1.32
+      } else if (size < 80) {
+        size = sizes[0].size * 1
+      } else {
+        size = 80
+      }
+      elCard.style.height = size.toString() + '%'
+      // console.log('paneResize, elCard.style.height', elCard.style.height)
+
+      // const elEditor = document.querySelector('.dynamicHeight')
+      // const adjustedSize = sizes[0].size + 80
+      // elEditor.style.height = (adjustedSize.toString() + '%')
+
+      this.heightUpdateFunction(this.editorQuery)
     },
     onRunQuery () {
       this.result = this.generateJsonataResult(

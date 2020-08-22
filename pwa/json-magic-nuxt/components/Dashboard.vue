@@ -98,7 +98,7 @@
     <splitpanes @resize="paneResize($event)">
       <pane v-if="toggleViewInput" min-size="1" :size="paneSizes.input">
         <!-- JSON Input  -->
-        <v-card width="100%" style="position: relative" class="mr-2">
+        <v-card width="100%" style="position: absolute" class="mr-2">
           <v-toolbar dense>
             <v-toolbar-title dense>
               Input
@@ -192,14 +192,14 @@
         </v-card>
       </pane>
       <!-- v-show breaks splitpanes -- FIX THIS (split query and result components) -->
-      <pane min-size="1" :size="toggleViewFilter ? paneSizes.explore : 1">
+      <pane min-size="1" :size="paneSizes.explore">
         <jsonata-explorer :value="parsedInput" :query="form.query" @change="form.query=($event)" @data="result = $event" />
       </pane>
-      <pane v-if="toggleViewTable" min-size="1" :size="paneSizes.table">
+      <pane v-if="toggleViewTable" min-size="1">
         <!-- Results Table -->
 
-        <v-card v-if="result" width="100%" height="100%" style="position: relative" class="m-2">
-          <v-toolbar dense>
+        <v-card v-if="result" width="100%" height="100%" style="position: absolute" class="m-2">
+          <v-toolbar dense width="100%">
             <v-toolbar-title>
               Table
               <!-- <v-btn @click="onGenerateTable">
@@ -220,18 +220,34 @@
               </v-icon>HTML Table
             </v-btn>
           </v-toolbar>
-          <v-card-text class="m-2" style="position: relative; overflow: auto;" height="100%">
+          <!-- <v-card-text class="m-2" style=" overflow: auto;" height="100%">
             <v-simple-table
               dense
               fixed-header
               light
-              class="m-2 tableView"
-
+              class="m-2 tableView "
+              style="height:100%; position: relative;"
               min-height="800px"
             >
-              <div id="resultTable" ref="resultTable" v-html="tableHtml" />
+              <div id="resultTable" ref="resultTable" style="height:100%: postion:absolute;" v-html="tableHtml" />
             </v-simple-table>
-          </v-card-text>
+          </v-card-text> -->
+          <v-layout>
+            <v-flex
+              style="position: absolute; overflow: auto; height: 100%; width:100%"
+            >
+              <v-card-text class="m-2">
+                <v-simple-table
+                  dense
+                  fixed-header
+                  light
+                  class="m-2 tableView "
+                >
+                  <div id="resultTable" ref="resultTable" v-html="tableHtml" />
+                </v-simple-table>
+              </v-card-text>
+            </v-flex>
+          </v-layout>
         </v-card>
       </pane>
     </splitpanes>
@@ -271,8 +287,7 @@ export default {
     panel: [0, 0],
     paneSizes: {
       input: 25,
-      explore: 25,
-      table: 50
+      explore: 25
     },
 
     drawer: false,
@@ -416,6 +431,17 @@ export default {
       // }
       // this.resultJsonPretty = { ...{}, ...this.result }
       // Object.freeze(this.resultJsonPretty)
+    },
+    'paneSizes.explore' () {
+      console.log('watch paneSizes.explore', this.paneSizes.explore)
+      const elCard = document.querySelector('.tableView')
+      if (elCard) {
+      //   if (sizes[(sizes.length - 1)]) {
+      // const adjustedSize = this.paneSizes.table + 80
+      // elCard.style.width = (adjustedSize.toString() + '%')
+        elCard.style.width = '100%'
+      }
+      // this.paneResize(this.paneSizes)
     }
   },
   created () {
@@ -431,6 +457,11 @@ export default {
     })
     this.$nuxt.$on('toggleViewFilter', () => {
       this.toggleViewFilter = !this.toggleViewFilter
+      if (this.toggleViewFilter) {
+        this.paneSizes.explore = 25
+      } else {
+        this.paneSizes.explore = 1
+      }
     })
     this.$nuxt.$on('toggleViewTable', () => {
       this.toggleViewTable = !this.toggleViewTable
@@ -467,8 +498,12 @@ export default {
     paneResize (sizes) {
       console.log('paneResize', sizes)
       const elCard = document.querySelector('.tableView')
+      // if (elCard & sizes.length) {
+      //   if (sizes[(sizes.length - 1)]) {
       const adjustedSize = sizes[(sizes.length - 1)].size + 80
       elCard.style.width = (adjustedSize.toString() + '%')
+      //   }
+      // }
     },
     preventNav (event) {
       if (!this.isEditing) { return }
