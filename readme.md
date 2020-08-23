@@ -9,6 +9,10 @@ This little tool allows you to easily make sense of JSON data.
 
 ## Features
 
+- Transform JSON data on the fly
+- Generates nested HTML tables
+- Export data in CSV/JSON/HTML
+
 ### Vue Web 
 App that can run using just an index.html file. 
 

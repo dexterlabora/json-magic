@@ -1,0 +1,47 @@
+{
+  "name": "json-magic-nuxt",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "export": "nuxt export",
+    "static": "nuxt build -c nuxt.static.config",
+    "serve": "nuxt serve",
+    "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lint": "yarn lint:js",
+    "deploy": "nuxt build && gcloud app deploy app.yaml --project meraki-micro-services"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.12.1",
+    "@nuxtjs/proxy": "^2.0.1",
+    "@nuxtjs/pwa": "^3.0.0-beta.20",
+    "@nuxtjs/vuetify": "^1.11.2",
+    "json2csv": "^5.0.1",
+    "jsonata": "^1.8.3",
+    "linkifyjs": "^2.1.9",
+    "lodash": "^4.17.19",
+    "monaco-editor": "0.20.0",
+    "monaco-editor-vue": "^1.0.10",
+    "monaco-editor-webpack-plugin": "^1.9.0",
+    "nuxt": "^2.13.0",
+    "prismjs": "^1.20.0",
+    "qs": "^6.9.4",
+    "splitpanes": "^2.2.1",
+    "tableify": "^1.1.0",
+    "v-debounce": "^0.1.2",
+    "v-jsoneditor": "^1.4.1",
+    "vue-monaco-editor": "^0.0.19",
+    "vue-shortkey": "^3.1.7",
+    "vue2-ace-editor": "^0.0.15"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config": "^3.0.0",
+    "@nuxtjs/eslint-module": "^2.0.0",
+    "@nuxtjs/vuetify": "^1.11.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.2.0",
+    "eslint-plugin-nuxt": "^1.0.0"
+  }
+}

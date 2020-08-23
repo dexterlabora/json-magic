@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://unpkg.com/http-vue-loader"></script>
+
+    <!-- JSONata Editor -->
+    <script src="https://cdn.jsdelivr.net/npm/jsonata/jsonata.min.js"></script>
+
+    <!-- Prism Editor -->
+    <script src="https://unpkg.com/vue-prism-editor"></script>
+    <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism.css" />
+    <script src="https://unpkg.com/prismjs"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-prism-editor/dist/prismeditor.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue-json-pretty@1.6.3/vue-json-pretty.min.js"></script>
+
+    <!-- Tableify-->
+    <script src="https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js"></script>
+
+    <!-- vue split planes -->
+    <script src="https://unpkg.com/splitpanes"></script>
+    <link href="https://unpkg.com/splitpanes/dist/splitpanes.css" rel="stylesheet">
+
+    <!-- AXIOS API request handler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/json2csv"></script>
+
+    <div id="app">
+        <v-app>
+
+            <!-- <v-navigation-drawer v-model="drawer" app clipped>
+                <v-list dense>
+                    <v-list-item link>
+                        <v-list-item-action>
+                            <v-icon>mdi-view-dashboard</v-icon>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>Dashboard</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item>
+
+                    </v-list-item>
+                    <v-list-item link>
+                        <v-list-item-action>
+                            <v-icon>mdi-cog</v-icon>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>Settings</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
+            </v-navigation-drawer> -->
+
+            <v-app-bar app clipped-left dark color="green darken-4">
+                <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
+                <v-toolbar-title>JSON Magic <v-icon>mdi-view-dashboard-outline</v-icon>
+
+                </v-toolbar-title>
+            </v-app-bar>
+
+            <v-main>
+                <v-container class="fill-height" fluid>
+                    <!-- Websocket Dialog -->
+                    <template>
+                        <v-row justify="center">
+                            <v-dialog v-model="wsDialog" max-width="700px">
+                                <v-card>
+                                    <v-toolbar>
+                                        <v-toolbar-title>Websocket Configuration</v-toolbar-title>
+                                        <v-spacer></v-spacer>
+                                    </v-toolbar>
+                                    <v-card-text>
+                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a websocket server.</v-card-text-subtitle>
+                                        <v-card color="grey darken-3">
+
+                                            <v-text-field label="URL Path" v-model="wsForm.url" class="mr-2">
+                                            </v-text-field>
+                                            <v-checkbox v-model="wsForm.enabled" label="enabled"></v-checkbox>
+
+                                        </v-card>
+                                        <v-spacer></v-spacer>
+                                        
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn color="blue darken-1" text @click="wsDialog = false">Close</v-btn>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="onConnectWebsocket" color="green" >
+                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>
+                                            Update Websocket
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-row>
+                    </template>
+
+                    <!-- User API Dialog -->
+                    <template>
+                        <v-row justify="center">
+                            <v-dialog v-model="apiDialog" max-width="700px">
+                                <v-card>
+                                    <v-toolbar>
+                                        <v-toolbar-title>Import JSON from an API</v-toolbar-title>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="apiForm.showAdvanced=!apiForm.showAdvanced">Extra Settings
+                                        </v-btn>
+                                    </v-toolbar>
+                                    <v-card-text>
+                                        <v-card color="grey darken-3">
+
+                                            <v-text-field label="URL Path" v-model="apiForm.url" class="mr-2">
+                                            </v-text-field>
+                                            <v-text-field small type="password" label="API Key"
+                                                v-model="apiForm.headerValue">
+                                            </v-text-field>
+
+                                        </v-card>
+                                        <v-spacer></v-spacer>
+                                        <v-card v-if="apiForm.showAdvanced">
+                                            <v-checkbox v-model="apiForm.includeHeaders" label="include headers">
+                                            </v-checkbox>
+                                            <v-label dark>Custom Auth Header</v-label>
+                                            <v-text-field small label="Key" v-model="apiForm.headerKey">
+                                            </v-text-field>
+                                            <v-spacer></v-spacer>
+                                            <v-card width="70%">
+                                                <v-label dark>API Proxy Server</v-label>
+                                                </v-text-field>
+                                                <v-text-field small label="URL Path" v-model="serverOptions.proxyUrl">
+                                                </v-text-field>
+                                            </v-card>
+                                        </v-card>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn color="blue darken-1" text @click="apiDialog = false">Close</v-btn>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="fetchJson" color="green" :loading="isLoading">
+                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>
+                                            Run API
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-row>
+                    </template>
+
+
+                    <splitpanes class="default-theme">
+                        <pane min-size="5" size="20">
+                            <v-card width=100% class="m-2">
+                                <v-toolbar dense>
+                                    <v-toolbar-title>JSON Input</v-toolbar-title>
+
+                                    <v-spacer></v-spacer>
+
+                                    <v-btn icon @click="apiDialog=true" dark>
+                                        <v-icon>mdi-api</v-icon>
+                                    </v-btn>
+                                    <v-btn icon @click="wsDialog=true" dark>
+                                        <v-icon>mdi-cloud</v-icon>
+                                    </v-btn>
+
+                                    <v-file-input dense hide-input dark accept="application/JSON"
+                                        v-model="form.inputFile" @change="onJsonFileUpload">
+                                    </v-file-input>
+
+                                </v-toolbar>
+
+                                <v-card>
+
+                                    <v-card-subtitle dark>Type or paste valid JSON data <v-btn class="ml-2"
+                                            color="grey lighten-2" small outlined @click="onFormatJson()">Beautify
+                                        </v-btn>
+                                    </v-card-subtitle>
+                                    <v-card-text style="overflow: auto;">
+
+                                        <prism-editor v-model="form.inputJson" :highlight="highlighter" style="height:75vh"
+                                            @change="inputValue=form.inputJson"></prism-editor>
+                                    </v-card-text>
+
+                                </v-card>
+
+
+                            </v-card>
+                        </pane>
+                        <pane min-size="5" size="20">
+
+                            <v-card width=100%>
+                                <v-toolbar dense>
+
+                                    <v-toolbar-title>JSONata Explorer</v-toolbar-title>
+
+                                    <v-spacer></v-spacer>
+                                    <v-btn small @click="download('query.txt',form.query)" color="green" tile outlined
+                                        dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        Query
+                                    </v-btn>
+                                    <v-btn small @click="download('result.json',result)" color="green" tile outlined
+                                        dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        JSON
+                                    </v-btn>
+
+                                </v-toolbar>
+
+
+                                <v-card-subtitle>
+                                    Use any valid <a href="http://docs.jsonata.org/overview.html"
+                                        target="_blank">JSONata expression.</a>
+
+                                </v-card-subtitle>
+                                <v-card-actions>
+
+                                    <prism-editor v-model="form.query" :highlight="highlighter" class="pl-2">
+                                    </prism-editor>
+                                    <v-btn small @click="form.query='$'" color="green" class="ml-2" icon>
+                                        <v-icon>mdi-autorenew</v-icon>
+                                    </v-btn>
+                                </v-card-actions>
+                                <v-card-text>
+                                    <v-card>
+                                        <v-card-subtitle>
+                                            Select a property to add to JSONata query
+                                        </v-card-subtitle>
+                                        <v-card-text style="overflow: auto; font-size:.5em">
+                                            <vue-json-pretty :data="result" style="height:60vh; "
+                                                @click="handleResultClick" id="resultJsonPretty"></vue-json-pretty>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-card-text>
+                            </v-card>
+                        </pane>
+                        <pane>
+                            <v-card v-if="result" width=100%>
+                                <v-toolbar dense>
+                                    <v-toolbar-title>Results</v-toolbar-title>
+
+                                    <v-spacer></v-spacer>
+
+                                    <!-- <v-btn small @click="downloadTableAsCsv('resultTable')" color="green" tile outlined
+                                        dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        CSV
+                                    </v-btn> -->
+
+                                    <v-btn small @click="onExportCsv" color="green" tile outlined dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        CSV
+                                    </v-btn>
+                                    <v-btn small @click="onDownloadTable" color="green" tile outlined dark>
+                                        <v-icon small>mdi-arrow-down-bold</v-icon>
+                                        HTML Table
+                                    </v-btn>
+                                </v-toolbar>
+                                <v-card-text>
+                                    <v-simple-table dense fixed-header light>
+
+                                        <div v-html='tableHtml' id='resultTable' ref='resultTable'></div>
+                                    </v-simple-table>
+                                </v-card-text>
+                            </v-card>
+                        </pane>
+                    </splitpanes>
+                </v-container>
+            </v-main>
+
+            <v-footer app>
+                <span>DexterLabora &copy; {{ new Date().getFullYear() }}</span>
+                <v-spacer></v-spacer>
+                <v-icon :color="wsForm.isConnected ? 'green': 'red'" class="mr-2">mdi-cloud</v-icon>
+                <div class=".text-sm-body-1">{{wsForm.url}}</div>
+            </v-footer>
+
+        </v-app>
+    </div>
+
+    
+    <!-- <script src="components/components/v-swagger/src/wrapper.js"></script> -->
+
+    <script>
+        // const { Parser } = require('json2csv');
+
+       // Vue.component('vue-prism-editor', VuePrismEditor)
+        Vue.component('vue-json-pretty', VueJsonPretty.default)
+
+
+        const {
+            Splitpanes,
+            Pane
+        } = splitpanes
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            components: {
+                Splitpanes,
+                Pane,
+                //VuePrismEditor
+                //VSwagger,
+                //'v-swagger': httpVueLoader("components/components/v-swagger/src/wrapper.js")
+            },
+            data() {
+                return {
+                    serverOptions: {
+                        proxyUrl: "/api/proxy"
+                    },
+                    panel: [0, 0],
+                    example: [{
+                            "FirstName": "Fred",
+                            "Surname": "Smith",
+                            "Age": 28,
+                            "Address": {
+                                "Street": "Hursley Park",
+                                "City": "Winchester",
+                                "Postcode": "SO21 2JN"
+                            },
+                            "Phone": [{
+                                    "type": "home",
+                                    "number": "0203 544 1234"
+                                },
+                                {
+                                    "type": "office",
+                                    "number": "01962 001234"
+                                },
+                                {
+                                    "type": "office",
+                                    "number": "01962 001235"
+                                },
+                                {
+                                    "type": "mobile",
+                                    "number": "077 7700 1234"
+                                }
+                            ],
+                            "Email": [{
+                                    "type": "work",
+                                    "address": ["fred.smith@my-work.com", "fsmith@my-work.com"]
+                                },
+                                {
+                                    "type": "home",
+                                    "address": ["freddy@my-social.com",
+                                        "frederic.smith@very-serious.com"
+                                    ]
+                                }
+                            ],
+                            "Other": {
+                                "Over 18 ?": true,
+                                "Misc": null,
+                                "Alternative.Address": {
+                                    "Street": "Brick Lane",
+                                    "City": "London",
+                                    "Postcode": "E1 6RF"
+                                }
+                            }
+                        },
+                        {
+                            "FirstName": "Miles",
+                            "Surname": "Meraki",
+                            "Age": 28,
+                            "Address": {
+                                "Street": "123 Unicorn Ave",
+                                "City": "Cloud City",
+                                "Postcode": "99991"
+                            },
+                            "Phone": [{
+                                    "type": "home",
+                                    "number": "123 345 345"
+                                },
+                                {
+                                    "type": "office",
+                                    "number": "3234 123123"
+                                },
+                                {
+                                    "type": "office",
+                                    "number": "23423 234324"
+                                },
+                                {
+                                    "type": "mobile",
+                                    "number": "111 23442 123234"
+                                }
+                            ],
+                            "Email": [{
+                                    "type": "work",
+                                    "address": ["miles.meraki@magical.com", "mmiles@magical.net"]
+                                },
+                                {
+                                    "type": "home",
+                                    "address": ["eenhorn@compushare.com",
+                                        "numberOneHorn@very-serious.com"
+                                    ]
+                                }
+                            ],
+                            "Other": {
+                                "Over 18 ?": true,
+                                "Misc": null,
+                                "Alternative.Address": {
+                                    "Street": "Brick Lane",
+                                    "City": "London",
+                                    "Postcode": "E1 6RF"
+                                }
+                            }
+                        }
+                    ],
+                    drawer: false,
+                    isLoading: false,
+                    apiDialog: false,
+                    wsDialog:false,
+                    form: {
+                        inputFile: undefined,
+                        inputJson: "",
+                        query: '$',
+
+                    },
+                    socket:null,
+                    wsForm:{
+                        "url":`ws://localhost:${location.port}/websocket`,
+                        "isConnected": false,
+                        "enabled": true
+                    },
+                    apiForm: {
+                        url: 'https://api.meraki.com/api/v1/organizations/537758/inventoryDevices',
+                        showAdvanced: false,
+                        includeHeaders: true,
+                        inputHeaders: `{ "X-Cisco-Meraki-API-Key": "093b24e85df15a3e66f1fc359f4c48493eaa1b73"}`, // DEMO API KEY
+                        headerKey: "X-Cisco-Meraki-API-Key",
+                        headerValue: "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
+                    },
+                    inputValue: {},
+                    result: [],
+                   
+                    
+                    tableFields: []
+                }
+            },
+
+            computed: {
+                tableHtml() {
+                    if (!this.result) {
+                        return
+                    }
+                    return `${tableify(this.result).replace("<table>", '<table id="resultTable">')}`
+                },
+
+                parsedInput() {
+
+                    console.log('computed parsedInput this.inputValue', this.inputValue)
+                    if (!Array.isArray(this.inputValue) && !this.isObject(this.inputValue) && !this
+                        .inputValue) {
+                        return {}
+                    }
+                    try {
+                        return JSON.parse(this.inputValue)
+                    } catch (e) {
+                        return this.inputValue
+                    }
+
+                },
+                inputSubArrays() {
+                    if (!this.parsedInput) {
+                        return
+                    }
+                    const obj = this.parsedInput;
+                    let arrays = [];
+                    let keys = Object.keys(obj)
+                    keys.forEach(k => {
+                        if (Array.isArray(obj[p])) {
+                            arrays.push(obj[p])
+                        }
+                    })
+                    return arrays;
+                },
+                // socket() {
+                //     if(this.wsForm.enabled){
+                //         return new WebSocket(this.wsForm.url);
+                //     }
+                    
+                // },
+
+            },
+            watch: {
+                "form.query"() {
+                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)
+                    this.updateTableFields(this.result);
+                },
+                "parsedInput"() {
+                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)
+                    this.updateTableFields(this.result);
+                }
+            },
+            methods: {
+                highlighter(code) {
+        // js highlight example
+        return Prism.highlight(code, Prism.languages.js, "js");
+      },
+                onConnectWebsocket(){
+                    console.log('onConnectWebsocket')
+                    if(this.socket){
+                        console.log('closing socket')
+                        this.socket.close();
+                    }
+                    
+                    if(this.wsForm.enabled){
+                        console.log('enabling socket')
+                        this.socket = new WebSocket(this.wsForm.url);
+                        
+                        this.initWebsocket()
+                    }
+                },
+                onDownloadTable() {
+                    let css = `
+                        <style>
+                            table,
+                            th,
+                            td {
+                                border: 1px solid rgb(44, 44, 44);
+                                border-collapse: collapse;
+                            }
+
+                            th,
+                            td {
+                                padding: 5px;
+                            }
+                        </style>`;
+                    let html = this.tableHtml + css;
+                    this.download(`export_${new Date().toLocaleDateString()}.html`, html)
+                },
+                generateJsonataResult(query, jsonData) {
+                    try {
+                        return jsonata(query).evaluate(jsonData, (error, result) => {
+                            if (error) {
+                                console.error("jsonata error", error);
+                                return error['message'];
+                            }
+
+                            console.log("Finished with", result);
+                            return result;
+                        })
+
+                    } catch (e) {
+                        console.log("JSONata expression error", e)
+                        return e.message;
+                    }
+                },
+                onJsonFileUpload() {
+                    console.log('updating JSON with user file upload')
+                    if (!this.form.inputFile) {
+                        //this.form.inputJson = "No File Chosen"
+                        return
+                    }
+
+                    var reader = new FileReader();
+                    // Use the javascript reader object to load the contents
+                    // of the file in the v-model prop
+                    reader.readAsText(this.form.inputFile);
+                    reader.onload = () => {
+                        console.log("input being parsed", reader.result)
+                        this.form.inputJson = reader.result;
+                        this.inputValue = JSON.parse(reader.result);
+                        console.log("input updated", this.form.inputJson)
+                    }
+                },
+                download(filename, data) {
+                    if (filename.includes('.json')) {
+                        data = JSON.stringify(data, null, 4)
+                    }
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+                    element.setAttribute('download', filename);
+
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+
+                    element.click();
+
+                    document.body.removeChild(element);
+                },
+                onExportCsv() {
+                    try {
+                        
+                        const transforms = [json2csv.transforms.flatten({ objects: true, arrays: true })];
+                        let options = {
+                            "flattenArrays":true,
+                            transforms
+                        };
+                        const parser = new json2csv.Parser(options);
+                        const csv = parser.parse(this.result);
+                        console.log(csv);
+                        this.download('result.csv', csv);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                
+                copyText() {
+                    navigator.clipboard.writeText(this.tableHtml);
+                },
+                isObject(val) {
+                    return val instanceof Object;
+                },
+                fetchJson() {
+                    let options = {
+                        method: "get", // ONLY ALLOWING GET METHODS (For now)
+                        url: this.apiForm.url,
+                        headers: {}
+                    }
+
+                    options.headers[this.apiForm.headerKey] = this.apiForm.headerValue
+                    console.log('fetchJson', options)
+                    this.isLoading = true;
+                    axios.post(this.serverOptions.proxyUrl, options).then(res => {
+                        console.log('fetchJson ', this.form.url, res)
+                        this.form.inputJson = JSON.stringify(res.data, null, 4);
+                        this.inputValue = res.data;
+
+                    }).catch(e => {
+                        console.log("fetch error", JSON.stringify(e))
+                        //this.isLoading = false
+                    }).finally(() => {
+                        this.isLoading = false
+                    })
+                },
+                updateTableFields(object) {
+                    let keys = Object.keys(object);
+                    this.tableFields = keys.map(r => {
+                        return {
+                            "name": r,
+                            "alias": r
+                        }
+                    })
+                },
+                handleResultClick(value) {
+                    let split = value.split(".")
+                    split.shift();
+                    let query = `.${split.join(".")}`
+                    this.form.query = this.form.query + query;
+
+                },
+                onQueryChange(value) {
+                    this.form.query = value
+                },
+                onFormatJson() {
+                    this.form.inputJson = this.formatJsonString(this.form.inputJson)
+                },
+                formatJsonString(jsonString) {
+                    try {
+                        let jsonObj = JSON.parse(jsonString);
+                        let formattedString = JSON.stringify(jsonObj, null, 4)
+                        return formattedString;
+                    } catch (error) {
+                        return error
+                    }
+
+                },
+                initWebsocket(){
+                    this.socket.onopen = () => {
+                    console.log('socket open');
+                    this.wsForm.isConnected = true;
+                };
+                this.socket.onclose = () => {
+                    this.wsForm.isConnected = false;
+                };
+                this.socket.onmessage = (msg) => {
+                    //console.log('socket message', msg)
+
+                    // sets raw and value data
+                    this.form.inputJson = this.formatJsonString(msg.data)
+                    this.inputValue = msg.data
+                };
+                }
+            },
+            created() {
+                this.$vuetify.theme.dark = true;
+                this.onConnectWebsocket();
+                
+
+                // initialize with example JSON
+                this.form.inputJson = JSON.stringify(this.example, null, 4);
+                this.inputValue = this.form.inputJson;
+            }
+        });
+    </script>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid rgb(44, 44, 44);
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 5px;
+        }
+
+        .splitpanes__pane {
+            box-shadow: 2 0 12px rgba(256, 256, 256, .2) inset;
+            display: flex;
+            position: relative;
+        }
+
+        em.specs {
+            font-size: 0.5em;
+            line-height: 1;
+            position: absolute;
+            color: rgba(0, 0, 255, 0.6);
+            bottom: 0.5em;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+
+        .prism-editor-wrapper code {
+            font-size: 0.7em;
+        }
+
+
+        .vjs-tree {
+            font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;
+            font-size: 12px;
+        }
+    </style>
+</body>
+
+</html>

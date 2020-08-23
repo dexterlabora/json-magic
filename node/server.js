@@ -38,7 +38,11 @@ function request(requestOptions) {
 
 // Frontend VUE app
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../index.html'));
+  res.sendFile(path.resolve(__dirname, '../prototype/index.html'));
+});
+
+app.get('/pwa', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../nuxt/dist/index.html'));
 });
 
 // Proxies API requests for client
