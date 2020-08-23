@@ -184,7 +184,7 @@
                                     </v-card-subtitle>
                                     <v-card-text style="overflow: auto;">
 
-                                        <prism-editor v-model="form.inputJson" :highlight="highlighter" style="height:75vh"
+                                        <prism-editor class="json-editor" v-model="form.inputJson" :highlight="highlighter" style="height:75vh"
                                             @change="inputValue=form.inputJson"></prism-editor>
                                     </v-card-text>
 
@@ -222,7 +222,7 @@
                                 </v-card-subtitle>
                                 <v-card-actions>
 
-                                    <prism-editor v-model="form.query" :highlight="highlighter" class="pl-2">
+                                    <prism-editor v-model="form.query" :highlight="highlighter" class="pl-2 json-editor" height="50px" style="color:black">
                                     </prism-editor>
                                     <v-btn small @click="form.query='$'" color="green" class="ml-2" icon>
                                         <v-icon>mdi-autorenew</v-icon>
@@ -722,6 +722,17 @@
             font-size: 0.7em;
         }
 
+        .json-editor {
+    /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
+    background: #f8f5f5;
+    color: #ccc;
+    /* you must provide font-family font-size line-height. Example: */
+    font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 5px;
+  }
+  
 
         .vjs-tree {
             font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;
