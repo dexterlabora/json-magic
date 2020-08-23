@@ -4,8 +4,10 @@ This little tool allows you to easily make sense of JSON data.
 
 ## Demos
 
-- [Simple HTML version](https://dexterlabora.github.io/json-magic/)
-- [PWA with OpenAPI Spec](https://meraki-micro-services.ew.r.appspot.com/)
+- [PWA - Full Features](https://meraki-micro-services.ew.r.appspot.com/)
+
+- [Simple HTML prototype version](https://dexterlabora.github.io/json-magic/)
+
 
 ## Features
 
@@ -71,6 +73,6 @@ This project was intentionally built minimal using CDNs for a few components.
 
 # JSON Magic - PWA w/ OpenAPI Tools
 
-This is an advanced version of this tool, which is a deployable Progressive Web App. It includes its own backend Express server and can be easily deployed to Google App Engine.
+This is an advanced version of this tool, which is a deployable Progressive Web App. It includes it's own backend Express server and can be easily deployed to Google App Engine.
 
-[Read More](pwa/json-magic-nuxt/README.md)
+[Read More](nuxt/README.md)
