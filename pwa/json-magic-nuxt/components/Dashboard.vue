@@ -219,6 +219,20 @@
                 mdi-arrow-down-bold
               </v-icon>HTML Table
             </v-btn>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  active-class="color:'green'"
+                  fab small icon right v-bind="attrs"
+                  @click="copyTableToClipboard()"
+                  v-on="on"
+                >
+                  <v-icon>mdi-clipboard-text-multiple-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Copy table HTML to clipboard</span>
+            </v-tooltip>
           </v-toolbar>
           <!-- <v-card-text class="m-2" style=" overflow: auto;" height="100%">
             <v-simple-table
@@ -287,7 +301,7 @@ export default {
     panel: [0, 0],
     paneSizes: {
       input: 25,
-      explore: 25
+      explore: 35
     },
 
     drawer: false,
@@ -374,7 +388,14 @@ export default {
 }`,
       inputReportFile: undefined,
       inputReport: {},
-      query: '$'
+      query: `/* Example to filter JSON by Product Name and shape output*/
+$.Account.Order.Product[\`Product Name\`="Bowler Hat"].
+{
+    "OrderID": %.OrderID, /* access parent object */
+    "Quantity": Quantity,
+    "Price": Price,
+    "Total": "$" & (Quantity * Price) /* compute value string*/
+}`
     },
 
     socket: null,
@@ -657,7 +678,9 @@ export default {
       const html = this.tableHtml + css
       this.download(`export_${new Date().toLocaleDateString()}.html`, html)
     },
-
+    copyTableToClipboard () {
+      navigator.clipboard.writeText(this.tableHtml)
+    },
     onJsonFileUpload () {
       // console.log('updating JSON with user file upload')
       if (!this.form.inputFile) {

@@ -5,7 +5,20 @@
     <!-- Filter  -->
 
     <pane min-size="5" :size="paneSizes.input" class="pb-2">
-      <v-card v-if="true" width="100%" class="pb-0">
+      <template>
+        <v-row justify="center">
+          <v-dialog
+            v-model="jsonataTipsDialog"
+            max-width="900"
+            max-height="800"
+            :fullscreen="$vuetify.breakpoint.mobile"
+          >
+            <jsonata-tips @close="jsonataTipsDialog=false" />
+          </v-dialog>
+        </v-row>
+      </template>
+
+      <v-card v-if="true" width="100%" class="pb-4" style=" position: relative;">
         <v-toolbar dense>
           <v-toolbar-title>Filter</v-toolbar-title>
 
@@ -30,7 +43,7 @@
               target="_blank"
             >JSONata expression.</a>
           </v-card-subtitle> -->
-        <v-card-actions class="mt-2">
+        <v-card-actions class="mt-2 pb-0">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -52,12 +65,26 @@
             <span small>Command + \</span>
           </v-tooltip>
           <v-spacer />
-          <v-card-subtitle class="ml-4 pb-0 mb-0">
+          <v-card-subtitle class="ml-4 ">
             <v-btn icon dark href="http://docs.jsonata.org/overview.html" target="_blank">
               <v-icon>mdi-book-open-variant</v-icon>
             </v-btn>
             JSONata expression
           </v-card-subtitle>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+
+                small icon
+                @click="onToggleJsonataTips($event)"
+
+                v-on="on"
+              >
+                <v-icon>mdi-information</v-icon>
+              </v-btn>
+            </template>
+            <span>JSONata Quick Tips</span>
+          </v-tooltip>
           <v-spacer />
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -80,7 +107,7 @@
             <span small>Command + Enter</span>
           </v-tooltip>
         </v-card-actions>
-        <v-card class="mr-2 aceQueryCard" style="height:100px; overflow: auto; position: relative;">
+        <!-- <v-card class="mr-2 aceQueryCard" style="height:100px; overflow: auto; position: relative;">
           <vue-prism-editor v-if="false" v-model.lazy="form.query" v-debounce="delay" language="js" class="ml-0 mb-0 my-editor" />
           <editor
             ref="aceQueryEditor"
@@ -95,8 +122,31 @@
             style="max-height:80vh;  position: absolute;"
             @init="editorQueryInit"
           />
-          <!-- style="overflow: auto;position: relative; max-height:94vh;" -->
-          <!-- <vue-prism-editor v-model.lazy="term" v-debounce="delay" language="js" class="pl-2" /> -->
+
+        </v-card> -->
+
+        <v-card class="mr-2 aceQueryCard" style="min-height:70%;  overflow: auto; position: inherit;">
+          <vue-prism-editor v-if="false" v-model.lazy="form.query" v-debounce="delay" language="js" class="ml-0 mb-0 my-editor" />
+          <v-layout>
+            <v-flex style="overflow: auto;">
+              <editor
+                ref="aceQueryEditor"
+                v-model="form.query"
+                class="ml-2 mb-2"
+                name="aceQueryEditor"
+
+                lang="javascript"
+                theme="chrome"
+                width="98%"
+
+                style="min-height:14vh; position: absolute;  overflow: auto;"
+                @init="editorQueryInit"
+              />
+            </v-flex>
+          </v-layout>
+
+        <!-- style="overflow: auto;position: relative; max-height:94vh;" -->
+        <!-- <vue-prism-editor v-model.lazy="term" v-debounce="delay" language="js" class="pl-2" /> -->
         </v-card>
       </v-card>
     </pane>
@@ -206,11 +256,13 @@ import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import VuePrismEditor from 'vue-prism-editor'
 import VueJsonPretty from 'vue-json-pretty'
+
 import * as editor from 'vue2-ace-editor'
 import 'prismjs'
 import 'prismjs/themes/prism.css'
 import debounce from 'v-debounce'
 import Vue from 'vue'
+import JsonataTips from './JsonataTips'
 Vue.use(require('vue-shortkey'))
 
 const _ = require('lodash')
@@ -223,7 +275,7 @@ export default {
     Pane,
     VuePrismEditor,
     VueJsonPretty,
-
+    JsonataTips,
     // editor: require('vue2-ace-editor')
     editor
   },
@@ -231,12 +283,7 @@ export default {
     debounce
   },
   props: ['value', 'query'],
-  // props: {
-  //   value: {
-  //     type: Any
-  //     // default: {}
-  //   }
-  // },
+
   data: () => ({
     panel: [0, 1],
     paneSizes: {
@@ -249,7 +296,7 @@ export default {
     result: {},
     resultString: '',
     form: {
-      query: '$',
+      query: '',
       inputJson: '',
       jsonDeapth: 5
     },
@@ -258,7 +305,7 @@ export default {
     isHugeJson: false,
     jsonSizeLimit: 500, // kb
     delay: 5000,
-
+    jsonataTipsDialog: false,
     disabled: false,
     readonly: false,
     usingSelectMode: false
@@ -276,6 +323,7 @@ export default {
     },
     'form.query' () {
       console.log(`real-time Query term changed to ${this.form.query}`)
+
       this.heightUpdateFunction(this.editorQuery)
       // ** Disabled realtime Query because of performance
       // this.updateQuery(this.form.query)
@@ -328,6 +376,9 @@ export default {
   },
 
   methods: {
+    onToggleJsonataTips () {
+      this.jsonataTipsDialog = !this.jsonataTipsDialog
+    },
     onSelectPropMode () {
       this.usingSelectMode = !this.usingSelectMode
     },
@@ -383,8 +434,8 @@ export default {
 
       //
       this.editorQuery = editor
-      // editor.setOption('maxLines', 200)
-      this.heightUpdateFunction(editor, parent)
+
+      // this.heightUpdateFunction(editor, parent)
       // const editor = this.$refs.aceEditor.editor
       // const selectionRange = editor.getSelectionRange()
 
@@ -395,7 +446,9 @@ export default {
       // this.selectedRow = content
     },
     heightUpdateFunction (editor) {
-      const lines = editor.getSession().getDocument().getLength()
+      const lines = editor.getSession().getDocument().getLength() - 1
+      // const lines = editor.setOption('maxLines', editor.getSession().getScreenLength())
+      // const lines = editor.setOption('height', this.paneSizes.input)
       console.log('lines', lines)
       // editor.setOption('maxLines', lines + 50)
       editor.resize()
@@ -424,18 +477,20 @@ export default {
     paneResize (sizes) {
       // console.log('paneResize', sizes)
       // A very hacky function to resize the editor area when resizing the pane -- MAKE THIS BETTER
-      const elCard = document.querySelector('.aceQueryCard')
-      let size = sizes[0].size
-      if (size < 30) {
-        size = size * 1.2
-      } else if (size < 50) {
-        size = sizes[0].size * 1.32
-      } else if (size < 80) {
-        size = sizes[0].size * 1
-      } else {
-        size = 80
-      }
-      elCard.style.height = size.toString() + '%'
+
+      // const elCard = document.querySelector('.aceQueryCard')
+      // let size = sizes[0].size
+      // if (size < 30) {
+      //   size = size * 1.2
+      // } else if (size < 50) {
+      //   size = sizes[0].size * 1.32
+      // } else if (size < 80) {
+      //   size = sizes[0].size * 1
+      // } else {
+      //   size = 80
+      // }
+      // elCard.style.height = size.toString() + '%'
+
       // console.log('paneResize, elCard.style.height', elCard.style.height)
 
       // const elEditor = document.querySelector('.dynamicHeight')
