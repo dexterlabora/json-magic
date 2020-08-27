@@ -18,9 +18,7 @@ export default {
   env: {
     baseUrl: process.env.BASE_URL || "http://localhost:3000"
   },
-  generate: {
-    dir: 'docs'
-  },
+ 
   serverMiddleware: ["~/api"],
   /*
   ** Headers of the page
