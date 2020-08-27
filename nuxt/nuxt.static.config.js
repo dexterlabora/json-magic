@@ -1,5 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+
 
 export default {
   /*
@@ -99,15 +99,7 @@ export default {
   build: {
     options: {
       fix: true
-      },
-      plugins: [
-        new MonacoWebpackPlugin({
-          // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-          languages: ['json', 'javascript'],
-          
-          
-        })
-      ]
+      }
   },
   eslint: {
     fix: true

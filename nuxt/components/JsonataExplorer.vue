@@ -605,7 +605,7 @@ export default {
         expr.assign('trace', function (arg) {
           console.log(arg)
         })
-        this.timeboxExpression(expr, 1000, 500)
+        this.timeboxExpression(expr, 5000, 500)
 
         expr.assign('trace', function (arg) {
           console.log('trace arg', arg)

@@ -54,4 +54,9 @@ router.post('/proxy', jsonParser, async (req, res, next) => {
   })
 });
 
+router.get('/proxy', async (req, res, next) => {
+  res.send("API Proxy")
+  
+});
+
 module.exports = router

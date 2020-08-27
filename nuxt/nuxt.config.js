@@ -1,5 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+const isServerlessEnvironment = process.env.ON_VERCEL=="true"
 
 export default {
   /*
@@ -15,7 +15,9 @@ export default {
   env: {
     baseUrl: process.env.BASE_URL || "http://localhost:3000"
   },
-  serverMiddleware: ["~/api"],
+  serverMiddleware: isServerlessEnvironment ? [] : [
+    '~/api/index.js'
+  ],
   /*
   ** Headers of the page
   ** See https://nuxtjs.org/api/configuration-head
@@ -73,6 +75,7 @@ export default {
   ** https://github.com/nuxt-community/vuetify-module
   */
   vuetify: {
+    optionsPath: './vuetify.options.js',
     customVariables: ['~/assets/variables.scss'],
     theme: {
       dark: true,
@@ -96,15 +99,7 @@ export default {
   build: {
     options: {
       fix: true
-      },
-      plugins: [
-        new MonacoWebpackPlugin({
-          // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-          languages: ['json', 'javascript'],
-          
-          
-        })
-      ]
+      }
   },
   eslint: {
     fix: true

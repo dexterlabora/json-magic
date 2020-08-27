@@ -1,24 +1,22 @@
 {
-    "version": 2,
-    "builds": [
+  "version": 2,
+  "env": {
+      "ON_VERCEL": "true"
+  },
+  "builds": [
       {
-        "src": "nuxt.config.js",
-        "use": "@nuxtjs/now-builder",
-        "config": {
-          "serverFiles": ["package.json"]
-        }
-      }
-    ],
-    "routes": [
-      { "src": "/_nuxt/.+", "headers": { "Cache-Control": "max-age=31557600" } },
-      {
-        "src": "/sw.js",
-        "dest": "/_nuxt/static/sw.js",
-        "headers": {
-          "cache-control": "public, max-age=43200, immutable",
-          "Service-Worker-Allowed": "/"
-        }
+          "src": "api/**/*.js",
+          "use": "@now/node"
       },
-      { "src": "/(.*)", "dest": "/" }
-    ]
-  }
+      {
+          "src": "nuxt.config.js",
+          "use": "@nuxtjs/now-builder"
+      }
+  ],
+  "routes": [
+      {  "src": "/api/proxy", "dest": "api/index.js" },
+      {  "src": "/api/(.*)", "dest": "api/index.js" },
+      { "src": "/api", "dest": "api/index.js" },
+      { "src": "/(.*)", "dest": "$1" }
+  ]
+}

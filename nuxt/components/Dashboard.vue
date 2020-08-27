@@ -312,6 +312,7 @@ export default {
     wsDialog: false,
     oasDialog: false,
     form: {
+      inputRouteQuery: '',
       inputName: '',
       inputFile: undefined,
       inputJson: `{
@@ -440,6 +441,9 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     }
   },
   watch: {
+    '$route.query.inputJson' () {
+      this.onQueryData(this.$route.query.inputJson)
+    },
     inputValue () {
       this.onGenerateParsedInput()
     },
@@ -497,9 +501,10 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     this.onGenerateParsedInput()
     this.onGenerateTable()
   },
-  // mounted () {
-  //   window.addEventListener('beforeunload', this.onBeforeUnload)
-  // },
+  mounted () {
+    // window.addEventListener('beforeunload', this.onBeforeUnload)
+    this.onQueryData(this.$route.query.inputJson)
+  },
   beforeMount () {
     window.addEventListener('beforeunload', this.preventNav)
     this.$once('hook:beforeDestroy', () => {
@@ -651,6 +656,14 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     },
     onInputName (data) {
       this.form.inputName = data
+    },
+    onQueryData (string) {
+      if (!string) { return }
+      console.log('json from query data', string)
+      this.form.query = '$'
+      this.form.inputRouteQuery = string
+      this.form.inputJson = this.formatJsonString(string)
+      this.updateInputHistory(JSON.parse(string))
     },
     onWebsocketData (string) {
       this.form.inputJson = this.formatJsonString(string)
