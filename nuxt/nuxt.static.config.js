@@ -13,7 +13,7 @@ export default {
   */
   target: 'static',
   router: {
-    base: '/json-magic/'
+    base: 'https://dexterlabora.github.io/json-magic/'
   },
   env: {
     baseUrl: process.env.BASE_URL || "http://localhost:3000"
