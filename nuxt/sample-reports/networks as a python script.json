@@ -1,0 +1,269 @@
+{
+    "info": {
+        "description": "A JSONata query expression, the input JSON data and resulting JSON data"
+    },
+    "name": "networks as a python script",
+    "query": "(\n    $networkIds:=$.id;\n   \n\n    $networkIds.{\n        \"script\": \"response = dashboard.networks.getNetwork(\" & $ & \")\"\n    }\n    )",
+    "inputJson": [
+        {
+            "id": "L_646829496481087792",
+            "organizationId": "537758",
+            "name": "London",
+            "productTypes": [
+                "appliance",
+                "camera",
+                "switch",
+                "systemsManager",
+                "wireless"
+            ],
+            "timeZone": "Europe/London",
+            "tags": [
+                "Branch"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/London-wireless/n/8-8gZdvc/manage/usage/list"
+        },
+        {
+            "id": "L_646829496481091801",
+            "organizationId": "537758",
+            "name": "Sydney",
+            "productTypes": [
+                "appliance",
+                "camera",
+                "systemsManager",
+                "wireless"
+            ],
+            "timeZone": "Australia/Sydney",
+            "tags": [
+                "Retail"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Sydney-appliance/n/NyriCdvc/manage/usage/list"
+        },
+        {
+            "id": "L_646829496481098888",
+            "organizationId": "537758",
+            "name": "Datacenter-NA",
+            "productTypes": [
+                "appliance",
+                "switch"
+            ],
+            "timeZone": "America/Chicago",
+            "tags": [
+                "Datacenter"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Datacenter-NA-sw/n/0c0a6dvc/manage/usage/list"
+        },
+        {
+            "id": "L_646829496481100388",
+            "organizationId": "537758",
+            "name": "San Francisco",
+            "productTypes": [
+                "appliance",
+                "camera",
+                "switch",
+                "systemsManager",
+                "wireless"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [
+                "Campus"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/San-Francisco-ap/n/X3S4bcvc/manage/usage/list"
+        },
+        {
+            "id": "L_646829496481102319",
+            "organizationId": "537758",
+            "name": "Chicago",
+            "productTypes": [
+                "appliance",
+                "wireless"
+            ],
+            "timeZone": "America/Chicago",
+            "tags": [
+                "Branch"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Chicago-applianc/n/9WEszcvc/manage/usage/list"
+        },
+        {
+            "id": "L_646829496481102320",
+            "organizationId": "537758",
+            "name": "Toronto",
+            "productTypes": [
+                "appliance",
+                "switch",
+                "wireless"
+            ],
+            "timeZone": "America/Toronto",
+            "tags": [
+                "Retail"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Toronto-switch/n/lQarXcvc/manage/usage/list",
+            "configTemplateId": "L_646829496481102943"
+        },
+        {
+            "id": "L_646829496481103010",
+            "organizationId": "537758",
+            "name": "New York",
+            "productTypes": [
+                "appliance",
+                "switch",
+                "wireless"
+            ],
+            "timeZone": "America/Toronto",
+            "tags": [
+                "Retail"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/New-York-applian/n/TxntOdvc/manage/usage/list",
+            "configTemplateId": "L_646829496481102943"
+        },
+        {
+            "id": "N_646829496481093172",
+            "organizationId": "537758",
+            "name": "Teleworker John Smith",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [
+                "Teleworker"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Teleworker-John-/n/kCSu3avc/manage/usage/list",
+            "configTemplateId": "N_646829496481093174"
+        },
+        {
+            "id": "N_646829496481143649",
+            "organizationId": "537758",
+            "name": "Datacenter-NA-Concentrator",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Chicago",
+            "tags": [
+                "Datacenter"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Datacenter-NA-Co/n/6JVN7bvc/manage/usage/list"
+        },
+        {
+            "id": "N_646829496481143883",
+            "organizationId": "537758",
+            "name": "Teleworker Yolanda Delcambre",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [
+                "Teleworker"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Teleworker-Yolan/n/9HUmzbvc/manage/usage/list",
+            "configTemplateId": "N_646829496481093174"
+        },
+        {
+            "id": "N_646829496481143884",
+            "organizationId": "537758",
+            "name": "Teleworker Maribel Perry",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [
+                "Teleworker"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Teleworker-Marib/n/hhfHFdvc/manage/usage/list",
+            "configTemplateId": "N_646829496481093174"
+        },
+        {
+            "id": "N_646829496481146602",
+            "organizationId": "537758",
+            "name": "Datacenter-SA",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Bogota",
+            "tags": [
+                "Datacenter"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Datacenter-SA/n/no097dvc/manage/usage/list"
+        },
+        {
+            "id": "N_646829496481149212",
+            "organizationId": "537758",
+            "name": "Datacenter-CA",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [
+                "Datacenter"
+            ],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/Datacenter-CA/n/L7QQOcvc/manage/usage/list"
+        },
+        {
+            "id": "N_646829496481162193",
+            "organizationId": "537758",
+            "name": "San Jose",
+            "productTypes": [
+                "appliance"
+            ],
+            "timeZone": "America/Los_Angeles",
+            "tags": [],
+            "enrollmentString": null,
+            "url": "https://n149.meraki.com/San-Jose/n/UmFljdvc/manage/usage/list"
+        }
+    ],
+    "outputJson": [
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481087792)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481091801)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481098888)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481100388)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481102319)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481102320)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(L_646829496481103010)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481093172)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481143649)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481143883)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481143884)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481146602)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481149212)"
+        },
+        {
+            "script": "response = dashboard.networks.getNetwork(N_646829496481162193)"
+        }
+    ]
+}

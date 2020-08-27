@@ -1,0 +1,19 @@
+{
+    "presets": [
+        [
+            "env",
+            {
+                "modules": false
+            }
+        ],
+    ],
+    "plugins": [
+        "external-helpers",
+        "transform-vue-jsx", 
+        "syntax-dynamic-import",
+        ["transform-runtime", {
+            "polyfill": false,
+            "regenerator": true
+        }]
+    ]
+}
