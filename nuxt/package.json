@@ -12,7 +12,7 @@
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "deploy": "nuxt build && gcloud app deploy app.yaml --project meraki-micro-services",
-    "deploygh": "nuxt build -c nuxt.static.config && cd .. push-dir --dir=nuxt/dist --branch=gh-pages --cleanup"
+    "deploygh": "nuxt build -c nuxt.static.config && cp -R dist ../docs"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.1",
