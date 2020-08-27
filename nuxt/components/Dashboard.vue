@@ -665,6 +665,7 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       this.form.inputJson = this.formatJsonString(string)
       this.updateInputHistory(JSON.parse(string))
     },
+
     onWebsocketData (string) {
       this.form.inputJson = this.formatJsonString(string)
       this.updateInputHistory(JSON.parse(string))

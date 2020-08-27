@@ -154,8 +154,17 @@ export default {
       this.form.reportName = name
     })
   },
+  mounted () {
+    this.onQueryOption(this.$route.query)
+  },
 
   methods: {
+    onQueryOption (option) {
+      if (option.hideInput) {
+        this.form.toggleView.a = !option.hideInput
+        this.$nuxt.$emit('toggleViewInput', this.form.toggleView.a)
+      }
+    },
     getDateString () {
       const date = new Date()
       const year = date.getFullYear()
