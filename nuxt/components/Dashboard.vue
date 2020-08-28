@@ -284,6 +284,9 @@ const linkify = require('linkifyjs')
 require('linkifyjs/plugins/hashtag')(linkify) // optional
 const linkifyHtml = require('linkifyjs/html')
 
+/* global pm */
+// Access to Postman global if running embeded
+
 export default {
   name: 'Dashboard',
   components: {
@@ -313,6 +316,7 @@ export default {
     oasDialog: false,
     form: {
       inputRouteQuery: '',
+      inputPostman: {},
       inputName: '',
       inputFile: undefined,
       inputJson: `{
@@ -444,6 +448,17 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     '$route.query.inputJson' () {
       this.onQueryData(this.$route.query.inputJson)
     },
+    '$route.query.postman' () {
+      // if () { return }
+      console.log('query postman', this.$route.query.postman)
+      // console.log('postman data', getPostmanData())
+    },
+    'form.inputPostman' () {
+      if (!this.form.inputPostman) { return }
+      console.log('watch form.inputPostman', this.form.inputPostman)
+      this.form.inputJson = this.formatJsonString(JSON.stringify(this.form.inputPostman))
+      this.form.inputValue = this.form.inputPostman
+    },
     inputValue () {
       this.onGenerateParsedInput()
     },
@@ -496,14 +511,25 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       this.form.inputName = name
       this.onSaveReport()
     })
-    this.inputValue = this.form.inputJson
-    this.combinedInputValue = [JSON.parse(this.form.inputJson)]
-    this.onGenerateParsedInput()
-    this.onGenerateTable()
   },
   mounted () {
     // window.addEventListener('beforeunload', this.onBeforeUnload)
     this.onQueryData(this.$route.query.inputJson)
+    console.log('query postman', this.$route.query.postman)
+
+    // Postman Support
+    if (this.$route.query.postman === 'true') {
+      this.getPostmanData()
+      // console.log('getPostmanData', data)
+      // const dataString = JSON.stringify(data)
+      // console.log('dataString', dataString)
+      // this.form.inputJson = this.formatJsonString(dataString)
+    }
+    console.log('this.inputValue', this.inputValue)
+    this.inputValue = this.form.inputJson
+    this.combinedInputValue = [JSON.parse(this.form.inputJson)]
+    this.onGenerateParsedInput()
+    this.onGenerateTable()
   },
   beforeMount () {
     window.addEventListener('beforeunload', this.preventNav)
@@ -521,6 +547,18 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
   //   next()
   // },
   methods: {
+    getPostmanData () {
+      if (pm === undefined) {
+        console.log('not running in Postman')
+      } else {
+        pm.getData((err, data) => {
+          if (err) { console.log('postman err', err) }
+          console.log('postman data', data)
+          this.form.inputPostman = data
+          this.form.query = '$'
+        })
+      }
+    },
     paneResize (sizes) {
       console.log('paneResize', sizes)
       const elCard = document.querySelector('.tableView')
@@ -665,7 +703,12 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       this.form.inputJson = this.formatJsonString(string)
       this.updateInputHistory(JSON.parse(string))
     },
-
+    // onPostmanData (obj) {
+    //   this.form.inputPostman = obj
+    //   this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
+    //   // this.inputValue = obj
+    //   this.updateInputHistory({ ...{}, ...obj })
+    // },
     onWebsocketData (string) {
       this.form.inputJson = this.formatJsonString(string)
       this.updateInputHistory(JSON.parse(string))
@@ -768,7 +811,7 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
 
         return formattedString
       } catch (error) {
-        // console.log('Finished - formatJsonString error', error)
+        console.log('Finished - formatJsonString error', error)
         return jsonString
       }
     }

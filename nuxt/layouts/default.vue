@@ -160,8 +160,8 @@ export default {
 
   methods: {
     onQueryOption (option) {
-      if (option.hideInput) {
-        this.form.toggleView.a = !option.hideInput
+      if (option.hideInput === true) {
+        this.form.toggleView.a = false
         this.$nuxt.$emit('toggleViewInput', this.form.toggleView.a)
       }
     },

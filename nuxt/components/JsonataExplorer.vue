@@ -287,8 +287,8 @@ export default {
   data: () => ({
     panel: [0, 1],
     paneSizes: {
-      input: 30,
-      result: 70
+      input: 40,
+      result: 60
     },
     // selectedRow: '',
     options: {},
