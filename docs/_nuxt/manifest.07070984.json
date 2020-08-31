@@ -1,5 +1,5 @@
 {
-  "name": "json-magic-nuxt",
+  "name": "JSON Magic",
   "short_name": "json-magic-nuxt",
   "description": "# JSON Magic",
   "icons": [
@@ -50,5 +50,6 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "black",
-  "lang": "en"
+  "lang": "en",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

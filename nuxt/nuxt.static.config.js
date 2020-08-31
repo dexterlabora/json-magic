@@ -68,6 +68,13 @@ export default {
   
     "@nuxtjs/axios",
   ],
+
+    manifest: {
+      name: 'JSON Magic',
+      lang: 'en',
+      "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    
+  },
   axios: {
     // proxyHeaders: false
   },
