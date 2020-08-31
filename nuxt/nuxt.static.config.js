@@ -1,5 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
-
+const cheerio = require('cheerio');
 
 export default {
   /*
@@ -96,6 +96,14 @@ export default {
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
+ render: { resourceHints: false },
+hooks: {
+  'generate:page': page => {
+    const doc = cheerio.load(page.html);
+    doc(`body script`).remove();
+    page.html = doc.html();
+  },
+},
   build: {
     options: {
       fix: true

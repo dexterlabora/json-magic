@@ -455,9 +455,10 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     },
     'form.inputPostman' () {
       if (!this.form.inputPostman) { return }
-      console.log('watch form.inputPostman', this.form.inputPostman)
-      this.form.inputJson = this.formatJsonString(JSON.stringify(this.form.inputPostman))
-      this.form.inputValue = this.form.inputPostman
+      this.onPostmanData(this.form.inputPostman)
+      // console.log('watch form.inputPostman', this.form.inputPostman)
+      // this.form.inputJson = this.formatJsonString(JSON.stringify(this.form.inputPostman))
+      // this.form.inputValue = this.form.inputPostman
     },
     inputValue () {
       this.onGenerateParsedInput()
@@ -553,8 +554,9 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       } else {
         pm.getData((err, data) => {
           if (err) { console.log('postman err', err) }
-          console.log('postman data', data)
-          this.form.inputPostman = data
+          console.log('postman data', data.res)
+          console.log('postman pm', data.pm)
+          this.form.inputPostman = data.res
           this.form.query = '$'
         })
       }
@@ -678,8 +680,15 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
       this.updateInputHistory(obj)
     },
-    onHistoryData (obj) {
-      this.form.inputJson = this.formatJsonString(JSON.stringify(obj))
+    onHistoryData (array) {
+      // if single item returned, remove additinal parent array
+      let adjusted
+      if (array.length === 1) {
+        adjusted = array[0]
+      } else {
+        adjusted = array
+      }
+      this.form.inputJson = this.formatJsonString(JSON.stringify(adjusted))
     },
     onApiData (obj) {
       // const useCombinedInput = true // temp
@@ -702,6 +711,12 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
       this.form.inputRouteQuery = string
       this.form.inputJson = this.formatJsonString(string)
       this.updateInputHistory(JSON.parse(string))
+    },
+    onPostmanData (data) {
+      console.log('watch form.inputPostman', this.form.inputPostman)
+      this.form.inputJson = this.formatJsonString(JSON.stringify(this.form.inputPostman))
+      this.form.inputValue = this.form.inputPostman
+      this.updateInputHistory(this.form.inputPostman)
     },
     // onPostmanData (obj) {
     //   this.form.inputPostman = obj

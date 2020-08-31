@@ -8,12 +8,14 @@ const res = pm.response.json();
 
 // Configure the template
 var template = `
-<button onclick="download()">Download Table </button><span><a id="magiclink" href="https://meraki-micro-services.ew.r.appspot.com//">Open with JSON Magic</a>
+<button onclick="download()">Download Table </button><span><a id="magiclink" href="#">Open with JSON Magic</a>
 <div id="myTable" height="75"></div>
 
 
  <!-- Tableify-->
- <script src="https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js"></script>
+ 
+<script src="https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js"></script>
+ 
 
 <script>
     var result;
@@ -36,7 +38,7 @@ var template = `
     function setMagicLink(data){
         var ctx = document.getElementById("magiclink");
         var uriData = encodeURIComponent(JSON.stringify(data));
-        ctx.href = "https://meraki-micro-services.ew.r.appspot.com/?inputJson=" + uriData;
+        ctx.href = "https://dexterlabora.github.io/json-magic/?hideInput=false&postman=true";
     }
 
     // Get DOM element to render the chart in

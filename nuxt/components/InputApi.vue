@@ -45,6 +45,9 @@
 </template>
 
 <script>
+/* global pm */
+// Access to Postman global if running embeded
+
 const axios = require('axios')
 
 export default {
@@ -97,24 +100,45 @@ export default {
         options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
       }
 
-      axios
-        .post(url, options)
-        .then((res) => {
-          console.log('fetchJson response', this.apiForm.url, res)
-          this.inputValue = res.data
-          this.$emit('data', this.inputValue)
-          this.$emit('url', this.apiForm.url)
-        })
-        .catch((e) => {
-          console.log('fetch error', e)
-          this.isLoading = false
-          this.inputValue = e
-          this.$emit('data', this.inputValue)
-          this.$emit('url', this.apiForm.url)
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+      if (!pm) {
+        axios
+          .post(url, options)
+          .then((res) => {
+            console.log('fetchJson response', this.apiForm.url, res)
+            this.inputValue = res.data
+            this.$emit('data', this.inputValue)
+            this.$emit('url', this.apiForm.url)
+          })
+          .catch((e) => {
+            console.log('fetch error', e)
+            this.isLoading = false
+            this.inputValue = e
+            this.$emit('data', this.inputValue)
+            this.$emit('url', this.apiForm.url)
+          })
+          .finally(() => {
+            this.isLoading = false
+          })
+      } else {
+        // Postman Support
+        console.log('pm object', pm)
+        pm
+          .sendRequest(options, function (err, res) {
+            if (err) {
+              console.log('fetch error', err)
+              this.isLoading = false
+              this.inputValue = err
+              this.$emit('data', this.inputValue)
+              this.$emit('url', this.apiForm.url)
+            } else {
+              console.log('fetchJson response', this.apiForm.url, res.json())
+              this.inputValue = res.json()
+              this.isLoading = false
+              this.$emit('data', this.inputValue)
+              this.$emit('url', this.apiForm.url)
+            }
+          })
+      }
     }
   }
 }
