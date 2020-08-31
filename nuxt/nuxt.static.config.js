@@ -109,15 +109,54 @@ export default {
     }
   },
   render: {
+    // 'default-src 'none'; script-src http: https: 'unsafe-inline'; style-src http: https: 'unsafe-inline' ;
+    // img-src http: https: data:; font-src http: https:; connect-src http: https:; media-src http: https:; object-src 'none'; child-src 'none'; frame-src 'none''.
     csp: {
-      reportOnly: true,
-      hashAlgorithm: 'sha256',
-      policies: {
-        'script-src': ["'self'"],
-        'unsafe-eval': ["object-src 'self'"]
-      }
-    }
-  },
+        hashAlgorithm: 'sha256',
+        policies: {
+          'default-src' : [
+            'none'
+          ],
+          'script-src': [
+            'unsafe-inline'
+          ],
+          'style-src': [
+            'unsafe-inline'
+          ],
+          'style-src': [
+            'example.com',
+          ],
+          'img-src': [
+            'example.com',
+            'data:',
+            'www.gravatar.com'
+          ],
+          'object-src':[
+            'none'
+          ],
+          'child-src':[
+            'none'
+          ],
+          'frame-src':[
+            'none'
+          ],
+          'report-uri': ['https://example.com/report-csp-violations']
+        },
+        addMeta: true, // Adds the meta tag to HTML
+        showResult: true, // Displays the generated CSP string in the console
+        saveResult: 'csp_header.txt', // Saves the CSP HTTP Header in this file in the output folder (/dist by default)
+    },
+},
+  // render: {
+  //   csp: {
+  //     reportOnly: true,
+  //     hashAlgorithm: 'sha256',
+  //     policies: {
+  //       'script-src': ["'self'"],
+  //       'unsafe-eval': ["object-src 'self'"]
+  //     }
+  //   }
+  // },
   // "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
   /*
    ** Build configuration
