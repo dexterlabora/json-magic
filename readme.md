@@ -1,78 +1,54 @@
 # JSON Magic 
 
-This little tool allows you to easily make sense of JSON data. 
+**JSON + JSONata + Tableify**
 
-## Demos
+A solution to transform JSON data into a nested table using JSONata expressions
 
-- [PWA - Full Features](https://meraki-micro-services.ew.r.appspot.com/)
+This project consists of several implementations to support the various environments. But, the concept remains the same.
 
-- [Simple HTML prototype version](https://dexterlabora.github.io/json-magic/)
+## General Features
 
-
-## Features
-
-- Transform JSON data on the fly
-- Generates nested HTML tables
+- Transform JSON data on the fly using JSONata
+- Generates nested HTML tables using tableify
 - Export data in CSV/JSON/HTML
 
-### Vue Web 
-App that can run using just an index.html file. 
 
-### Node Server 
+## Projects
 
-If the index.html file is run via the server, it can be sent data dynamically.
-
-- Web App host
-- API Proxy Server
-- Websocket Server
-- Webhook Server
-
-## Install 
-
-```
-git clone https://github.com/dexterlabora/json-magic.git
-cd json-magic/node
-npm install
-npm run start
-```
-
-
-Running
-
-```
-
- Application Started 
-
-APP address on      http://localhost:3000
-Webhook API address    http://localhost:3000/webhook
-Websocket address   ws://localhost:3000
-
-```
-
-#### Inputs
-- Raw text (copy/paste)
-- File input
-- 3rd party API request (requires proxy server)
-- websocket (requires websocket server)
-
-#### Outputs
-- JSONata Query tool
-- Nested HTML table output
-- Various download options
-
-
-### Built With
-
-- Vue
-- Vuetify
-- JSONata
-- tableify
-- vue-prism
-
-This project was intentionally built minimal using CDNs for a few components.
-
-# JSON Magic - PWA w/ OpenAPI Tools
+### Nuxt Progressive Web App w/ OpenAPI & Proxy
 
 This is an advanced version of this tool, which is a deployable Progressive Web App. It includes it's own backend Express server and can be easily deployed to Google App Engine.
 
-[Read More](nuxt/README.md)
+- [Demo](https://meraki-micro-services.ew.r.appspot.com/)
+- [Read Me](nuxt/README.md)
+
+### Nuxt PWA Static (Github.io)
+
+The nuxt application built to be rendered by a static host
+
+- [Demo]](https://dexterlabora.github.io/json-magic/)
+- [Source](docs): For github.io
+
+### Node
+
+Runs a static version and providing a proxy and websocket listener
+
+- [Read Me](node/readme.md)
+
+### Postman Visualization
+
+A light way version to use within a Postman Test Visualization
+
+- [Read Me](postman/readme.md)
+
+### Node-RED
+
+A Nod-RED Flow that hosts the app and can stream data into it
+
+- [Read Me](node-red/readme.md)
+
+
+### Vue Web 
+A VueJs CDN App that can run using just an [index.html](index.html) file. 
+
+
