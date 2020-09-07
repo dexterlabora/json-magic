@@ -614,8 +614,8 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
 
         // console.log('finished onGeneratedParsedInput')
       } catch (e) {
-        // console.log('not JSON, just return raw data')
-        this.parsedInput = this.inputValue
+        console.log('not JSON, just return raw data with conversion')
+        this.parsedInput = JSON.parse(JSON.stringify(this.inputValue))
       }
     },
     sizeInKb (obj) {
@@ -672,8 +672,7 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
         this.inputValueHistory.shift()
       }
     },
-    onEditorData (data) {
-      this.form.inputJson = data
+    onEditorData () {
       this.inputValue = this.form.inputJson
     },
     onOasData (obj) {

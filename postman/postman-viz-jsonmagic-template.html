@@ -1,0 +1,284 @@
+
+<head>
+    <title>Basic Example</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shagstrom/split-pane@1.0.0/split-pane.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@shagstrom/split-pane@1.0.0/split-pane.js"></script>
+    <style type="text/css" media="screen">
+        html,
+        body {
+            background-color: #898b8e;
+            height: 100%;
+            min-height: 100%;
+            padding: 5;
+            color: #4e4b48
+        }
+
+        a {
+            color: #fecd08
+        }
+
+        button {
+            margin: 5;
+            color: #fecd08
+        }
+
+        .runbtn {
+            background-color: #67b346;
+        }
+
+        .split-pane-divider {
+            background: #aaa;
+
+        }
+
+        #left-component {
+            background-color: "#fff";
+            width: 20em;
+        }
+
+        #my-divider {
+            left: 20em;
+            /* Same as left component width */
+            width: 5px;
+        }
+
+        #right-component {
+            left: 20em;
+            /* Same as left component width */
+            margin-left: 5px;
+            /* Same as divider width */
+        }
+
+        .myTable {
+            height: 100%;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f9f9f9;
+        }
+
+        .syncCheckBox {
+            padding-right: 20px;
+            font-weight: bold;
+
+        }
+
+        .queryTextArea {
+            width: 300px;
+        }
+
+        #editor {
+            height: 200px;
+            /* position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0; */
+        }
+
+        #json-results {
+            height: 500px;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('div.split-pane').splitPane();
+        });
+    </script>
+</head>
+
+<body>
+    <b><a href='https://github.com/dexterlabora/json-magic'>JSON Magic</a></b>
+
+    <button onclick="onExportCsv()" style="float:right;">Download CSV </button>
+    <button onclick="download('table.html',table)" style="float:right;">Download Table </button>
+    <button onclick="download('result.json',result)" style="float:right;">Result JSON </button>
+    </span>
+
+    <div class="split-pane fixed-left">
+
+        <div class="split-pane-component" id="left-component">
+    
+            <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> Docs </a>
+            <br>
+            <div style="float:right; ">
+                <button class="runbtn"  onclick="onRunQuery()">run </button>
+               <br>
+                <p style="padding-left:20px; =">sync <input type="checkbox"  id="syncCheckBox" class="syncCheckBox" name="sync" checked></p>
+            </div>
+
+            <!-- JSONata Query -->
+            <!-- <textarea placeholder="$" name="queryTextArea" id="query" class="queryTextArea" value="$"></textarea> -->
+            <div id="editor">$</div>
+            <br>
+            <i>JSONata Results</i>
+            <!-- JSONata Result -->
+            <div id="json-results"></div>
+            <!-- <textarea id="resultJson" style="height:600px; width:100%;"></textarea> -->
+        </div>
+
+        <div class="split-pane-divider" id="my-divider"></div>
+        <div class="split-pane-component" style="padding-left:20" id="right-component">
+            <!-- Tableify Result -->
+            <div id="myTable" style="padding-top:25px;" class="myTable"></div>
+
+        </div>
+    </div>
+</body>
+
+<!-- JSONata Editor -->
+<script src="https://cdn.jsdelivr.net/npm/jsonata/jsonata.min.js"></script>
+<!-- SplitJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
+<!-- Tableify-->
+
+<script src="https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/json2csv"></script>
+
+<!-- Ace Editor -->
+<script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM="
+    crossorigin="anonymous"></script>
+
+<script>
+    // Primary variables
+    var result = "{}";
+    var table;
+    var data = {
+        "test": 123
+    };
+    var query = "$";
+
+
+    // const queryEl = document.getElementById('query');
+    // queryEl.addEventListener('input', onQueryText);
+
+    // const resultJsonEl = document.getElementById('resultJson');
+    const tableEl = document.getElementById("myTable");
+    const syncCheckBoxEl = document.getElementById("syncCheckBox");
+
+    // Ace Editor
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/chrome");
+    editor.getSession().setMode("ace/mode/json");
+
+    editor.getSession().setUseWorker(false)
+    editor.getSession().on('change', function () {
+        onQueryText();
+    });
+
+    // JSON Results
+    var jsonResults = ace.edit("json-results");
+    jsonResults.setTheme("ace/theme/chrome");
+    jsonResults.getSession().setMode("ace/mode/json");
+    // jsonResults.getSession().setValue(result);
+    jsonResults.getSession().setUseWorker(false)
+    //     editor.getSession().on('change', function () {
+    //        onQueryText(editor.getSession().getValue());
+    //    });
+
+
+    // Postman Data
+    try {
+        pm.getData(function (err, value) {
+            data = value;
+            query = '$';
+            editor.getSession().setValue(query);
+            updateResults(query)
+        });
+    } catch (e) {
+        console.log('postman not connected')
+    }
+
+
+
+    function onRunQuery() {
+        updateResults(query)
+    }
+
+    function onQueryText() {
+        query = editor.getSession().getValue()
+        console.log('onQueryText query', query)
+        //query = queryEl.value
+
+
+        if (syncCheckBoxEl.checked) {
+            updateResults(query)
+        }
+    }
+
+    function updateResults(query) {
+        result = generateJsonataResult(query, data)
+        //resultJsonEl.value = JSON.stringify(result, null, 4);
+        console.log('result', result)
+
+        var jsonString = "";
+        if (result) {
+            try {
+                jsonString = JSON.stringify(result, null, 4)
+            } catch (e) {
+                jsonString = result
+            }
+        }
+
+        jsonResults.getSession().setValue(jsonString);
+
+        table = tableify(result)
+        tableEl.innerHTML = table
+    }
+
+    function generateJsonataResult(query, jsonData) {
+        try {
+            return jsonata(query).evaluate(jsonData, (error, result) => {
+                if (error) {
+                    console.error("jsonata error", error);
+                    return error['message'];
+                }
+                //console.log("Finished with", result);
+                return result;
+            })
+
+        } catch (e) {
+            console.log("JSONata expression error", e)
+            return e.message;
+        }
+    }
+
+    function onExportCsv() {
+        try {
+            const transforms = [json2csv.transforms.flatten({
+                objects: true,
+                arrays: true
+            })];
+            let options = {
+                "flattenArrays": true,
+                transforms
+            };
+            const parser = new json2csv.Parser(options);
+            const csv = parser.parse(result);
+
+            download('result.csv', csv);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
+    function download(filename, data) {
+        if (filename.includes('.json')) {
+            data = JSON.stringify(data, null, 4)
+        }
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    // Init
+    onRunQuery()
+</script>
+
+

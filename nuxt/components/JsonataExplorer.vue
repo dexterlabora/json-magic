@@ -352,7 +352,7 @@ export default {
         this.$emit('data', errorMsg)
       } else if (this.isLargeJson) {
         // large data size
-        this.resultString = JSON.stringify(this.result, null, 4)
+        this.resultString = this.result // JSON.stringify(this.result, null, 4)
         // this.editor.getSession().foldAll(4)
         this.$emit('data', this.result)
       } else {
