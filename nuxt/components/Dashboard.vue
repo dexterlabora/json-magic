@@ -519,13 +519,13 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
     console.log('query postman', this.$route.query.postman)
 
     // Postman Support
-    if (this.$route.query.postman === 'true') {
-      this.getPostmanData()
-      // console.log('getPostmanData', data)
-      // const dataString = JSON.stringify(data)
-      // console.log('dataString', dataString)
-      // this.form.inputJson = this.formatJsonString(dataString)
-    }
+    // if (this.$route.query.postman === 'true') {
+    this.getPostmanData()
+    // console.log('getPostmanData', data)
+    // const dataString = JSON.stringify(data)
+    // console.log('dataString', dataString)
+    // this.form.inputJson = this.formatJsonString(dataString)
+    // }
     console.log('this.inputValue', this.inputValue)
     this.inputValue = this.form.inputJson
     this.combinedInputValue = [JSON.parse(this.form.inputJson)]
@@ -549,9 +549,7 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
   // },
   methods: {
     getPostmanData () {
-      if (pm === undefined) {
-        console.log('not running in Postman')
-      } else {
+      try {
         pm.getData((err, data) => {
           if (err) { console.log('postman err', err) }
           console.log('postman data', data.res)
@@ -559,6 +557,8 @@ $.Account.Order.Product[\`Product Name\`="Bowler Hat"].
           this.form.inputPostman = data.res
           this.form.query = '$'
         })
+      } catch (e) {
+        console.log('not running in Postman')
       }
     },
     paneResize (sizes) {
