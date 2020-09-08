@@ -80,7 +80,8 @@
                                         <v-spacer></v-spacer>
                                     </v-toolbar>
                                     <v-card-text>
-                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a websocket server.</v-card-text-subtitle>
+                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a
+                                            websocket server.</v-card-text-subtitle>
                                         <v-card color="grey darken-3">
 
                                             <v-text-field label="URL Path" v-model="wsForm.url" class="mr-2">
@@ -89,12 +90,12 @@
 
                                         </v-card>
                                         <v-spacer></v-spacer>
-                                        
+
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-btn color="blue darken-1" text @click="wsDialog = false">Close</v-btn>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="onConnectWebsocket" color="green" >
+                                        <v-btn @click="onConnectWebsocket" color="green">
                                             <v-icon>mdi-arrow-right-drop-circle</v-icon>
                                             Update Websocket
                                         </v-btn>
@@ -184,7 +185,8 @@
                                     </v-card-subtitle>
                                     <v-card-text style="overflow: auto;">
 
-                                        <prism-editor class="json-editor" v-model="form.inputJson" :highlight="highlighter" style="height:75vh"
+                                        <prism-editor class="json-editor" v-model="form.inputJson"
+                                            :highlight="highlighter" style="height:75vh"
                                             @change="inputValue=form.inputJson"></prism-editor>
                                     </v-card-text>
 
@@ -222,7 +224,8 @@
                                 </v-card-subtitle>
                                 <v-card-actions>
 
-                                    <prism-editor v-model="form.query" :highlight="highlighter" class="pl-2 json-editor" height="50px" style="color:black">
+                                    <prism-editor v-model="form.query" :highlight="highlighter" class="pl-2 json-editor"
+                                        height="50px" style="color:black">
                                     </prism-editor>
                                     <v-btn small @click="form.query='$'" color="green" class="ml-2" icon>
                                         <v-icon>mdi-autorenew</v-icon>
@@ -285,13 +288,13 @@
         </v-app>
     </div>
 
-    
+
     <!-- <script src="components/components/v-swagger/src/wrapper.js"></script> -->
 
     <script>
         // const { Parser } = require('json2csv');
 
-       // Vue.component('vue-prism-editor', VuePrismEditor)
+        // Vue.component('vue-prism-editor', VuePrismEditor)
         Vue.component('vue-json-pretty', VueJsonPretty.default)
 
 
@@ -413,16 +416,16 @@
                     drawer: false,
                     isLoading: false,
                     apiDialog: false,
-                    wsDialog:false,
+                    wsDialog: false,
                     form: {
                         inputFile: undefined,
                         inputJson: "",
                         query: '$',
 
                     },
-                    socket:null,
-                    wsForm:{
-                        "url":`ws://localhost:${location.port}/websocket`,
+                    socket: null,
+                    wsForm: {
+                        "url": `ws://localhost:${location.port}/websocket`,
                         "isConnected": false,
                         "enabled": true
                     },
@@ -436,8 +439,8 @@
                     },
                     inputValue: {},
                     result: [],
-                   
-                    
+
+
                     tableFields: []
                 }
             },
@@ -482,7 +485,7 @@
                 //     if(this.wsForm.enabled){
                 //         return new WebSocket(this.wsForm.url);
                 //     }
-                    
+
                 // },
 
             },
@@ -498,20 +501,20 @@
             },
             methods: {
                 highlighter(code) {
-        // js highlight example
-        return Prism.highlight(code, Prism.languages.js, "js");
-      },
-                onConnectWebsocket(){
+                    // js highlight example
+                    return Prism.highlight(code, Prism.languages.js, "js");
+                },
+                onConnectWebsocket() {
                     console.log('onConnectWebsocket')
-                    if(this.socket){
+                    if (this.socket) {
                         console.log('closing socket')
                         this.socket.close();
                     }
-                    
-                    if(this.wsForm.enabled){
+
+                    if (this.wsForm.enabled) {
                         console.log('enabling socket')
                         this.socket = new WebSocket(this.wsForm.url);
-                        
+
                         this.initWebsocket()
                     }
                 },
@@ -531,7 +534,7 @@
                             }
                         </style>`;
                     let html = this.tableHtml + css;
-                    this.download(`export_${new Date().toLocaleDateString()}.html`, html)
+                    this.download("table.html", html)
                 },
                 generateJsonataResult(query, jsonData) {
                     try {
@@ -585,10 +588,13 @@
                 },
                 onExportCsv() {
                     try {
-                        
-                        const transforms = [json2csv.transforms.flatten({ objects: true, arrays: true })];
+
+                        const transforms = [json2csv.transforms.flatten({
+                            objects: true,
+                            arrays: true
+                        })];
                         let options = {
-                            "flattenArrays":true,
+                            "flattenArrays": true,
                             transforms
                         };
                         const parser = new json2csv.Parser(options);
@@ -599,7 +605,7 @@
                         console.error(err);
                     }
                 },
-                
+
                 copyText() {
                     navigator.clipboard.writeText(this.tableHtml);
                 },
@@ -660,27 +666,27 @@
                     }
 
                 },
-                initWebsocket(){
+                initWebsocket() {
                     this.socket.onopen = () => {
-                    console.log('socket open');
-                    this.wsForm.isConnected = true;
-                };
-                this.socket.onclose = () => {
-                    this.wsForm.isConnected = false;
-                };
-                this.socket.onmessage = (msg) => {
-                    //console.log('socket message', msg)
+                        console.log('socket open');
+                        this.wsForm.isConnected = true;
+                    };
+                    this.socket.onclose = () => {
+                        this.wsForm.isConnected = false;
+                    };
+                    this.socket.onmessage = (msg) => {
+                        //console.log('socket message', msg)
 
-                    // sets raw and value data
-                    this.form.inputJson = this.formatJsonString(msg.data)
-                    this.inputValue = msg.data
-                };
+                        // sets raw and value data
+                        this.form.inputJson = this.formatJsonString(msg.data)
+                        this.inputValue = msg.data
+                    };
                 }
             },
             created() {
                 this.$vuetify.theme.dark = true;
                 this.onConnectWebsocket();
-                
+
 
                 // initialize with example JSON
                 this.form.inputJson = JSON.stringify(this.example, null, 4);
@@ -723,16 +729,16 @@
         }
 
         .json-editor {
-    /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
-    background: #f8f5f5;
-    color: #ccc;
-    /* you must provide font-family font-size line-height. Example: */
-    font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
-    font-size: 12px;
-    line-height: 1.2;
-    padding: 5px;
-  }
-  
+            /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
+            background: #f8f5f5;
+            color: #ccc;
+            /* you must provide font-family font-size line-height. Example: */
+            font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            padding: 5px;
+        }
+
 
         .vjs-tree {
             font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;

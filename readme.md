@@ -37,7 +37,7 @@ Runs a static version and providing a proxy and websocket listener
 
 ### Postman Visualization
 
-A light way version to use within a Postman Test Visualization
+A vanilla JS version to use within a Postman Test Visualization
 
 - [Read Me](postman/readme.md)
 
