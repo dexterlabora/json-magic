@@ -1,4 +1,3 @@
-
 <head>
     <title>Basic Example</title>
 
@@ -18,6 +17,7 @@
         a {
             color: white
         }
+
         a:hover {
             color: 67b346
         }
@@ -31,28 +31,39 @@
             background-color: #67b346;
         }
 
-        .split-pane-divider {
-            background: #aaa;
-
-        }
+       
 
         #left-component {
-            background-color: "#fff";
-            width: 20em;
-        }
+            min-width: 5em;
+		width: 20em;
+	}
 
-        #my-divider {
-            left: 20em;
-            /* Same as left component width */
-            width: 5px;
-        }
+	#my-divider {
+		left: 20em;
+		width: 5px;
+	}
 
-        #right-component {
-            left: 20em;
-            /* Same as left component width */
-            margin-left: 5px;
-            /* Same as divider width */
-        }
+	#right-component {
+		min-width: 5em;
+		left: 20em;
+		margin-left: 5px;
+	}
+
+	#inner-left-component {
+		min-width: 10em;
+		right: 900px;
+		margin-right: 5px;
+	}
+
+	#inner-my-divider {
+		right: 900px;
+		width: 5px;
+	}
+
+	#inner-right-component {
+		width: 900px;
+        
+	}
 
         .myTable {
             height: 100%;
@@ -84,9 +95,15 @@
             height: 500px;
             width: 98%;
         }
+
+        #json-data {
+            height: 100%;
+            width: 98%;
+        }
     </style>
     <script>
         $(function () {
+
             $('div.split-pane').splitPane();
         });
     </script>
@@ -100,33 +117,57 @@
     <button onclick="download('result.json',result)" style="float:right;">Result JSON </button>
     </span>
 
-    <div class="split-pane fixed-left">
 
-        <div class="split-pane-component" id="left-component">
-    
-            <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> Docs </a>
-            <br>
-            <div style="float:right; ">
-                <button class="runbtn"  onclick="onRunQuery()">run </button>
-               <br>
-                <p style="padding-left:20px;">sync <input type="checkbox"  id="syncCheckBox" class="syncCheckBox" name="sync" checked></p>
+
+    <div class="pretty-split-pane-frame">
+        <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+        <div class="split-pane fixed-left">
+            <div class="split-pane-component" id="left-component">
+                <div class="pretty-split-pane-component-inner">
+                    <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+                    <i>JSON Data</i>
+                    <!-- JSONata Result -->
+                    <div id="json-data">test</div>
+                </div>
             </div>
 
-            <!-- JSONata Query -->
-            <!-- <textarea placeholder="$" name="queryTextArea" id="query" class="queryTextArea" value="$"></textarea> -->
-            <div id="editor">$</div>
-            <br>
-            <i>JSONata Results</i>
-            <!-- JSONata Result -->
-            <div id="json-results"></div>
-            <!-- <textarea id="resultJson" style="height:600px; width:100%;"></textarea> -->
-        </div>
+            <div class="split-pane-divider" id="my-divider"></div>
 
-        <div class="split-pane-divider" id="my-divider"></div>
-        <div class="split-pane-component" style="padding-left:20" id="right-component">
-            <!-- Tableify Result -->
-            <div id="myTable" style="padding-top:25px;" class="myTable"></div>
+            <div class="split-pane-component" id="right-component">
+                <div class="split-pane fixed-right">
+                    <div class="split-pane-component" id="inner-left-component">
+                        <div class="pretty-split-pane-component-inner">
+                            <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+                            <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> Docs </a>
+                            <br>
+                            <div style="float:right; ">
+                                <button class="runbtn" onclick="onRunQuery()">run </button>
+                                <br>
+                                <p style="padding-left:20px;">sync <input type="checkbox" id="syncCheckBox"
+                                        class="syncCheckBox" name="sync" checked></p>
+                            </div>
 
+                            <!-- JSONata Query -->
+                            <!-- <textarea placeholder="$" name="queryTextArea" id="query" class="queryTextArea" value="$"></textarea> -->
+                            <div id="editor">$</div>
+                            <br>
+                            <i>JSONata Results</i>
+                            <!-- JSONata Result -->
+                            <div id="json-results"></div>
+                        </div>
+                    </div>
+
+                    <div class="split-pane-divider" id="inner-my-divider"></div>
+
+                    <div class="split-pane-component" id="inner-right-component">
+                        <div class="pretty-split-pane-component-inner">
+                            <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+                            <!-- Tableify Result -->
+                            <div id="myTable" style="padding-top:25px;" class="myTable"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
@@ -181,6 +222,12 @@
     //        onQueryText(editor.getSession().getValue());
     //    });
 
+    // JSON Data
+    var jsonData = ace.edit("json-data");
+    jsonData.setTheme("ace/theme/chrome");
+    jsonData.getSession().setMode("ace/mode/json");
+    jsonData.getSession().setUseWorker(false)
+
 
     // Postman Data
     try {
@@ -188,6 +235,7 @@
             data = value;
             query = '$';
             editor.getSession().setValue(query);
+            jsonData.getSession().setValue(JSON.stringify(data, null, 4))
             updateResults(query)
         });
     } catch (e) {
@@ -284,5 +332,3 @@
     // Init
     onRunQuery()
 </script>
-
-
