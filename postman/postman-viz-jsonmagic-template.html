@@ -308,7 +308,7 @@
             };
             const parser = new json2csv.Parser(options);
             const csv = parser.parse(result);
-
+            console.log('onExportCsv csv',csv)
             download('result.csv', csv);
         } catch (err) {
             console.error(err);
