@@ -31,39 +31,37 @@
             background-color: #67b346;
         }
 
-       
-
         #left-component {
             min-width: 5em;
-		width: 20em;
-	}
+            width: 20em;
+        }
 
-	#my-divider {
-		left: 20em;
-		width: 5px;
-	}
+        #my-divider {
+            left: 20em;
+            width: 5px;
+        }
 
-	#right-component {
-		min-width: 5em;
-		left: 20em;
-		margin-left: 5px;
-	}
+        #right-component {
+            min-width: 2em;
+            left: 20em;
+            margin-left: 5px;
+        }
 
-	#inner-left-component {
-		min-width: 10em;
-		right: 900px;
-		margin-right: 5px;
-	}
+        #inner-left-component {
+            min-width: 5em;
+            right: 900px;
+            margin-right: 5px;
+        }
 
-	#inner-my-divider {
-		right: 900px;
-		width: 5px;
-	}
+        #inner-my-divider {
+            right: 900px;
+            width: 5px;
+        }
 
-	#inner-right-component {
-		width: 900px;
-        
-	}
+        #inner-right-component {
+            width: 900px;
+
+        }
 
         .myTable {
             height: 100%;
@@ -75,20 +73,14 @@
         .syncCheckBox {
             padding-right: 20px;
             font-weight: bold;
-
         }
 
         .queryTextArea {
             width: 300px;
         }
 
-        #editor {
+        #queryEditor {
             height: 200px;
-            /* position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0; */
         }
 
         #json-results {
@@ -117,10 +109,7 @@
     <button onclick="download('result.json',result)" style="float:right;">Result JSON </button>
     </span>
 
-
-
     <div class="pretty-split-pane-frame">
-        <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
         <div class="split-pane fixed-left">
             <div class="split-pane-component" id="left-component">
                 <div class="pretty-split-pane-component-inner">
@@ -137,7 +126,6 @@
                 <div class="split-pane fixed-right">
                     <div class="split-pane-component" id="inner-left-component">
                         <div class="pretty-split-pane-component-inner">
-                            <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
                             <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> Docs </a>
                             <br>
                             <div style="float:right; ">
@@ -148,8 +136,7 @@
                             </div>
 
                             <!-- JSONata Query -->
-                            <!-- <textarea placeholder="$" name="queryTextArea" id="query" class="queryTextArea" value="$"></textarea> -->
-                            <div id="editor">$</div>
+                            <div id="queryEditor">$</div>
                             <br>
                             <i>JSONata Results</i>
                             <!-- JSONata Result -->
@@ -161,7 +148,6 @@
 
                     <div class="split-pane-component" id="inner-right-component">
                         <div class="pretty-split-pane-component-inner">
-                            <!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
                             <!-- Tableify Result -->
                             <div id="myTable" style="padding-top:25px;" class="myTable"></div>
                         </div>
@@ -189,99 +175,108 @@
     // Primary variables
     var result = "{}";
     var table;
-    var data = {
+    var data = `{
         "test": 123
-    };
+    }`;
     var query = "$";
 
-
-    // const queryEl = document.getElementById('query');
-    // queryEl.addEventListener('input', onQueryText);
-
-    // const resultJsonEl = document.getElementById('resultJson');
+    // // //
     const tableEl = document.getElementById("myTable");
     const syncCheckBoxEl = document.getElementById("syncCheckBox");
 
-    // Ace Editor
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/chrome");
-    editor.getSession().setMode("ace/mode/json");
-
-    editor.getSession().setUseWorker(false)
-    editor.getSession().on('change', function () {
-        onQueryText();
+    // Input JSON Editor
+    var inputEditor = ace.edit("json-data");
+    inputEditor.setTheme("ace/theme/chrome");
+    inputEditor.getSession().setMode("ace/mode/json");
+    inputEditor.getSession().setUseWorker(false)
+    inputEditor.getSession().on('change', function () {
+        onJsonData();
     });
 
-    // JSON Results
-    var jsonResults = ace.edit("json-results");
-    jsonResults.setTheme("ace/theme/chrome");
-    jsonResults.getSession().setMode("ace/mode/json");
-    // jsonResults.getSession().setValue(result);
-    jsonResults.getSession().setUseWorker(false)
-    //     editor.getSession().on('change', function () {
-    //        onQueryText(editor.getSession().getValue());
-    //    });
+    // JSONata Query Editor
+    var queryEditor = ace.edit("queryEditor");
+    queryEditor.setTheme("ace/theme/chrome");
+    queryEditor.getSession().setMode("ace/mode/json");
+    queryEditor.getSession().setUseWorker(false)
+    queryEditor.getSession().on('change', function () {
+        onQueryChange();
+    });
 
-    // JSON Data
-    var jsonData = ace.edit("json-data");
-    jsonData.setTheme("ace/theme/chrome");
-    jsonData.getSession().setMode("ace/mode/json");
-    jsonData.getSession().setUseWorker(false)
-
+    // JSON Results Editor
+    var resultsEditor = ace.edit("json-results");
+    resultsEditor.setTheme("ace/theme/chrome");
+    resultsEditor.getSession().setMode("ace/mode/json");
+    resultsEditor.getSession().setUseWorker(false)
+    resultsEditor.getSession().on('change', function () {
+        onResultChange();
+    });
 
     // Postman Data
     try {
-        pm.getData(function (err, value) {
-            data = value;
-            query = '$';
-            editor.getSession().setValue(query);
-            jsonData.getSession().setValue(JSON.stringify(data, null, 4))
-            updateResults(query)
+        pm.getData(function (err, data) {
+            //query = '$'; // reset query
+            queryEditor.getSession().setValue(query);
+            inputEditor.getSession().setValue(JSON.stringify(data, null, 4))
+            console.log('postman data', query, data)
+
         });
     } catch (e) {
         console.log('postman not connected')
     }
 
-
+    function onJsonData() {
+        try {
+            data = JSON.parse(inputEditor.getSession().getValue())
+        } catch (e) {
+            data = inputEditor.getSession().getValue()
+        }
+        updateResults(query)
+    }
 
     function onRunQuery() {
         updateResults(query)
     }
 
-    function onQueryText() {
-        query = editor.getSession().getValue()
-        console.log('onQueryText query', query)
-        //query = queryEl.value
-
-
+    function onQueryChange() {
+        query = queryEditor.getSession().getValue()
+        console.log('onQueryChange query', query)
         if (syncCheckBoxEl.checked) {
             updateResults(query)
         }
     }
 
-    function updateResults(query) {
-        result = generateJsonataResult(query, data)
-        //resultJsonEl.value = JSON.stringify(result, null, 4);
-        console.log('result', result)
+    function onResultChange() {
+        result = resultsEditor.getSession().getValue()
+        buildTable()
+    }
 
+    function updateResults(query) {
+        let res = generateJsonataResult(query, data)
         var jsonString = "";
-        if (result) {
+        if (res) {
             try {
-                jsonString = JSON.stringify(result, null, 4)
+                jsonString = JSON.stringify(res, null, 4)
             } catch (e) {
-                jsonString = result
+                jsonString = res
             }
         }
+        resultsEditor.getSession().setValue(jsonString);
+    }
 
-        jsonResults.getSession().setValue(jsonString);
-
-        table = tableify(result)
+    function buildTable() {
+        let resultData = {}
+        try {
+            resultData = JSON.parse(result)
+        } catch (e) {
+            resultData = result
+        }
+        table = tableify(resultData)
         tableEl.innerHTML = table
     }
 
-    function generateJsonataResult(query, jsonData) {
+    function generateJsonataResult(query, data) {
         try {
-            return jsonata(query).evaluate(jsonData, (error, result) => {
+            return jsonata(query).evaluate(data, (error, result) => {
                 if (error) {
                     console.error("jsonata error", error);
                     return error['message'];
@@ -297,31 +292,45 @@
     }
 
     function onExportCsv() {
-        try {
-            const transforms = [json2csv.transforms.flatten({
-                objects: true,
-                arrays: true
-            })];
-            let options = {
-                "flattenArrays": true,
-                transforms
-            };
-            const parser = new json2csv.Parser(options);
-            const csv = parser.parse(result);
-            console.log('onExportCsv csv',csv)
-            download('result.csv', csv);
-        } catch (err) {
-            console.error(err);
+
+        // Convert result string to object
+        let resultObj = {};
+        try{
+            resultObj = JSON.parse(result)
+        }catch(e){
+            resultObj = {
+                result: result
+            }
         }
+        //console.log('onExport resultObj',resultObj)
+           
+        // Convert JSON object to CSV
+        const transforms = [json2csv.transforms.flatten({
+            objects: true,
+            arrays: true
+        })];
+        let options = {
+            "flattenArrays": true,
+            transforms
+        };
+        const parser = new json2csv.Parser(options);
+        let csv;
+        try{
+            csv = parser.parse(resultObj);
+        }catch(e){
+                //alert(e)
+            console.log(e)
+            csv = parser.parse({result:resultObj})
+        }      
+        //console.log('onExportCsv csv', csv)
+
+        download('result.csv', csv);      
     }
 
 
-    function download(filename, data) {
-        if (filename.includes('.json')) {
-            data = JSON.stringify(data, null, 4)
-        }
+    function download(filename, fileData) {
         var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(fileData));
         element.setAttribute('download', filename);
         element.style.display = 'none';
         document.body.appendChild(element);
