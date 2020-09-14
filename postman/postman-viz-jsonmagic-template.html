@@ -32,23 +32,24 @@
         }
 
         #left-component {
-            min-width: 5em;
+            min-width: 3em;
             width: 20em;
         }
 
         #my-divider {
             left: 20em;
             width: 5px;
+            /* background-color:lightgrey */
         }
 
         #right-component {
-            min-width: 2em;
+            min-width: 3em;
             left: 20em;
-            margin-left: 5px;
+            margin-left: 9px;
         }
 
         #inner-left-component {
-            min-width: 5em;
+            min-width: 3em;
             right: 900px;
             margin-right: 5px;
         }
@@ -56,10 +57,12 @@
         #inner-my-divider {
             right: 900px;
             width: 5px;
+            background-color:lightgrey
         }
 
         #inner-right-component {
-            width: 900px;
+            min-width: 500px;
+            margin-left: 9px;
 
         }
 
@@ -97,13 +100,14 @@
         $(function () {
 
             $('div.split-pane').splitPane();
+            // $('div.split-pane').splitPane('firstComponentSize', 400)
         });
     </script>
 </head>
 
 <body>
     <b><a href='https://github.com/dexterlabora/json-magic'>JSON Magic</a></b>
-
+    <button onclick="onToggleTable()" style="margin-left:400px">Table Full Screen </button>
     <button onclick="onExportCsv()" style="float:right;">Download CSV </button>
     <button onclick="download('table.html',table)" style="float:right;">Download Table </button>
     <button onclick="download('result.json',result)" style="float:right;">Result JSON </button>
@@ -237,6 +241,24 @@
         updateResults(query)
     }
 
+    var toggleTableState = false
+    function onToggleTable(){
+        // $("#left-component").css("min-width", "0px")
+        // $("#left-component").css("width", "0px")
+        // $("#right-component").css("width", "1000px")
+        // $("#inner-left-component").css("min-width", "0")
+        // $("#inner-left-component").css("width", "0")
+        // $("#inner-right-component").css("width", "1000px")
+        if(toggleTableState){
+            $('div.split-pane').splitPane('firstComponentSize', 400)
+            
+        }else{
+            $('div.split-pane').splitPane('firstComponentSize', 0)
+        }
+        toggleTableState = !toggleTableState
+
+    }
+
     function onQueryChange() {
         query = queryEditor.getSession().getValue()
         console.log('onQueryChange query', query)
@@ -339,5 +361,6 @@
     }
 
     // Init
+    $('div.split-pane').splitPane('firstComponentSize', 400)
     onRunQuery()
 </script>
