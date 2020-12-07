@@ -1,8 +1,15 @@
 [
     {
+        "id": "9dd53818.afe138",
+        "type": "tab",
+        "label": "JSON Magic",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "1822235e.6199bd",
         "type": "group",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "style": {
             "stroke": "#999999",
             "stroke-opacity": "1",
@@ -13,77 +20,18 @@
         "nodes": [
             "49d02587.f77dbc",
             "768a70b6.8dc9c",
-            "9752b2a7.bcee",
-            "ffb6739c.5e576"
+            "ffb6739c.5e576",
+            "a2cf67bc.022028"
         ],
-        "x": 174,
-        "y": 59,
+        "x": 54,
+        "y": 39,
         "w": 672,
         "h": 122
     },
     {
-        "id": "49d02587.f77dbc",
-        "type": "http in",
-        "z": "b5e8c9c5.b55d78",
-        "g": "1822235e.6199bd",
-        "name": "",
-        "url": "/JSONmagic",
-        "method": "get",
-        "upload": false,
-        "swaggerDoc": "",
-        "x": 290,
-        "y": 140,
-        "wires": [
-            [
-                "9752b2a7.bcee"
-            ]
-        ]
-    },
-    {
-        "id": "768a70b6.8dc9c",
-        "type": "comment",
-        "z": "b5e8c9c5.b55d78",
-        "g": "1822235e.6199bd",
-        "name": "VueJS App",
-        "info": "",
-        "x": 260,
-        "y": 100,
-        "wires": []
-    },
-    {
-        "id": "9752b2a7.bcee",
-        "type": "template",
-        "z": "b5e8c9c5.b55d78",
-        "g": "1822235e.6199bd",
-        "name": "VueJS Websocket - Vuetify",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "html",
-        "syntax": "plain",
-        "template": "<!DOCTYPE html>\n<html>\n\n<head>\n    <link href=\"https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900\" rel=\"stylesheet\">\n    <link href=\"https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css\" rel=\"stylesheet\">\n    <link href=\"https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui\">\n</head>\n\n<body>\n    <!-- JSONata Editor -->\n    <script src=\"https://cdn.jsdelivr.net/npm/jsonata/jsonata.min.js\"></script>\n\n    <!-- Prism Editor -->\n    <script src=\"https://unpkg.com/vue-prism-editor\"></script>\n    <link rel=\"stylesheet\" href=\"https://unpkg.com/prismjs/themes/prism.css\" />\n    <script src=\"https://unpkg.com/prismjs\"></script>\n    <link rel=\"stylesheet\" href=\"https://unpkg.com/vue-prism-editor/dist/VuePrismEditor.css\">\n    <script src=\"https://cdn.jsdelivr.net/npm/vue-json-pretty@1.6.3/vue-json-pretty.min.js\"></script>\n\n    <!-- Tableify-->\n    <script src=\"https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js\"></script>\n\n    <!-- vue split planes -->\n    <script src=\"https://unpkg.com/splitpanes\"></script>\n    <link href=\"https://unpkg.com/splitpanes/dist/splitpanes.css\" rel=\"stylesheet\">\n\n    <!-- AXIOS API request handler -->\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/json2csv\"></script>\n\n    <div id=\"app\">\n        <v-app>\n\n            <!-- <v-navigation-drawer v-model=\"drawer\" app clipped>\n                <v-list dense>\n                    <v-list-item link>\n                        <v-list-item-action>\n                            <v-icon>mdi-view-dashboard</v-icon>\n                        </v-list-item-action>\n                        <v-list-item-content>\n                            <v-list-item-title>Dashboard</v-list-item-title>\n                        </v-list-item-content>\n                    </v-list-item>\n                    <v-list-item>\n\n                    </v-list-item>\n                    <v-list-item link>\n                        <v-list-item-action>\n                            <v-icon>mdi-cog</v-icon>\n                        </v-list-item-action>\n                        <v-list-item-content>\n                            <v-list-item-title>Settings</v-list-item-title>\n                        </v-list-item-content>\n                    </v-list-item>\n                </v-list>\n            </v-navigation-drawer> -->\n\n            <v-app-bar app clipped-left dark color=\"green darken-4\">\n                <!-- <v-app-bar-nav-icon @click.stop=\"drawer = !drawer\"></v-app-bar-nav-icon> -->\n                <v-toolbar-title>JSON Magic <v-icon>mdi-view-dashboard-outline</v-icon>\n\n                </v-toolbar-title>\n            </v-app-bar>\n\n            <v-main>\n                <v-container class=\"fill-height\" fluid>\n                    <!-- Websocket Dialog -->\n                    <template>\n                        <v-row justify=\"center\">\n                            <v-dialog v-model=\"wsDialog\" max-width=\"700px\">\n                                <v-card>\n                                    <v-toolbar>\n                                        <v-toolbar-title>Websocket Configuration</v-toolbar-title>\n                                        <v-spacer></v-spacer>\n                                    </v-toolbar>\n                                    <v-card-text>\n                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a websocket server.</v-card-text-subtitle>\n                                        <v-card color=\"grey darken-3\">\n\n                                            <v-text-field label=\"URL Path\" v-model=\"wsForm.url\" class=\"mr-2\">\n                                            </v-text-field>\n                                            <v-checkbox v-model=\"wsForm.enabled\" label=\"enabled\"></v-checkbox>\n\n                                        </v-card>\n                                        <v-spacer></v-spacer>\n                                        \n                                    </v-card-text>\n                                    <v-card-actions>\n                                        <v-btn color=\"blue darken-1\" text @click=\"apiDialog = false\">Close</v-btn>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"onConnectWebsocket\" color=\"green\" >\n                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>\n                                            Update Websocket\n                                        </v-btn>\n                                    </v-card-actions>\n                                </v-card>\n                            </v-dialog>\n                        </v-row>\n                    </template>\n\n                    <!-- User API Dialog -->\n                    <template>\n                        <v-row justify=\"center\">\n                            <v-dialog v-model=\"apiDialog\" max-width=\"700px\">\n                                <v-card>\n                                    <v-toolbar>\n                                        <v-toolbar-title>Import JSON from an API</v-toolbar-title>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"apiForm.showAdvanced=!apiForm.showAdvanced\">Extra Settings\n                                        </v-btn>\n                                    </v-toolbar>\n                                    <v-card-text>\n                                        <v-card color=\"grey darken-3\">\n\n                                            <v-text-field label=\"URL Path\" v-model=\"apiForm.url\" class=\"mr-2\">\n                                            </v-text-field>\n                                            <v-text-field small type=\"password\" label=\"API Key\"\n                                                v-model=\"apiForm.headerValue\">\n                                            </v-text-field>\n\n                                        </v-card>\n                                        <v-spacer></v-spacer>\n                                        <v-card v-if=\"apiForm.showAdvanced\">\n                                            <v-checkbox v-model=\"apiForm.includeHeaders\" label=\"include headers\">\n                                            </v-checkbox>\n                                            <v-label dark>Custom Auth Header</v-label>\n                                            <v-text-field small label=\"Key\" v-model=\"apiForm.headerKey\">\n                                            </v-text-field>\n                                            <v-spacer></v-spacer>\n                                            <v-card width=\"70%\">\n                                                <v-label dark>API Proxy Server</v-label>\n                                                </v-text-field>\n                                                <v-text-field small label=\"URL Path\" v-model=\"serverOptions.proxyUrl\">\n                                                </v-text-field>\n                                            </v-card>\n                                        </v-card>\n                                    </v-card-text>\n                                    <v-card-actions>\n                                        <v-btn color=\"blue darken-1\" text @click=\"apiDialog = false\">Close</v-btn>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"fetchJson\" color=\"green\" :loading=\"isLoading\">\n                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>\n                                            Run API\n                                        </v-btn>\n                                    </v-card-actions>\n                                </v-card>\n                            </v-dialog>\n                        </v-row>\n                    </template>\n\n\n                    <splitpanes class=\"default-theme\">\n                        <pane min-size=\"5\" size=\"20\">\n                            <v-card width=100% class=\"m-2\">\n                                <v-toolbar dense>\n                                    <v-toolbar-title>JSON Input</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n\n                                    <v-btn icon @click=\"apiDialog=true\" dark>\n                                        <v-icon>mdi-api</v-icon>\n                                    </v-btn>\n                                    <v-btn icon @click=\"wsDialog=true\" dark>\n                                        <v-icon>mdi-cloud</v-icon>\n                                    </v-btn>\n\n                                    <v-file-input dense hide-input dark accept=\"application/JSON\"\n                                        v-model=\"form.inputFile\" @change=\"onJsonFileUpload\">\n                                    </v-file-input>\n\n                                </v-toolbar>\n\n                                <v-card>\n\n                                    <v-card-subtitle dark>Type or paste valid JSON data <v-btn class=\"ml-2\"\n                                            color=\"grey lighten-2\" small outlined @click=\"onFormatJson()\">Beautify\n                                        </v-btn>\n                                    </v-card-subtitle>\n                                    <v-card-text style=\"overflow: auto;\">\n\n                                        <vue-prism-editor v-model=\"form.inputJson\" language=\"js\" style=\"height:75vh\"\n                                            @change=\"inputValue=form.inputJson\"></vue-prism-editor>\n                                    </v-card-text>\n\n                                </v-card>\n\n\n                            </v-card>\n                        </pane>\n                        <pane min-size=\"5\" size=\"20\">\n\n                            <v-card width=100%>\n                                <v-toolbar dense>\n\n                                    <v-toolbar-title>JSONata Explorer</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n                                    <v-btn small @click=\"download('query.txt',form.query)\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        Query\n                                    </v-btn>\n                                    <v-btn small @click=\"download('result.json',result)\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        JSON\n                                    </v-btn>\n\n                                </v-toolbar>\n\n\n                                <v-card-subtitle>\n                                    Use any valid <a href=\"http://docs.jsonata.org/overview.html\"\n                                        target=\"_blank\">JSONata expression.</a>\n\n                                </v-card-subtitle>\n                                <v-card-actions>\n\n                                    <vue-prism-editor v-model=\"form.query\" language=\"js\" class=\"pl-2\">\n                                    </vue-prism-editor>\n                                    <v-btn small @click=\"form.query='$'\" color=\"green\" class=\"ml-2\" icon>\n                                        <v-icon>mdi-autorenew</v-icon>\n                                    </v-btn>\n                                </v-card-actions>\n                                <v-card-text>\n                                    <v-card>\n                                        <v-card-subtitle>\n                                            Select a property to add to JSONata query\n                                        </v-card-subtitle>\n                                        <v-card-text style=\"overflow: auto; font-size:.5em\">\n                                            <vue-json-pretty :data=\"result\" style=\"height:60vh; \"\n                                                @click=\"handleResultClick\" id=\"resultJsonPretty\"></vue-json-pretty>\n                                        </v-card-text>\n                                    </v-card>\n                                </v-card-text>\n                            </v-card>\n                        </pane>\n                        <pane>\n                            <v-card v-if=\"result\" width=100%>\n                                <v-toolbar dense>\n                                    <v-toolbar-title>Results</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n\n                                    <!-- <v-btn small @click=\"downloadTableAsCsv('resultTable')\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        CSV\n                                    </v-btn> -->\n\n                                    <v-btn small @click=\"onExportCsv\" color=\"green\" tile outlined dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        CSV\n                                    </v-btn>\n                                    <v-btn small @click=\"onDownloadTable\" color=\"green\" tile outlined dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        HTML Table\n                                    </v-btn>\n                                </v-toolbar>\n                                <v-card-text>\n                                    <v-simple-table dense fixed-header light>\n\n                                        <div v-html='tableHtml' id='resultTable' ref='resultTable'></div>\n                                    </v-simple-table>\n                                </v-card-text>\n                            </v-card>\n                        </pane>\n                    </splitpanes>\n                </v-container>\n            </v-main>\n\n            <v-footer app>\n                <span>DexterLabora &copy; {{ new Date().getFullYear() }}</span>\n                <v-spacer></v-spacer>\n                <v-icon :color=\"wsForm.isConnected ? 'green': 'red'\" class=\"mr-2\">mdi-cloud</v-icon>\n                <div class=\".text-sm-body-1\">{{wsForm.url}}</div>\n            </v-footer>\n\n        </v-app>\n    </div>\n\n    <script src=\"https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js\"></script>\n    <script src=\"https://unpkg.com/http-vue-loader\"></script>\n    <!-- <script src=\"components/components/v-swagger/src/wrapper.js\"></script> -->\n\n    <script>\n        // const { Parser } = require('json2csv');\n\n        Vue.component('vue-prism-editor', VuePrismEditor)\n        Vue.component('vue-json-pretty', VueJsonPretty.default)\n\n\n        const {\n            Splitpanes,\n            Pane\n        } = splitpanes\n        new Vue({\n            el: '#app',\n            vuetify: new Vuetify(),\n            components: {\n                Splitpanes,\n                Pane,\n                //VSwagger,\n                //'v-swagger': httpVueLoader(\"components/components/v-swagger/src/wrapper.js\")\n            },\n            data() {\n                return {\n                    serverOptions: {\n                        proxyUrl: \"/api/proxy\"\n                    },\n                    panel: [0, 0],\n                    example: [{\n                            \"FirstName\": \"Fred\",\n                            \"Surname\": \"Smith\",\n                            \"Age\": 28,\n                            \"Address\": {\n                                \"Street\": \"Hursley Park\",\n                                \"City\": \"Winchester\",\n                                \"Postcode\": \"SO21 2JN\"\n                            },\n                            \"Phone\": [{\n                                    \"type\": \"home\",\n                                    \"number\": \"0203 544 1234\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"01962 001234\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"01962 001235\"\n                                },\n                                {\n                                    \"type\": \"mobile\",\n                                    \"number\": \"077 7700 1234\"\n                                }\n                            ],\n                            \"Email\": [{\n                                    \"type\": \"work\",\n                                    \"address\": [\"fred.smith@my-work.com\", \"fsmith@my-work.com\"]\n                                },\n                                {\n                                    \"type\": \"home\",\n                                    \"address\": [\"freddy@my-social.com\",\n                                        \"frederic.smith@very-serious.com\"\n                                    ]\n                                }\n                            ],\n                            \"Other\": {\n                                \"Over 18 ?\": true,\n                                \"Misc\": null,\n                                \"Alternative.Address\": {\n                                    \"Street\": \"Brick Lane\",\n                                    \"City\": \"London\",\n                                    \"Postcode\": \"E1 6RF\"\n                                }\n                            }\n                        },\n                        {\n                            \"FirstName\": \"Miles\",\n                            \"Surname\": \"Meraki\",\n                            \"Age\": 28,\n                            \"Address\": {\n                                \"Street\": \"123 Unicorn Ave\",\n                                \"City\": \"Cloud City\",\n                                \"Postcode\": \"99991\"\n                            },\n                            \"Phone\": [{\n                                    \"type\": \"home\",\n                                    \"number\": \"123 345 345\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"3234 123123\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"23423 234324\"\n                                },\n                                {\n                                    \"type\": \"mobile\",\n                                    \"number\": \"111 23442 123234\"\n                                }\n                            ],\n                            \"Email\": [{\n                                    \"type\": \"work\",\n                                    \"address\": [\"miles.meraki@magical.com\", \"mmiles@magical.net\"]\n                                },\n                                {\n                                    \"type\": \"home\",\n                                    \"address\": [\"eenhorn@compushare.com\",\n                                        \"numberOneHorn@very-serious.com\"\n                                    ]\n                                }\n                            ],\n                            \"Other\": {\n                                \"Over 18 ?\": true,\n                                \"Misc\": null,\n                                \"Alternative.Address\": {\n                                    \"Street\": \"Brick Lane\",\n                                    \"City\": \"London\",\n                                    \"Postcode\": \"E1 6RF\"\n                                }\n                            }\n                        }\n                    ],\n                    drawer: false,\n                    isLoading: false,\n                    apiDialog: false,\n                    wsDialog:false,\n                    form: {\n                        inputFile: undefined,\n                        inputJson: \"\",\n                        query: '$',\n\n                    },\n                    socket:null,\n                    wsForm:{\n                        \"url\":`ws://localhost:${location.port}/websocket`,\n                        \"isConnected\": false,\n                        \"enabled\": true\n                    },\n                    apiForm: {\n                        url: 'https://api.meraki.com/api/v1/organizations/537758/inventoryDevices',\n                        showAdvanced: false,\n                        includeHeaders: true,\n                        inputHeaders: `{ \"X-Cisco-Meraki-API-Key\": \"093b24e85df15a3e66f1fc359f4c48493eaa1b73\"}`, // DEMO API KEY\n                        headerKey: \"X-Cisco-Meraki-API-Key\",\n                        headerValue: \"093b24e85df15a3e66f1fc359f4c48493eaa1b73\"\n                    },\n                    inputValue: {},\n                    result: [],\n                   \n                    \n                    tableFields: []\n                }\n            },\n\n            computed: {\n                tableHtml() {\n                    if (!this.result) {\n                        return\n                    }\n                    return `${tableify(this.result).replace(\"<table>\", '<table id=\"resultTable\">')}`\n                },\n\n                parsedInput() {\n\n                    console.log('computed parsedInput this.inputValue', this.inputValue)\n                    if (!Array.isArray(this.inputValue) && !this.isObject(this.inputValue) && !this\n                        .inputValue) {\n                        return {}\n                    }\n                    try {\n                        return JSON.parse(this.inputValue)\n                    } catch (e) {\n                        return this.inputValue\n                    }\n\n                },\n                inputSubArrays() {\n                    if (!this.parsedInput) {\n                        return\n                    }\n                    const obj = this.parsedInput;\n                    let arrays = [];\n                    let keys = Object.keys(obj)\n                    keys.forEach(k => {\n                        if (Array.isArray(obj[p])) {\n                            arrays.push(obj[p])\n                        }\n                    })\n                    return arrays;\n                },\n                // socket() {\n                //     if(this.wsForm.enabled){\n                //         return new WebSocket(this.wsForm.url);\n                //     }\n                    \n                // },\n\n            },\n            watch: {\n                \"form.query\"() {\n                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)\n                    this.updateTableFields(this.result);\n                },\n                \"parsedInput\"() {\n                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)\n                    this.updateTableFields(this.result);\n                }\n            },\n            methods: {\n                onConnectWebsocket(){\n                    console.log('onConnectWebsocket')\n                    if(this.socket){\n                        console.log('closing socket')\n                        this.socket.close();\n                    }\n                    \n                    if(this.wsForm.enabled){\n                        console.log('enabling socket')\n                        this.socket = new WebSocket(this.wsForm.url);\n                        \n                        this.initWebsocket()\n                    }\n                },\n                onDownloadTable() {\n                    let css = `\n                        <style>\n                            table,\n                            th,\n                            td {\n                                border: 1px solid rgb(44, 44, 44);\n                                border-collapse: collapse;\n                            }\n\n                            th,\n                            td {\n                                padding: 5px;\n                            }\n                        </style>`;\n                    let html = this.tableHtml + css;\n                    this.download(`export_${new Date().toLocaleDateString()}.html`, html)\n                },\n                generateJsonataResult(query, jsonData) {\n                    try {\n                        return jsonata(query).evaluate(jsonData, (error, result) => {\n                            if (error) {\n                                console.error(\"jsonata error\", error);\n                                return error['message'];\n                            }\n\n                            console.log(\"Finished with\", result);\n                            return result;\n                        })\n\n                    } catch (e) {\n                        console.log(\"JSONata expression error\", e)\n                        return e.message;\n                    }\n                },\n                onJsonFileUpload() {\n                    console.log('updating JSON with user file upload')\n                    if (!this.form.inputFile) {\n                        //this.form.inputJson = \"No File Chosen\"\n                        return\n                    }\n\n                    var reader = new FileReader();\n                    // Use the javascript reader object to load the contents\n                    // of the file in the v-model prop\n                    reader.readAsText(this.form.inputFile);\n                    reader.onload = () => {\n                        console.log(\"input being parsed\", reader.result)\n                        this.form.inputJson = reader.result;\n                        this.inputValue = JSON.parse(reader.result);\n                        console.log(\"input updated\", this.form.inputJson)\n                    }\n                },\n                download(filename, data) {\n                    if (filename.includes('.json')) {\n                        data = JSON.stringify(data, null, 4)\n                    }\n                    var element = document.createElement('a');\n                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));\n                    element.setAttribute('download', filename);\n\n                    element.style.display = 'none';\n                    document.body.appendChild(element);\n\n                    element.click();\n\n                    document.body.removeChild(element);\n                },\n                onExportCsv() {\n                    try {\n                        \n                        const transforms = [json2csv.transforms.flatten({ objects: true, arrays: true })];\n                        let options = {\n                            \"flattenArrays\":true,\n                            transforms\n                        };\n                        const parser = new json2csv.Parser(options);\n                        const csv = parser.parse(this.result);\n                        console.log(csv);\n                        this.download('result.csv', csv);\n                    } catch (err) {\n                        console.error(err);\n                    }\n                },\n                // downloadTableAsCsv(table_id) {\n                //     // Select rows from table_id\n                //     var rows = document.querySelectorAll('table#' + table_id + ' tr');\n                //     // Construct csv\n                //     var csv = [];\n                //     for (var i = 0; i < rows.length; i++) {\n                //         var row = [],\n                //             cols = rows[i].querySelectorAll('td, th');\n                //         for (var j = 0; j < cols.length; j++) {\n                //             // Clean innertext to remove multiple spaces and jumpline (break csv)\n                //             var data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, '').replace(/(\\s\\s)/gm, ' ')\n                //             // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)\n                //             data = data.replace(/\"/g, '\"\"');\n                //             // Push escaped string\n                //             row.push('\"' + data + '\"');\n                //         }\n                //         csv.push(row.join(','));\n                //     }\n                //     var csv_string = csv.join('\\n');\n                //     // Download it\n                //     var filename = 'export_' + table_id + '_' + new Date().toLocaleDateString() + '.csv';\n                //     var link = document.createElement('a');\n                //     link.style.display = 'none';\n                //     link.setAttribute('target', '_blank');\n                //     link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));\n                //     link.setAttribute('download', filename);\n                //     document.body.appendChild(link);\n                //     link.click();\n                //     document.body.removeChild(link);\n                // },\n                // selectElementContents() {\n                //     //let document = this.document\n                //     let el = document.getElementById('resultTable');\n                //     console.log(\"table selected\", el)\n                //     var body = document.body,\n                //         range, sel;\n                //     if (document.createRange && window.getSelection) {\n                //         range = document.createRange();\n                //         sel = window.getSelection();\n                //         sel.removeAllRanges();\n                //         try {\n                //             range.selectNodeContents(el);\n                //             sel.addRange(range);\n                //         } catch (e) {\n                //             range.selectNode(el);\n                //             sel.addRange(range);\n                //         }\n                //     } else if (body.createTextRange) {\n                //         range = body.createTextRange();\n                //         range.moveToElementText(el);\n                //         range.select();\n                //     }\n                // },\n                copyText() {\n                    navigator.clipboard.writeText(this.tableHtml);\n                },\n                isObject(val) {\n                    return val instanceof Object;\n                },\n                fetchJson() {\n                    let options = {\n                        method: \"get\", // ONLY ALLOWING GET METHODS (For now)\n                        url: this.apiForm.url,\n                        headers: {}\n                    }\n\n                    options.headers[this.apiForm.headerKey] = this.apiForm.headerValue\n                    console.log('fetchJson', options)\n                    this.isLoading = true;\n                    axios.post(this.serverOptions.proxyUrl, options).then(res => {\n                        console.log('fetchJson ', this.form.url, res)\n                        this.form.inputJson = JSON.stringify(res.data, null, 4);\n                        this.inputValue = res.data;\n\n                    }).catch(e => {\n                        console.log(\"fetch error\", JSON.stringify(e))\n                        //this.isLoading = false\n                    }).finally(() => {\n                        this.isLoading = false\n                    })\n                },\n                updateTableFields(object) {\n                    let keys = Object.keys(object);\n                    this.tableFields = keys.map(r => {\n                        return {\n                            \"name\": r,\n                            \"alias\": r\n                        }\n                    })\n                },\n                handleResultClick(value) {\n                    let split = value.split(\".\")\n                    split.shift();\n                    let query = `.${split.join(\".\")}`\n                    this.form.query = this.form.query + query;\n\n                },\n                onQueryChange(value) {\n                    this.form.query = value\n                },\n                onFormatJson() {\n                    this.form.inputJson = this.formatJsonString(this.form.inputJson)\n                },\n                formatJsonString(jsonString) {\n                    try {\n                        let jsonObj = JSON.parse(jsonString);\n                        let formattedString = JSON.stringify(jsonObj, null, 4)\n                        return formattedString;\n                    } catch (error) {\n                        return error\n                    }\n\n                },\n                initWebsocket(){\n                    this.socket.onopen = () => {\n                    console.log('socket open');\n                    this.wsForm.isConnected = true;\n                };\n                this.socket.onclose = () => {\n                    this.wsForm.isConnected = false;\n                };\n                this.socket.onmessage = (msg) => {\n                    //console.log('socket message', msg)\n\n                    // sets raw and value data\n                    this.form.inputJson = this.formatJsonString(msg.data)\n                    this.inputValue = msg.data\n                };\n                }\n            },\n            created() {\n                this.$vuetify.theme.dark = true;\n                this.onConnectWebsocket();\n                \n\n                // initialize with example JSON\n                this.form.inputJson = JSON.stringify(this.example, null, 4);\n                this.inputValue = this.form.inputJson;\n            }\n        });\n    </script>\n    <style>\n        table,\n        th,\n        td {\n            border: 1px solid rgb(44, 44, 44);\n            border-collapse: collapse;\n        }\n\n        th,\n        td {\n            padding: 5px;\n        }\n\n        .splitpanes__pane {\n            box-shadow: 2 0 12px rgba(256, 256, 256, .2) inset;\n            display: flex;\n            position: relative;\n        }\n\n        em.specs {\n            font-size: 0.5em;\n            line-height: 1;\n            position: absolute;\n            color: rgba(0, 0, 255, 0.6);\n            bottom: 0.5em;\n            left: 0;\n            right: 0;\n            text-align: center;\n        }\n\n        .prism-editor-wrapper code {\n            font-size: 0.7em;\n        }\n\n\n        .vjs-tree {\n            font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;\n            font-size: 12px;\n        }\n    </style>\n</body>\n\n</html>",
-        "output": "str",
-        "x": 560,
-        "y": 140,
-        "wires": [
-            [
-                "ffb6739c.5e576"
-            ]
-        ]
-    },
-    {
-        "id": "ffb6739c.5e576",
-        "type": "http response",
-        "z": "b5e8c9c5.b55d78",
-        "g": "1822235e.6199bd",
-        "name": "",
-        "x": 770,
-        "y": 140,
-        "wires": []
-    },
-    {
         "id": "70a89fa0.5eacd",
         "type": "group",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "style": {
             "stroke": "#999999",
             "stroke-opacity": "1",
@@ -104,191 +52,15 @@
             "7b4c270d.8ce028",
             "e8aa0d13.508b8"
         ],
-        "x": 174,
-        "y": 399,
+        "x": 54,
+        "y": 379,
         "w": 852,
         "h": 322
     },
     {
-        "id": "a5ec16dc.c682d8",
-        "type": "comment",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Sample Input Data",
-        "info": "",
-        "x": 290,
-        "y": 440,
-        "wires": []
-    },
-    {
-        "id": "afe8fecc.de889",
-        "type": "http in",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "",
-        "url": "/webhook",
-        "method": "post",
-        "upload": false,
-        "swaggerDoc": "",
-        "x": 360,
-        "y": 520,
-        "wires": [
-            [
-                "7d02506b.21977",
-                "7d0bbc5f.fe6de4"
-            ]
-        ]
-    },
-    {
-        "id": "7d02506b.21977",
-        "type": "link out",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "",
-        "links": [
-            "63ce88fb.fa7f08"
-        ],
-        "x": 655,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "1e77fee4.6a7021",
-        "type": "inject",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Get Sample Data",
-        "props": [],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 360,
-        "y": 640,
-        "wires": [
-            [
-                "4eefb3af.7601cc"
-            ]
-        ]
-    },
-    {
-        "id": "cbf9d3c3.f7e4c",
-        "type": "http request",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "",
-        "method": "GET",
-        "ret": "obj",
-        "paytoqs": "ignore",
-        "url": "",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "authType": "",
-        "x": 710,
-        "y": 640,
-        "wires": [
-            [
-                "d494b86d.dece78",
-                "17f4fc07.5d8bb4"
-            ]
-        ]
-    },
-    {
-        "id": "d494b86d.dece78",
-        "type": "debug",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Sample Data",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 910,
-        "y": 640,
-        "wires": []
-    },
-    {
-        "id": "4eefb3af.7601cc",
-        "type": "function",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Weather London",
-        "func": "msg.url = \"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/forecast?aggregateHours=24&contentType=json&unitGroup=us&locationMode=single&key=1PYNQ6AWUDJE9AFERDCHJHSXK&locations=London%2CUK\"\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 540,
-        "y": 640,
-        "wires": [
-            [
-                "cbf9d3c3.f7e4c"
-            ]
-        ]
-    },
-    {
-        "id": "17f4fc07.5d8bb4",
-        "type": "link out",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "",
-        "links": [
-            "63ce88fb.fa7f08"
-        ],
-        "x": 855,
-        "y": 680,
-        "wires": []
-    },
-    {
-        "id": "7d0bbc5f.fe6de4",
-        "type": "debug",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Custom Webhook",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 730,
-        "y": 520,
-        "wires": []
-    },
-    {
-        "id": "7b4c270d.8ce028",
-        "type": "comment",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "From a 3rd party API",
-        "info": "",
-        "x": 330,
-        "y": 600,
-        "wires": []
-    },
-    {
-        "id": "e8aa0d13.508b8",
-        "type": "comment",
-        "z": "b5e8c9c5.b55d78",
-        "g": "70a89fa0.5eacd",
-        "name": "Build a custom API for webhooks",
-        "info": "",
-        "x": 370,
-        "y": 480,
-        "wires": []
-    },
-    {
         "id": "7a572de4.758904",
         "type": "group",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "style": {
             "stroke": "#999999",
             "stroke-opacity": "1",
@@ -305,132 +77,15 @@
             "a8b2d9da.ac5148",
             "63ce88fb.fa7f08"
         ],
-        "x": 174,
-        "y": 199,
+        "x": 54,
+        "y": 179,
         "w": 692,
         "h": 182
     },
     {
-        "id": "f6a9e681.a92d38",
-        "type": "function",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "kill msg",
-        "func": "msg._session=\"\";\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 500,
-        "y": 320,
-        "wires": [
-            [
-                "d090a7b6.72cdc8"
-            ]
-        ]
-    },
-    {
-        "id": "fd18ebe8.11db98",
-        "type": "websocket in",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "",
-        "server": "9eda1dc0.943ca",
-        "client": "",
-        "x": 280,
-        "y": 280,
-        "wires": [
-            [
-                "f6a9e681.a92d38",
-                "fcede803.93bc38"
-            ]
-        ]
-    },
-    {
-        "id": "d090a7b6.72cdc8",
-        "type": "websocket out",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "",
-        "server": "9eda1dc0.943ca",
-        "client": "",
-        "x": 740,
-        "y": 320,
-        "wires": []
-    },
-    {
-        "id": "fce7bc4f.8faaa",
-        "type": "debug",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "websocket msg received",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 710,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "fcede803.93bc38",
-        "type": "json",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "",
-        "property": "payload",
-        "action": "",
-        "pretty": false,
-        "x": 490,
-        "y": 280,
-        "wires": [
-            [
-                "fce7bc4f.8faaa"
-            ]
-        ]
-    },
-    {
-        "id": "a8b2d9da.ac5148",
-        "type": "comment",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "Websocket",
-        "info": "",
-        "x": 260,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "63ce88fb.fa7f08",
-        "type": "link in",
-        "z": "b5e8c9c5.b55d78",
-        "g": "7a572de4.758904",
-        "name": "Websocket Vue App",
-        "links": [
-            "b5282096.6cdf2",
-            "7d02506b.21977",
-            "17f4fc07.5d8bb4"
-        ],
-        "x": 615,
-        "y": 340,
-        "wires": [
-            [
-                "d090a7b6.72cdc8"
-            ]
-        ]
-    },
-    {
-        "id": "9eda1dc0.943ca",
-        "type": "websocket-listener",
-        "z": "b5e8c9c5.b55d78",
-        "path": "/websocket",
-        "wholemsg": "false"
-    },
-    {
         "id": "d65777a.1c83388",
         "type": "group",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "style": {
             "stroke": "#999999",
             "stroke-opacity": "1",
@@ -445,15 +100,340 @@
             "1eb01c31.b9a354",
             "e03a224d.5a93b"
         ],
-        "x": 934,
-        "y": 59,
+        "x": 814,
+        "y": 39,
         "w": 832,
         "h": 122
     },
     {
+        "id": "49d02587.f77dbc",
+        "type": "http in",
+        "z": "9dd53818.afe138",
+        "g": "1822235e.6199bd",
+        "name": "",
+        "url": "/JSONmagic",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "a2cf67bc.022028"
+            ]
+        ]
+    },
+    {
+        "id": "768a70b6.8dc9c",
+        "type": "comment",
+        "z": "9dd53818.afe138",
+        "g": "1822235e.6199bd",
+        "name": "VueJS App",
+        "info": "",
+        "x": 140,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ffb6739c.5e576",
+        "type": "http response",
+        "z": "9dd53818.afe138",
+        "g": "1822235e.6199bd",
+        "name": "",
+        "x": 650,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "a5ec16dc.c682d8",
+        "type": "comment",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Sample Input Data",
+        "info": "",
+        "x": 170,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "afe8fecc.de889",
+        "type": "http in",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "",
+        "url": "/webhook",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 500,
+        "wires": [
+            [
+                "7d02506b.21977",
+                "7d0bbc5f.fe6de4"
+            ]
+        ]
+    },
+    {
+        "id": "7d02506b.21977",
+        "type": "link out",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "",
+        "links": [
+            "63ce88fb.fa7f08"
+        ],
+        "x": 535,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "1e77fee4.6a7021",
+        "type": "inject",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Get Sample Data",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 240,
+        "y": 620,
+        "wires": [
+            [
+                "4eefb3af.7601cc"
+            ]
+        ]
+    },
+    {
+        "id": "cbf9d3c3.f7e4c",
+        "type": "http request",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 590,
+        "y": 620,
+        "wires": [
+            [
+                "d494b86d.dece78",
+                "17f4fc07.5d8bb4"
+            ]
+        ]
+    },
+    {
+        "id": "d494b86d.dece78",
+        "type": "debug",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Sample Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "4eefb3af.7601cc",
+        "type": "function",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Weather London",
+        "func": "msg.url = \"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/forecast?aggregateHours=24&contentType=json&unitGroup=us&locationMode=single&key=1PYNQ6AWUDJE9AFERDCHJHSXK&locations=London%2CUK\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 420,
+        "y": 620,
+        "wires": [
+            [
+                "cbf9d3c3.f7e4c"
+            ]
+        ]
+    },
+    {
+        "id": "17f4fc07.5d8bb4",
+        "type": "link out",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "",
+        "links": [
+            "63ce88fb.fa7f08"
+        ],
+        "x": 735,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "7d0bbc5f.fe6de4",
+        "type": "debug",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Custom Webhook",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "7b4c270d.8ce028",
+        "type": "comment",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "From a 3rd party API",
+        "info": "",
+        "x": 210,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "e8aa0d13.508b8",
+        "type": "comment",
+        "z": "9dd53818.afe138",
+        "g": "70a89fa0.5eacd",
+        "name": "Build a custom API for webhooks",
+        "info": "",
+        "x": 250,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "f6a9e681.a92d38",
+        "type": "function",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "kill msg",
+        "func": "msg._session=\"\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 380,
+        "y": 300,
+        "wires": [
+            [
+                "d090a7b6.72cdc8"
+            ]
+        ]
+    },
+    {
+        "id": "fd18ebe8.11db98",
+        "type": "websocket in",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "",
+        "server": "9eda1dc0.943ca",
+        "client": "",
+        "x": 160,
+        "y": 260,
+        "wires": [
+            [
+                "f6a9e681.a92d38",
+                "fcede803.93bc38"
+            ]
+        ]
+    },
+    {
+        "id": "d090a7b6.72cdc8",
+        "type": "websocket out",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "",
+        "server": "9eda1dc0.943ca",
+        "client": "",
+        "x": 620,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "fce7bc4f.8faaa",
+        "type": "debug",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "websocket msg received",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "fcede803.93bc38",
+        "type": "json",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 370,
+        "y": 260,
+        "wires": [
+            [
+                "fce7bc4f.8faaa"
+            ]
+        ]
+    },
+    {
+        "id": "a8b2d9da.ac5148",
+        "type": "comment",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "Websocket",
+        "info": "",
+        "x": 140,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "63ce88fb.fa7f08",
+        "type": "link in",
+        "z": "9dd53818.afe138",
+        "g": "7a572de4.758904",
+        "name": "Websocket Vue App",
+        "links": [
+            "b5282096.6cdf2",
+            "7d02506b.21977",
+            "17f4fc07.5d8bb4"
+        ],
+        "x": 495,
+        "y": 320,
+        "wires": [
+            [
+                "d090a7b6.72cdc8"
+            ]
+        ]
+    },
+    {
         "id": "bea67d3b.54e67",
         "type": "template",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "g": "d65777a.1c83388",
         "name": "JSON Magic - via github",
         "field": "payload",
@@ -462,8 +442,8 @@
         "syntax": "mustache",
         "template": "{{{payload}}}",
         "output": "str",
-        "x": 1490,
-        "y": 140,
+        "x": 1370,
+        "y": 120,
         "wires": [
             [
                 "1eb01c31.b9a354"
@@ -473,15 +453,15 @@
     {
         "id": "ba67d97.c780228",
         "type": "http in",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "g": "d65777a.1c83388",
         "name": "",
         "url": "/JSONmagic-git",
         "method": "get",
         "upload": false,
         "swaggerDoc": "",
-        "x": 1060,
-        "y": 140,
+        "x": 940,
+        "y": 120,
         "wires": [
             [
                 "d7a4b71.e6a8648"
@@ -491,7 +471,7 @@
     {
         "id": "d7a4b71.e6a8648",
         "type": "http request",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "g": "d65777a.1c83388",
         "name": "",
         "method": "GET",
@@ -502,8 +482,8 @@
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 1250,
-        "y": 140,
+        "x": 1130,
+        "y": 120,
         "wires": [
             [
                 "bea67d3b.54e67"
@@ -513,22 +493,49 @@
     {
         "id": "1eb01c31.b9a354",
         "type": "http response",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "g": "d65777a.1c83388",
         "name": "",
-        "x": 1690,
-        "y": 140,
+        "x": 1570,
+        "y": 120,
         "wires": []
     },
     {
         "id": "e03a224d.5a93b",
         "type": "comment",
-        "z": "b5e8c9c5.b55d78",
+        "z": "9dd53818.afe138",
         "g": "d65777a.1c83388",
         "name": "VueJS App - via Github version",
         "info": "",
-        "x": 1100,
-        "y": 100,
+        "x": 980,
+        "y": 80,
         "wires": []
+    },
+    {
+        "id": "a2cf67bc.022028",
+        "type": "template",
+        "z": "9dd53818.afe138",
+        "g": "1822235e.6199bd",
+        "name": "index.html",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n\n<head>\n    <link href=\"https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900\" rel=\"stylesheet\">\n    <link href=\"https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css\" rel=\"stylesheet\">\n    <link href=\"https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui\">\n</head>\n\n<body>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js\"></script>\n    <script src=\"https://unpkg.com/http-vue-loader\"></script>\n\n    <!-- JSONata Editor -->\n    <script src=\"https://cdn.jsdelivr.net/npm/jsonata/jsonata.min.js\"></script>\n\n    <!-- Prism Editor -->\n    <script src=\"https://unpkg.com/vue-prism-editor\"></script>\n    <link rel=\"stylesheet\" href=\"https://unpkg.com/prismjs/themes/prism.css\" />\n    <script src=\"https://unpkg.com/prismjs\"></script>\n    <link rel=\"stylesheet\" href=\"https://unpkg.com/vue-prism-editor/dist/prismeditor.min.css\">\n    <script src=\"https://cdn.jsdelivr.net/npm/vue-json-pretty@1.6.3/vue-json-pretty.min.js\"></script>\n\n    <!-- Tableify-->\n    <script src=\"https://cdn.jsdelivr.net/npm/tableify@1.1.0/index.min.js\"></script>\n\n    <!-- vue split planes -->\n    <script src=\"https://unpkg.com/splitpanes\"></script>\n    <link href=\"https://unpkg.com/splitpanes/dist/splitpanes.css\" rel=\"stylesheet\">\n\n    <!-- AXIOS API request handler -->\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/json2csv\"></script>\n\n    <div id=\"app\">\n        <v-app>\n\n            <!-- <v-navigation-drawer v-model=\"drawer\" app clipped>\n                <v-list dense>\n                    <v-list-item link>\n                        <v-list-item-action>\n                            <v-icon>mdi-view-dashboard</v-icon>\n                        </v-list-item-action>\n                        <v-list-item-content>\n                            <v-list-item-title>Dashboard</v-list-item-title>\n                        </v-list-item-content>\n                    </v-list-item>\n                    <v-list-item>\n\n                    </v-list-item>\n                    <v-list-item link>\n                        <v-list-item-action>\n                            <v-icon>mdi-cog</v-icon>\n                        </v-list-item-action>\n                        <v-list-item-content>\n                            <v-list-item-title>Settings</v-list-item-title>\n                        </v-list-item-content>\n                    </v-list-item>\n                </v-list>\n            </v-navigation-drawer> -->\n\n            <v-app-bar app clipped-left dark color=\"green darken-4\">\n                <!-- <v-app-bar-nav-icon @click.stop=\"drawer = !drawer\"></v-app-bar-nav-icon> -->\n                <v-toolbar-title>JSON Magic <v-icon>mdi-view-dashboard-outline</v-icon>\n\n                </v-toolbar-title>\n            </v-app-bar>\n\n            <v-main>\n                <v-container class=\"fill-height\" fluid>\n                    <!-- Websocket Dialog -->\n                    <template>\n                        <v-row justify=\"center\">\n                            <v-dialog v-model=\"wsDialog\" max-width=\"700px\">\n                                <v-card>\n                                    <v-toolbar>\n                                        <v-toolbar-title>Websocket Configuration</v-toolbar-title>\n                                        <v-spacer></v-spacer>\n                                    </v-toolbar>\n                                    <v-card-text>\n                                        <v-card-text-subtitle>This enables you to receive dynamic updates from a\n                                            websocket server.</v-card-text-subtitle>\n                                        <v-card color=\"grey darken-3\">\n\n                                            <v-text-field label=\"URL Path\" v-model=\"wsForm.url\" class=\"mr-2\">\n                                            </v-text-field>\n                                            <v-checkbox v-model=\"wsForm.enabled\" label=\"enabled\"></v-checkbox>\n\n                                        </v-card>\n                                        <v-spacer></v-spacer>\n\n                                    </v-card-text>\n                                    <v-card-actions>\n                                        <v-btn color=\"blue darken-1\" text @click=\"wsDialog = false\">Close</v-btn>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"onConnectWebsocket\" color=\"green\">\n                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>\n                                            Update Websocket\n                                        </v-btn>\n                                    </v-card-actions>\n                                </v-card>\n                            </v-dialog>\n                        </v-row>\n                    </template>\n\n                    <!-- User API Dialog -->\n                    <template>\n                        <v-row justify=\"center\">\n                            <v-dialog v-model=\"apiDialog\" max-width=\"700px\">\n                                <v-card>\n                                    <v-toolbar>\n                                        <v-toolbar-title>Import JSON from an API</v-toolbar-title>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"apiForm.showAdvanced=!apiForm.showAdvanced\">Extra Settings\n                                        </v-btn>\n                                    </v-toolbar>\n                                    <v-card-text>\n                                        <v-card color=\"grey darken-3\">\n\n                                            <v-text-field label=\"URL Path\" v-model=\"apiForm.url\" class=\"mr-2\">\n                                            </v-text-field>\n                                            <v-text-field small type=\"password\" label=\"API Key\"\n                                                v-model=\"apiForm.headerValue\">\n                                            </v-text-field>\n\n                                        </v-card>\n                                        <v-spacer></v-spacer>\n                                        <v-card v-if=\"apiForm.showAdvanced\">\n                                            <v-checkbox v-model=\"apiForm.includeHeaders\" label=\"include headers\">\n                                            </v-checkbox>\n                                            <v-label dark>Custom Auth Header</v-label>\n                                            <v-text-field small label=\"Key\" v-model=\"apiForm.headerKey\">\n                                            </v-text-field>\n                                            <v-spacer></v-spacer>\n                                            <v-card width=\"70%\">\n                                                <v-label dark>API Proxy Server</v-label>\n                                                </v-text-field>\n                                                <v-text-field small label=\"URL Path\" v-model=\"serverOptions.proxyUrl\">\n                                                </v-text-field>\n                                            </v-card>\n                                        </v-card>\n                                    </v-card-text>\n                                    <v-card-actions>\n                                        <v-btn color=\"blue darken-1\" text @click=\"apiDialog = false\">Close</v-btn>\n                                        <v-spacer></v-spacer>\n                                        <v-btn @click=\"fetchJson\" color=\"green\" :loading=\"isLoading\">\n                                            <v-icon>mdi-arrow-right-drop-circle</v-icon>\n                                            Run API\n                                        </v-btn>\n                                    </v-card-actions>\n                                </v-card>\n                            </v-dialog>\n                        </v-row>\n                    </template>\n\n\n                    <splitpanes class=\"default-theme\">\n                        <pane min-size=\"5\" size=\"25\">\n                            <v-card width=100% class=\"m-2\">\n                                <v-toolbar dense>\n                                    <v-toolbar-title>JSON Input</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n\n                                    <v-btn icon @click=\"apiDialog=true\" dark>\n                                        <v-icon>mdi-api</v-icon>\n                                    </v-btn>\n                                    <v-btn icon @click=\"wsDialog=true\" dark>\n                                        <v-icon>mdi-cloud</v-icon>\n                                    </v-btn>\n\n                                    <v-file-input dense hide-input dark accept=\"application/JSON\"\n                                        v-model=\"form.inputFile\" @change=\"onJsonFileUpload\">\n                                    </v-file-input>\n\n                                </v-toolbar>\n\n                                <v-card>\n\n                                    <v-card-subtitle dark>Type or paste valid JSON data <v-btn class=\"ml-2\"\n                                            color=\"grey lighten-2\" small outlined @click=\"onFormatJson()\">Beautify\n                                        </v-btn>\n                                    </v-card-subtitle>\n                                    <v-card-text style=\"overflow: auto;\">\n\n                                        <prism-editor class=\"json-editor\" v-model=\"form.inputJson\"\n                                            :highlight=\"highlighter\" style=\"height:75vh\"\n                                            @change=\"inputValue=form.inputJson\"></prism-editor>\n                                    </v-card-text>\n\n                                </v-card>\n\n\n                            </v-card>\n                        </pane>\n                        <pane min-size=\"5\" size=\"25\">\n\n                            <v-card width=100%>\n                                <v-toolbar dense>\n\n                                    <v-toolbar-title>JSONata Explorer</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n                                    <v-btn small @click=\"download('query.txt',form.query)\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        Query\n                                    </v-btn>\n                                    <v-btn small @click=\"download('result.json',result)\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        JSON\n                                    </v-btn>\n\n                                </v-toolbar>\n\n\n                                <v-card-subtitle>\n                                    Use any valid <a href=\"http://docs.jsonata.org/overview.html\"\n                                        target=\"_blank\">JSONata expression.</a>\n\n                                </v-card-subtitle>\n                                <v-card-actions>\n\n                                    <prism-editor v-model=\"form.query\" :highlight=\"highlighter\" class=\"pl-2 json-editor\"\n                                        height=\"50px\" style=\"color:black\">\n                                    </prism-editor>\n                                    <v-btn small @click=\"form.query='$'\" color=\"green\" class=\"ml-2\" icon>\n                                        <v-icon>mdi-autorenew</v-icon>\n                                    </v-btn>\n                                </v-card-actions>\n                                <v-card-text>\n                                    <v-card>\n                                        <v-card-subtitle>\n                                            Select a property to add to JSONata query\n                                        </v-card-subtitle>\n                                        <v-card-text style=\"overflow: auto; font-size:.5em\">\n                                            <vue-json-pretty :data=\"result\" style=\"height:60vh; \"\n                                                @click=\"handleResultClick\" id=\"resultJsonPretty\"></vue-json-pretty>\n                                        </v-card-text>\n                                    </v-card>\n                                </v-card-text>\n                            </v-card>\n                        </pane>\n                        <pane>\n                            <v-card v-if=\"result\" width=100%>\n                                <v-toolbar dense>\n                                    <v-toolbar-title>Results</v-toolbar-title>\n\n                                    <v-spacer></v-spacer>\n\n                                    <!-- <v-btn small @click=\"downloadTableAsCsv('resultTable')\" color=\"green\" tile outlined\n                                        dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        CSV\n                                    </v-btn> -->\n\n                                    <v-btn small @click=\"onExportCsv\" color=\"green\" tile outlined dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        CSV\n                                    </v-btn>\n                                    <v-btn small @click=\"onDownloadTable\" color=\"green\" tile outlined dark>\n                                        <v-icon small>mdi-arrow-down-bold</v-icon>\n                                        HTML Table\n                                    </v-btn>\n                                </v-toolbar>\n                                <v-card-text>\n                                    <v-simple-table dense fixed-header light>\n\n                                        <div v-html='tableHtml' id='resultTable' ref='resultTable'></div>\n                                    </v-simple-table>\n                                </v-card-text>\n                            </v-card>\n                        </pane>\n                    </splitpanes>\n                </v-container>\n            </v-main>\n\n            <v-footer app>\n                <span>DexterLabora &copy; {{ new Date().getFullYear() }}</span>\n                <v-spacer></v-spacer>\n                <v-icon :color=\"wsForm.isConnected ? 'green': 'red'\" class=\"mr-2\">mdi-cloud</v-icon>\n                <div class=\".text-sm-body-1\">{{wsForm.url}}</div>\n            </v-footer>\n\n        </v-app>\n    </div>\n\n\n    <!-- <script src=\"components/components/v-swagger/src/wrapper.js\"></script> -->\n\n    <script>\n        // const { Parser } = require('json2csv');\n\n        // Vue.component('vue-prism-editor', VuePrismEditor)\n        Vue.component('vue-json-pretty', VueJsonPretty.default)\n\n\n        const {\n            Splitpanes,\n            Pane\n        } = splitpanes\n        new Vue({\n            el: '#app',\n            vuetify: new Vuetify(),\n            components: {\n                Splitpanes,\n                Pane,\n                //VuePrismEditor\n                //VSwagger,\n                //'v-swagger': httpVueLoader(\"components/components/v-swagger/src/wrapper.js\")\n            },\n            data() {\n                return {\n                    serverOptions: {\n                        proxyUrl: \"/api/proxy\"\n                    },\n                    panel: [0, 0],\n                    example: [{\n                            \"FirstName\": \"Fred\",\n                            \"Surname\": \"Smith\",\n                            \"Age\": 28,\n                            \"Address\": {\n                                \"Street\": \"Hursley Park\",\n                                \"City\": \"Winchester\",\n                                \"Postcode\": \"SO21 2JN\"\n                            },\n                            \"Phone\": [{\n                                    \"type\": \"home\",\n                                    \"number\": \"0203 544 1234\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"01962 001234\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"01962 001235\"\n                                },\n                                {\n                                    \"type\": \"mobile\",\n                                    \"number\": \"077 7700 1234\"\n                                }\n                            ],\n                            \"Email\": [{\n                                    \"type\": \"work\",\n                                    \"address\": [\"fred.smith@my-work.com\", \"fsmith@my-work.com\"]\n                                },\n                                {\n                                    \"type\": \"home\",\n                                    \"address\": [\"freddy@my-social.com\",\n                                        \"frederic.smith@very-serious.com\"\n                                    ]\n                                }\n                            ],\n                            \"Other\": {\n                                \"Over 18 ?\": true,\n                                \"Misc\": null,\n                                \"Alternative.Address\": {\n                                    \"Street\": \"Brick Lane\",\n                                    \"City\": \"London\",\n                                    \"Postcode\": \"E1 6RF\"\n                                }\n                            }\n                        },\n                        {\n                            \"FirstName\": \"Miles\",\n                            \"Surname\": \"Meraki\",\n                            \"Age\": 28,\n                            \"Address\": {\n                                \"Street\": \"123 Unicorn Ave\",\n                                \"City\": \"Cloud City\",\n                                \"Postcode\": \"99991\"\n                            },\n                            \"Phone\": [{\n                                    \"type\": \"home\",\n                                    \"number\": \"123 345 345\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"3234 123123\"\n                                },\n                                {\n                                    \"type\": \"office\",\n                                    \"number\": \"23423 234324\"\n                                },\n                                {\n                                    \"type\": \"mobile\",\n                                    \"number\": \"111 23442 123234\"\n                                }\n                            ],\n                            \"Email\": [{\n                                    \"type\": \"work\",\n                                    \"address\": [\"miles.meraki@magical.com\", \"mmiles@magical.net\"]\n                                },\n                                {\n                                    \"type\": \"home\",\n                                    \"address\": [\"eenhorn@compushare.com\",\n                                        \"numberOneHorn@very-serious.com\"\n                                    ]\n                                }\n                            ],\n                            \"Other\": {\n                                \"Over 18 ?\": true,\n                                \"Misc\": null,\n                                \"Alternative.Address\": {\n                                    \"Street\": \"Brick Lane\",\n                                    \"City\": \"London\",\n                                    \"Postcode\": \"E1 6RF\"\n                                }\n                            }\n                        }\n                    ],\n                    drawer: false,\n                    isLoading: false,\n                    apiDialog: false,\n                    wsDialog: false,\n                    form: {\n                        inputFile: undefined,\n                        inputJson: \"\",\n                        query: '$',\n\n                    },\n                    socket: null,\n                    wsForm: {\n                        \"url\": `ws://localhost:${location.port}/websocket`,\n                        \"isConnected\": false,\n                        \"enabled\": true\n                    },\n                    apiForm: {\n                        url: 'https://api.meraki.com/api/v1/organizations/537758/inventoryDevices',\n                        showAdvanced: false,\n                        includeHeaders: true,\n                        inputHeaders: `{ \"X-Cisco-Meraki-API-Key\": \"093b24e85df15a3e66f1fc359f4c48493eaa1b73\"}`, // DEMO API KEY\n                        headerKey: \"X-Cisco-Meraki-API-Key\",\n                        headerValue: \"093b24e85df15a3e66f1fc359f4c48493eaa1b73\"\n                    },\n                    inputValue: {},\n                    result: [],\n\n\n                    tableFields: []\n                }\n            },\n\n            computed: {\n                tableHtml() {\n                    if (!this.result) {\n                        return\n                    }\n                    return `${tableify(this.result).replace(\"<table>\", '<table id=\"resultTable\">')}`\n                },\n\n                parsedInput() {\n\n                    console.log('computed parsedInput this.inputValue', this.inputValue)\n                    if (!Array.isArray(this.inputValue) && !this.isObject(this.inputValue) && !this\n                        .inputValue) {\n                        return {}\n                    }\n                    try {\n                        return JSON.parse(this.inputValue)\n                    } catch (e) {\n                        return this.inputValue\n                    }\n\n                },\n                inputSubArrays() {\n                    if (!this.parsedInput) {\n                        return\n                    }\n                    const obj = this.parsedInput;\n                    let arrays = [];\n                    let keys = Object.keys(obj)\n                    keys.forEach(k => {\n                        if (Array.isArray(obj[p])) {\n                            arrays.push(obj[p])\n                        }\n                    })\n                    return arrays;\n                },\n                // socket() {\n                //     if(this.wsForm.enabled){\n                //         return new WebSocket(this.wsForm.url);\n                //     }\n\n                // },\n\n            },\n            watch: {\n                \"form.query\"() {\n                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)\n                    this.updateTableFields(this.result);\n                },\n                \"parsedInput\"() {\n                    this.result = this.generateJsonataResult(this.form.query, this.parsedInput)\n                    this.updateTableFields(this.result);\n                }\n            },\n            methods: {\n                highlighter(code) {\n                    // js highlight example\n                    return Prism.highlight(code, Prism.languages.js, \"js\");\n                },\n                onConnectWebsocket() {\n                    console.log('onConnectWebsocket')\n                    if (this.socket) {\n                        console.log('closing socket')\n                        this.socket.close();\n                    }\n\n                    if (this.wsForm.enabled) {\n                        console.log('enabling socket')\n                        this.socket = new WebSocket(this.wsForm.url);\n\n                        this.initWebsocket()\n                    }\n                },\n                onDownloadTable() {\n                    let css = `\n                        <style>\n                            table,\n                            th,\n                            td {\n                                border: 1px solid rgb(44, 44, 44);\n                                border-collapse: collapse;\n                            }\n\n                            th,\n                            td {\n                                padding: 5px;\n                            }\n                        </style>`;\n                    let html = this.tableHtml + css;\n                    this.download(\"table.html\", html)\n                },\n                generateJsonataResult(query, jsonData) {\n                    try {\n                        return jsonata(query).evaluate(jsonData, (error, result) => {\n                            if (error) {\n                                console.error(\"jsonata error\", error);\n                                return error['message'];\n                            }\n\n                            console.log(\"Finished with\", result);\n                            return result;\n                        })\n\n                    } catch (e) {\n                        console.log(\"JSONata expression error\", e)\n                        return e.message;\n                    }\n                },\n                onJsonFileUpload() {\n                    console.log('updating JSON with user file upload')\n                    if (!this.form.inputFile) {\n                        //this.form.inputJson = \"No File Chosen\"\n                        return\n                    }\n\n                    var reader = new FileReader();\n                    // Use the javascript reader object to load the contents\n                    // of the file in the v-model prop\n                    reader.readAsText(this.form.inputFile);\n                    reader.onload = () => {\n                        console.log(\"input being parsed\", reader.result)\n                        this.form.inputJson = reader.result;\n                        this.inputValue = JSON.parse(reader.result);\n                        console.log(\"input updated\", this.form.inputJson)\n                    }\n                },\n                download(filename, data) {\n                    if (filename.includes('.json')) {\n                        data = JSON.stringify(data, null, 4)\n                    }\n                    var element = document.createElement('a');\n                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));\n                    element.setAttribute('download', filename);\n\n                    element.style.display = 'none';\n                    document.body.appendChild(element);\n\n                    element.click();\n\n                    document.body.removeChild(element);\n                },\n                onExportCsv() {\n                    try {\n\n                        const transforms = [json2csv.transforms.flatten({\n                            objects: true,\n                            arrays: true\n                        })];\n                        let options = {\n                            \"flattenArrays\": true,\n                            transforms\n                        };\n                        const parser = new json2csv.Parser(options);\n                        const csv = parser.parse(this.result);\n                        console.log(csv);\n                        this.download('result.csv', csv);\n                    } catch (err) {\n                        console.error(err);\n                    }\n                },\n\n                copyText() {\n                    navigator.clipboard.writeText(this.tableHtml);\n                },\n                isObject(val) {\n                    return val instanceof Object;\n                },\n                fetchJson() {\n                    let options = {\n                        method: \"get\", // ONLY ALLOWING GET METHODS (For now)\n                        url: this.apiForm.url,\n                        headers: {}\n                    }\n\n                    options.headers[this.apiForm.headerKey] = this.apiForm.headerValue\n                    console.log('fetchJson', options)\n                    this.isLoading = true;\n                    axios.post(this.serverOptions.proxyUrl, options).then(res => {\n                        console.log('fetchJson ', this.form.url, res)\n                        this.form.inputJson = JSON.stringify(res.data, null, 4);\n                        this.inputValue = res.data;\n\n                    }).catch(e => {\n                        console.log(\"fetch error\", JSON.stringify(e))\n                        //this.isLoading = false\n                    }).finally(() => {\n                        this.isLoading = false\n                    })\n                },\n                updateTableFields(object) {\n                    let keys = Object.keys(object);\n                    this.tableFields = keys.map(r => {\n                        return {\n                            \"name\": r,\n                            \"alias\": r\n                        }\n                    })\n                },\n                handleResultClick(value) {\n                    let split = value.split(\".\")\n                    split.shift();\n                    let query = `.${split.join(\".\")}`\n                    this.form.query = this.form.query + query;\n\n                },\n                onQueryChange(value) {\n                    this.form.query = value\n                },\n                onFormatJson() {\n                    this.form.inputJson = this.formatJsonString(this.form.inputJson)\n                },\n                formatJsonString(jsonString) {\n                    try {\n                        let jsonObj = JSON.parse(jsonString);\n                        let formattedString = JSON.stringify(jsonObj, null, 4)\n                        return formattedString;\n                    } catch (error) {\n                        return error\n                    }\n\n                },\n                initWebsocket() {\n                    this.socket.onopen = () => {\n                        console.log('socket open');\n                        this.wsForm.isConnected = true;\n                    };\n                    this.socket.onclose = () => {\n                        this.wsForm.isConnected = false;\n                    };\n                    this.socket.onmessage = (msg) => {\n                        //console.log('socket message', msg)\n\n                        // sets raw and value data\n                        this.form.inputJson = this.formatJsonString(msg.data)\n                        this.inputValue = msg.data\n                    };\n                }\n            },\n            created() {\n                this.$vuetify.theme.dark = true;\n                this.onConnectWebsocket();\n\n\n                // initialize with example JSON\n                this.form.inputJson = JSON.stringify(this.example, null, 4);\n                this.inputValue = this.form.inputJson;\n            }\n        });\n    </script>\n    <style>\n        table,\n        th,\n        td {\n            border: 1px solid rgb(44, 44, 44);\n            border-collapse: collapse;\n        }\n\n        th,\n        td {\n            padding: 5px;\n        }\n\n        .splitpanes__pane {\n            box-shadow: 2 0 12px rgba(256, 256, 256, .2) inset;\n            display: flex;\n            position: relative;\n        }\n\n        em.specs {\n            font-size: 0.5em;\n            line-height: 1;\n            position: absolute;\n            color: rgba(0, 0, 255, 0.6);\n            bottom: 0.5em;\n            left: 0;\n            right: 0;\n            text-align: center;\n        }\n\n        .prism-editor-wrapper code {\n            font-size: 0.7em;\n        }\n\n        .json-editor {\n            /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */\n            background: #f8f5f5;\n            color: #ccc;\n            /* you must provide font-family font-size line-height. Example: */\n            font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;\n            font-size: 12px;\n            line-height: 1.2;\n            padding: 5px;\n        }\n\n\n        .vjs-tree {\n            font-family: Monaco, Menlo, Consolas, Bitstream Vera Sans Mono, monospace;\n            font-size: 12px;\n        }\n    </style>\n</body>\n\n</html>",
+        "output": "str",
+        "x": 390,
+        "y": 120,
+        "wires": [
+            [
+                "ffb6739c.5e576"
+            ]
+        ]
+    },
+    {
+        "id": "9eda1dc0.943ca",
+        "type": "websocket-listener",
+        "z": "9dd53818.afe138",
+        "path": "/websocket",
+        "wholemsg": "false"
     }
 ]
