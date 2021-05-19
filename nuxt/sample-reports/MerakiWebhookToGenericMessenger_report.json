@@ -1,0 +1,67 @@
+{
+    "info": {
+        "description": "A JSONata query expression, the input JSON data and resulting JSON data"
+    },
+    "name": "MerakiWebhookToGenericMessenger",
+    "query": "{\n    \"markdown\": {\n        \"severity\": alertLevel,\n        \"summary\": alertType,\n        \"message\": alertData,\n        \"device\": {\n            \"name\":deviceName,\n            \"mac\":deviceMac\n        },\n        \"network\":networkName\n    }\n}",
+    "inputJson": {
+        "version": "0.1",
+        "sharedSecret": "secret",
+        "sentAt": "2020-12-10T09:53:21.991849Z",
+        "organizationId": "2930418",
+        "organizationName": "My organization",
+        "organizationUrl": "https://dashboard.meraki.com/o/VjjsAd/manage/organization/overview",
+        "deviceSerial": "Q234-ABCD-5678",
+        "deviceMac": "00:11:22:33:44:55",
+        "deviceName": "My AP",
+        "deviceUrl": "https://n1.meraki.com//n//manage/nodes/new_list/000000000000",
+        "deviceTags": [
+            "tag1",
+            "tag2"
+        ],
+        "deviceModel": "MR34",
+        "alertId": "0000000000000000",
+        "alertType": "Bluetooth Clients have gone out of range",
+        "alertTypeId": "bluetooth_out",
+        "alertLevel": "informational",
+        "occurredAt": "2018-02-11T00:00:00.123450Z",
+        "alertData": {
+            "mac": "00:11:22:33:44:55",
+            "name": "",
+            "rowStartedAt": {
+                "millisFromEpoch": 1563208308228
+            },
+            "bluetoothClientId": "0000000000000000",
+            "rssi": -94,
+            "seenAt": {
+                "millisFromEpoch": 1563519260925
+            }
+        },
+        "networkId": "N_24329156",
+        "networkName": "Main Office",
+        "networkUrl": "https://n1.meraki.com//n//manage/nodes/list"
+    },
+    "outputJson": {
+        "markdown": {
+            "severity": "informational",
+            "summary": "Bluetooth Clients have gone out of range",
+            "message": {
+                "mac": "00:11:22:33:44:55",
+                "name": "",
+                "rowStartedAt": {
+                    "millisFromEpoch": 1563208308228
+                },
+                "bluetoothClientId": "0000000000000000",
+                "rssi": -94,
+                "seenAt": {
+                    "millisFromEpoch": 1563519260925
+                }
+            },
+            "device": {
+                "name": "My AP",
+                "mac": "00:11:22:33:44:55"
+            },
+            "network": "Main Office"
+        }
+    }
+}

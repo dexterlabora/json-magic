@@ -11,10 +11,10 @@
             height: 100%;
             min-height: 100%;
             margin-top: 0;
-            
+            margin-left: 10;
             color: #4e4b48
         }
-
+        
         a {
             color: white
         }
@@ -73,6 +73,7 @@
             padding: 1rem;
             background: #f9f9f9;
         }
+        .myTable td { white-space:pre }
 
         .syncCheckBox {
             padding-right: 20px;
@@ -105,11 +106,12 @@
 </head>
 
 <body>
-    <b><a href='https://github.com/dexterlabora/json-magic'>JSON Magic</a></b>
+    <b><a href='https://github.com/dexterlabora/json-magic'>JSON Magic</a></b> <i style="margin-left:20">Postman Visualization</i>
     <button onclick="onToggleTable()" style="margin-left:400px">Table Full Screen </button>
     <button onclick="onExportCsv()" style="float:right;">Download CSV </button>
     <button onclick="download('table.html',table)" style="float:right;">Download Table </button>
-    <button onclick="download('result.json',result)" style="float:right;">Result JSON </button>
+    <button onclick="download('result.json',result)" style="float:right;">Download JSON </button>
+    <button onclick="download('query.txt',query)" style="float:right;">Download Query </button>
     </span>
 
     <div class="pretty-split-pane-frame">
