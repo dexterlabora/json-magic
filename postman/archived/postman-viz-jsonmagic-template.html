@@ -1,0 +1,449 @@
+<head>
+    <title>Basic Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shagstrom/split-pane@1.0.0/split-pane.css">
+    <!-- <link rel="stylesheet" href="split-pane.css"> -->
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <!-- <script src="jquery-1.9.1.js"></script> -->
+    <!-- <script src="jsonata.min.js"></script> -->
+    <script src="https://unpkg.com/jsonata@1.8.5/jsonata.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@shagstrom/split-pane@1.0.0/split-pane.js"></script> -->
+    <!-- <script src="split-pane.js"></script> -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editor-container {
+            display: flex;
+            justify-content: space-between;
+            height: calc(100vh - 40px);
+        }
+
+        .editor-pane {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .editor-pane:not(:last-child) {
+            border-right: 1px solid #ccc;
+        }
+
+        #json-data,
+        #queryEditor,
+        #json-results {
+            width: 100%;
+            height: calc(50% - 20px);
+            margin-bottom: 10px;
+        }
+
+        #myTable {
+            width: 100%;
+            height: 50%;
+            overflow: auto;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('div.split-pane').splitPane();
+        });
+    </script>
+</head>
+
+<body>
+    <div>
+        <b><a href='https://github.com/dexterlabora/json-magic'>JSON Magic</a></b> <i style="margin-left:20px">Postman
+            Visualization</i>
+        <button onclick="onToggleTable()" style="margin-left:400px">Table Full Screen </button>
+        <button onclick="onExportCsv()" style="float:right;">Download CSV </button>
+        <button onclick="download('table.html',table)" style="float:right;">Download Table </button>
+        <button onclick="download('result.json',result)" style="float:right;">Download JSON </button>
+        <button onclick="download('query.txt',query)" style="float:right;">Download Query </button>
+    </div>
+
+    <div class="editor-container">
+        <div class="editor-pane">
+            <i>JSON Data</i>
+            <div id="json-data">{"test":123}</div>
+        </div>
+
+        <div class="editor-pane">
+            <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> Docs </a>
+            <br>
+            <div style="float:right; ">
+                <button class="runbtn" onclick="onRunQuery()">run </button>
+                <br>
+                <p style="padding-left:20px;">sync <input type="checkbox" id="syncCheckBox" class="syncCheckBox"
+                        name="sync" checked></p>
+            </div>
+
+            <div id="queryEditor">$</div>
+            <br>
+            <i>JSONata Results</i>
+            <div id="json-results"></div>
+        </div>
+
+        <div class="editor-pane">
+            <i>Tableify Result</i>
+            <div id="myTable" class="myTable table-container"></div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    function tableify(obj, columns, parents) {
+        var buf = [];
+        var type = typeof obj;
+        var cols;
+
+        parents = parents || [];
+
+        if (type !== 'object' || obj == null || obj == undefined) {
+        }
+        else if (~parents.indexOf(obj)) {
+            return "[Circular]";
+        }
+        else {
+            parents.push(obj);
+        }
+
+        if (Array.isArray(obj)) {
+            if (Array.isArray(obj[0]) && obj.every(Array.isArray)) {
+                buf.push('<table>', '<tbody>');
+                cols = [];
+
+                // 2D array is an array of rows
+                obj.forEach(function (row, ix) {
+                    cols.push(ix);
+
+                    buf.push('<tr>');
+
+                    row.forEach(function (val) {
+                        buf.push('<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>')
+                    });
+
+                    buf.push('</tr>');
+                });
+
+                buf.push('</tbody>', '</table>');
+            }
+            else if (typeof obj[0] === 'object') {
+                buf.push('<table>', '<thead>', '<tr>');
+
+                //loop through every object and get unique keys
+                var keys = {};
+                obj.forEach(function (o) {
+                    if (typeof o === 'object' && !Array.isArray(o)) {
+                        Object.keys(o).forEach(function (k) {
+                            keys[k] = true;
+                        });
+                    }
+                });
+
+                cols = Object.keys(keys);
+
+                cols.forEach(function (key) {
+                    buf.push('<th' + getClass(obj[0][key]) + '>', key, '</th>');
+                });
+
+                buf.push('</tr>', '</thead>', '<tbody>');
+
+                obj.forEach(function (record) {
+                    buf.push('<tr>');
+                    buf.push(tableify(record, cols, parents));
+                    buf.push('</tr>');
+                });
+
+                buf.push('</tbody></table>');
+            }
+            else {
+                buf.push('<table>', '<tbody>');
+                cols = [];
+
+                obj.forEach(function (val, ix) {
+                    cols.push(ix);
+                    buf.push('<tr>', '<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>', '</tr>');
+                });
+
+                buf.push('</tbody>', '</table>');
+            }
+
+        }
+        else if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date)) {
+            if (!columns) {
+                buf.push('<table>');
+
+                Object.keys(obj).forEach(function (key) {
+                    buf.push('<tr>', '<th' + getClass(obj[key]) + '>', key, '</th>', '<td' + getClass(obj[key]) + '>', tableify(obj[key], false, parents), '</td>', '</tr>');
+                });
+
+                buf.push('</table>');
+            }
+            else {
+                columns.forEach(function (key) {
+                    if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                        buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], false, parents), '</td>');
+                    }
+                    else {
+                        buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], columns, parents), '</td>');
+                    }
+                });
+            }
+        }
+        else {
+            buf.push(obj);
+        }
+
+        if (type !== 'object' || obj == null || obj == undefined) {
+        }
+        else {
+            parents.pop(obj);
+        }
+
+        return buf.join('');
+    }
+
+    function getClass(obj) {
+        return ' class="'
+            + ((obj && obj.constructor && obj.constructor.name)
+                ? obj.constructor.name
+                : typeof obj || ''
+            ).toLowerCase()
+            + ((obj === null)
+                ? ' null'
+                : ''
+            )
+            + '"'
+            ;
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/json2csv"></script>
+
+<!-- Ace Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.17.0/ace.js"
+    integrity="sha512-9s5Dypi7q0mJgoOQBbEl5Ze8kdh5RUo9EinAksVejk6drBle2xnntukFnW2jOorvuXSMKiUGSffp8guavVtxLA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    // Primary variables
+    var result = "{}";
+    var table;
+    var data = "";
+    var query = "$";
+
+    // // //
+    const tableEl = document.getElementById("myTable");
+    const syncCheckBoxEl = document.getElementById("syncCheckBox");
+
+    // Input JSON Editor
+    var inputEditor = ace.edit("json-data");
+    inputEditor.setTheme("ace/theme/chrome");
+    inputEditor.getSession().setMode("ace/mode/json");
+    inputEditor.getSession().setUseWorker(false)
+    inputEditor.getSession().on('change', function () {
+        onJsonData();
+    });
+
+    // JSONata Query Editor
+    var queryEditor = ace.edit("queryEditor");
+    queryEditor.setTheme("ace/theme/chrome");
+    queryEditor.getSession().setMode("ace/mode/json");
+    queryEditor.getSession().setUseWorker(false)
+    queryEditor.getSession().on('change', function () {
+        onQueryChange();
+    });
+
+    // JSON Results Editor
+    var resultsEditor = ace.edit("json-results");
+    resultsEditor.setTheme("ace/theme/chrome");
+    resultsEditor.getSession().setMode("ace/mode/json");
+    resultsEditor.getSession().setUseWorker(false)
+    resultsEditor.getSession().on('change', function () {
+        onResultChange();
+    });
+
+
+
+    // Postman Data
+    try {
+        pm.getData(function (err, data) {
+            //query = '$'; // reset query
+            queryEditor.getSession().setValue(query);
+            inputEditor.getSession().setValue(JSON.stringify(data, null, 4))
+            console.log('postman data', query, data)
+
+        });
+    } catch (e) {
+        console.log('postman not connected')
+    }
+
+    function onJsonData() {
+        try {
+            data = JSON.parse(inputEditor.getSession().getValue())
+        } catch (e) {
+            data = inputEditor.getSession().getValue()
+        }
+        updateResults(query)
+    }
+
+    function onRunQuery() {
+        updateResults(query)
+    }
+
+    var toggleTableState = false
+    function onToggleTable() {
+
+        if (toggleTableState) {
+
+            toggleFullScreen()
+
+
+        } else {
+
+            toggleFullScreen()
+        }
+        toggleTableState = !toggleTableState
+
+
+
+    }
+
+    function toggleFullScreen() {
+        var tableContainer = document.querySelector('.table-container');
+        if (tableContainer.requestFullscreen) {
+            if (document.fullScreenElement) {
+                document.exitFullscreen();
+            } else {
+                tableContainer.requestFullscreen();
+            }
+        } else if (tableContainer.mozRequestFullScreen) {
+            /* Full screen support for Firefox */
+            if (document.mozFullScreenElement) {
+                document.mozCancelFullScreen();
+            } else {
+                tableContainer.mozRequestFullScreen();
+            }
+        } else if (tableContainer.webkitRequestFullscreen) {
+            /* Full screen support for Chrome, Safari and Opera */
+            if (document.webkitFullscreenElement) {
+                document.webkitExitFullscreen();
+            } else {
+                tableContainer.webkitRequestFullscreen();
+            }
+        }
+    }
+
+    function onQueryChange() {
+        query = queryEditor.getSession().getValue()
+        console.log('onQueryChange query', query)
+        if (syncCheckBoxEl.checked) {
+            updateResults(query)
+        }
+    }
+
+    function onResultChange() {
+        result = resultsEditor.getSession().getValue()
+        buildTable()
+    }
+
+    async function updateResults(query) {
+        let res = await generateJsonataResult(query, data)
+        var jsonString = "";
+        if (res) {
+            try {
+                jsonString = JSON.stringify(res, null, 4)
+            } catch (e) {
+                jsonString = res
+            }
+        }
+        console.log("updateResults: ", jsonString)
+        resultsEditor.getSession().setValue(jsonString);
+    }
+
+    function buildTable() {
+        let resultData = {}
+        try {
+            resultData = JSON.parse(result)
+        } catch (e) {
+            resultData = result
+        }
+        table = tableify(resultData)
+        tableEl.innerHTML = table
+    }
+
+    async function generateJsonataResult(query, data) {
+        try {
+            return await jsonata(query).evaluate(data, {}, (error, result) => {
+                if (error) {
+                    console.error("jsonata error", error);
+                    return error['message'];
+                }
+                console.log("Finished with", result);
+                return result;
+            })
+
+        } catch (e) {
+            console.log("JSONata expression error", e)
+            return e.message;
+        }
+    }
+
+    function onExportCsv() {
+
+        // Convert result string to object
+        let resultObj = {};
+        try {
+            resultObj = JSON.parse(result)
+        } catch (e) {
+            resultObj = {
+                result: result
+            }
+        }
+        //console.log('onExport resultObj',resultObj)
+
+        // Convert JSON object to CSV
+        const transforms = [json2csv.transforms.flatten({
+            objects: true,
+            arrays: true
+        })];
+        let options = {
+            "flattenArrays": true,
+            transforms
+        };
+        const parser = new json2csv.Parser(options);
+        let csv;
+        try {
+            csv = parser.parse(resultObj);
+        } catch (e) {
+            //alert(e)
+            console.log(e)
+            csv = parser.parse({ result: resultObj })
+        }
+        //console.log('onExportCsv csv', csv)
+
+        download('result.csv', csv);
+    }
+
+
+    function download(filename, fileData) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(fileData));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    // Init
+    $('div.split-pane').splitPane('firstComponentSize', 400)
+    onRunQuery()
+</script>

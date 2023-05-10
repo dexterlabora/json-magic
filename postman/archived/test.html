@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Meraki Dashboard API Response Visualizer</title>
+    <style>
+      .panel {
+        border: 1px solid #ccc;
+        margin: 5px;
+        padding: 10px;
+      }
+      .panel-header {
+        font-weight: bold;
+      }
+      .panel-body {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Meraki Dashboard API Response Visualizer</h1>
+    <div class="panel">
+      <div class="panel-header">Response Body</div>
+      <div class="panel-body" id="response-body"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">Filtered Results</div>
+      <div class="panel-body" id="filtered-results"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonata/1.9.2/jsonata.min.js"></script>
+    <script>
+      function displayResults(responseBody) {
+        document.getElementById('response-body').innerHTML = JSON.stringify(responseBody, null, 2);
+
+        var expression = prompt("Enter a JSONata expression to filter the results", "$");
+        if (!expression) {
+          return;
+        }
+
+        try {
+          var jsonataExp = jsonata(expression);
+          var filteredResults = jsonataExp.evaluate(responseBody);
+          document.getElementById('filtered-results').innerHTML = JSON.stringify(filteredResults, null, 2);
+        } catch (error) {
+          alert("Error filtering results: " + error.message);
+        }
+      }
+
+      // Example usage:
+      var responseBody = {
+        "organizations": [
+          {
+            "id": "123",
+            "name": "Acme Inc."
+          },
+          {
+            "id": "456",
+            "name": "Globex Corp."
+          }
+        ]
+      };
+      displayResults(responseBody);
+    </script>
+  </body>
+</html>
