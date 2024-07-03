@@ -1,7 +1,6 @@
 <head>
     <title>JSON Magic - Meraki Postman Visualizer</title>
 
-
     <script src="https://unpkg.com/jsonata@1.8.5/jsonata.min.js"></script>
     <script src="https://unpkg.com/split.js"></script>
 
@@ -11,106 +10,132 @@
             margin: 0;
             padding: 0;
             background-color: #f2f2f2;
+            font-size: 12px; /* Reduced font size */
         }
-
+    
         a {
             color: #007bff;
             text-decoration: none;
         }
-
+    
         a:hover {
             text-decoration: underline;
         }
-
+    
         .editor-container {
             display: flex;
             justify-content: space-between;
-            height: calc(100vh - 40px);
-            
-            padding: 20px;
+            height: calc(100vh - 60px); /* Reduced height */
+            padding: 10px; /* Reduced padding */
             box-sizing: border-box;
         }
-
+    
         .editor-pane {
             flex: 1;
-            padding: 20px;
+            padding: 10px; /* Reduced padding */
             background-color: #fff;
             border: 1px solid #ccc;
             box-sizing: border-box;
             overflow: auto;
-          
-            
         }
-
+    
         .editor-pane:not(:last-child) {
-            margin-right: 20px;
+            margin-right: 10px; /* Reduced margin */
         }
-
+    
         #json-data,
         #json-results,
         #queryEditor,
         #myTable {
             width: 100%;
             height: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* Reduced margin */
             box-sizing: border-box;
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 5px; /* Reduced padding */
             resize: vertical;
             overflow: auto;
             display: flex;
             flex-direction: row;
         }
-
+    
         .split {
             display: flex;
             flex-direction: row;
         }
-
-        .split, .editor-container {
-        width: 100%;
-    }
-
+    
+        .split,
+        .editor-container {
+            width: 100%;
+        }
+    
         .gutter {
             background-color: #eee;
             background-repeat: no-repeat;
             background-position: 50%;
         }
-
+    
         .gutter.gutter-horizontal {
             background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
             cursor: col-resize;
         }
-
+    
         #queryEditor {
             height: 50px;
         }
-
+    
         #json-results {
-            min-height: 800px;
+            min-height: 600px; /* Reduced min-height */
         }
-
+    
         #myTable {
             height: 100%;
         }
-
-        .runbtn {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 10px;
-            margin-top: 10px;
+    
+        .btn {
+            background-color: transparent;
+            /* color: transparent; */
+            border: transparent;
+            /* padding: 0px 2px; */
+            margin-top: -2px;
             cursor: pointer;
-            border-radius: 5px;
-            line-height: 0px;
+            /* border-radius: 3px; */
+            font-size: 33px;
+            /* line-height: 1; */
         }
-
-        .runbtn:hover {
-            background-color: #0056b3;
-        }
-
+    
         .syncCheckBox {
             vertical-align: middle;
+            margin-bottom: 0px;
+        }
+    
+        .syncLabel {
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+    
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    
+        .toolbar .left,
+        .toolbar .right {
+            display: flex;
+            align-items: center;
+        }
+    
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background-color: #fff;
+            padding: 10px; /* Reduced padding */
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -119,41 +144,44 @@
     <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-
     <div>
-        <header style="background: linear-gradient(89.93deg, rgb(83, 168, 40) 5.72%, rgb(32, 171, 78) 93.76%); padding: 20px; color: white;">
-            <b><a href='https://github.com/dexterlabora/json-magic' style="color: white; text-decoration: none;">JSON Magic</a></b> 
-            <span style="margin-left:20px">Meraki Postman Visualizer</span>
+        <header
+            style="background: linear-gradient(89.93deg, rgb(83, 168, 40) 5.72%, rgb(32, 171, 78) 93.76%); padding: 10px; color: white;"> <!-- Reduced padding -->
+            <b><a href='https://github.com/dexterlabora/json-magic' style="color: white; text-decoration: none;">JSON
+                    Magic</a></b>
+            <span style="margin-left:10px">Meraki Postman Visualizer</span> <!-- Reduced margin -->
         </header>
-        
-        <!-- <button onclick="onToggleTable()" style="margin-left:400px">Table Full Screen </button>
-        <button onclick="onExportCsv()" style="float:right;">Download CSV </button>
-        <button onclick="download('table.html',table)" style="float:right;">Download Table </button>
-        <button onclick="download('result.json',result)" style="float:right;">Download JSON </button>
-        <button onclick="download('query.txt',query)" style="float:right;">Download Query </button> -->
     </div>
-
+    
     <div class="split">
         <div class="editor-container">
             <div id="split-0">
                 <div class="editor-pane">
-                    <i>JSON Data</i>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <i>JSON Data</i>
+                    </div>
                     <div id="json-data"><code>
                 <pre>
                 </pre>
     </code></div>
                 </div>
             </div>
-
+    
             <div id="split-1">
                 <div class="editor-pane">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <i>JSONata Expression </i> <a href="http://docs.jsonata.org/overview.html"> docs.jsonata.org </a>
+                    <div class="toolbar">
+                        <div class="left">
+                           <i>JSONata Expression </i>
                         </div>
-                        <div>
-                            <button class="runbtn" onclick="onRunQuery()">run </button>
-                            <span style="padding-left:20px;">sync <input type="checkbox" id="syncCheckBox" class="syncCheckBox" name="sync" checked></span>
+                        <div class="left">
+                            <a href="http://docs.jsonata.org/overview.html"> docs.jsonata.org</a>
+                        </div>
+                        <div class="right">
+                            <button class="btn" onclick="onRunQuery()" title="Run Query">&#9654;</button> <!-- Run icon -->
+                            <span style="padding-left:10px;">
+                                <input type="checkbox" id="syncCheckBox" class="syncCheckBox" name="sync" checked>
+                                <label for="syncCheckBox" class="syncLabel">Sync</label>
+                            </span> <!-- Reduced padding -->
                         </div>
                     </div>
                     <br>
@@ -162,17 +190,24 @@
                     <i>JSONata Results</i>
                     <div id="json-results"></div>
                 </div>
-                
             </div>
-
+    
             <div id="split-2">
-                <div class="editor-pane">
-                    <i>Tableify Result</i>
+                <div class="editor-pane" id="results-pane">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <i>Table Result</i>
+                        <div>
+                            <button class="btn" style="background-color:#e1e1e1;" onclick="toggleFullScreen('results-pane')"  title="Toggle Full Screen">&#x26F6;</button> <!-- Full Screen icon -->
+                            <button class="btn" id="copyCsvBtn" onclick="onCopyCsv()" title="Copy CSV">&#x2398;</button> <!-- Copy CSV icon -->
+                        </div>
+                    </div>
                     <div id="myTable" class="myTable table-container"></div>
                 </div>
             </div>
         </div>
     </div>
+
+
 </body>
 
 
@@ -312,6 +347,7 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
+    
     // Primary variables
     var result = "{}";
     var table;
@@ -390,47 +426,72 @@
         updateResults(query)
     }
 
-    var toggleTableState = false
-    function onToggleTable() {
-
-        if (toggleTableState) {
-
-            toggleFullScreen()
-
-
+    function toggleFullScreen(elementId) {
+        var elem = document.getElementById(elementId);
+        if (elem.classList.contains('fullscreen')) {
+            elem.classList.remove('fullscreen');
         } else {
-
-            toggleFullScreen()
+            elem.classList.add('fullscreen');
         }
-        toggleTableState = !toggleTableState
-
-
-
     }
 
-    function toggleFullScreen() {
-        var tableContainer = document.querySelector('.table-container');
-        if (tableContainer.requestFullscreen) {
-            if (document.fullScreenElement) {
-                document.exitFullscreen();
-            } else {
-                tableContainer.requestFullscreen();
-            }
-        } else if (tableContainer.mozRequestFullScreen) {
-            /* Full screen support for Firefox */
-            if (document.mozFullScreenElement) {
-                document.mozCancelFullScreen();
-            } else {
-                tableContainer.mozRequestFullScreen();
-            }
-        } else if (tableContainer.webkitRequestFullscreen) {
-            /* Full screen support for Chrome, Safari and Opera */
-            if (document.webkitFullscreenElement) {
-                document.webkitExitFullscreen();
-            } else {
-                tableContainer.webkitRequestFullscreen();
+    Split(['#split-0', '#split-1', '#split-2'], {
+        sizes: [33, 33, 33],
+        minSize: 200,
+        gutterSize: 10,
+        cursor: 'col-resize'
+    });
+
+    
+    function onCopyCsv() {
+        // Convert result string to object
+        let resultObj = {};
+        try {
+            resultObj = JSON.parse(result)
+        } catch (e) {
+            resultObj = {
+                result: result
             }
         }
+
+        // Convert JSON object to CSV
+        const transforms = [json2csv.transforms.flatten({
+            objects: true,
+            arrays: true
+        })];
+        let options = {
+            "flattenArrays": true,
+            transforms
+        };
+        const parser = new json2csv.Parser(options);
+        let csv;
+        try {
+            csv = parser.parse(resultObj);
+        } catch (e) {
+            console.log(e)
+            csv = parser.parse({ result: resultObj })
+        }
+
+        // Copy CSV to clipboard using a temporary textarea
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = csv;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+
+        // Update button text and color
+        const copyBtn = document.getElementById('copyCsvBtn');
+       // copyBtn.textContent = `&#10004;`; // Copied!
+        copyBtn.style.backgroundColor = `#28a745`; // Green color
+
+        // Revert button text and color after 2 seconds
+        setTimeout(() => {
+         //   copyBtn.textContent = `&#x2398;`;
+            copyBtn.style.backgroundColor = ''; // Reset to original color
+        }, 2000);
+      
+
     }
 
     function onQueryChange() {
@@ -545,4 +606,5 @@
     }
 
     onRunQuery()
+
 </script>
