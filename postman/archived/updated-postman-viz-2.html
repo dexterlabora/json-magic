@@ -5,11 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meraki Data Visualizer</title>
+
+
     <script src="https://cdn.jsdelivr.net/npm/json2csv"></script>
+    <!-- Ace Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.17.0/ace.js"
         integrity="sha512-9s5Dypi7q0mJgoOQBbEl5Ze8kdh5RUo9EinAksVejk6drBle2xnntukFnW2jOorvuXSMKiUGSffp8guavVtxLA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
+        /* Ace Editor */
         .editor-container {
             display: flex;
             height: 350px;
@@ -58,21 +62,16 @@
         }
 
         .table-container {
-            width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
             background-color: white;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: auto;
             margin-bottom: 20px;
-        }
-
-        .table-container table {
-            width: 100%;
-
+            max-height: 600px;
         }
 
         table {
+            width: 100%;
             border-collapse: separate;
             border-spacing: 0;
         }
@@ -83,10 +82,10 @@
             padding: 5px;
             border-bottom: 1px solid #e0e0e0;
             white-space: nowrap;
-            overflow: auto;
+            overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 200px;
             font-size: small;
-            max-width: 300px;
         }
 
         th {
@@ -95,18 +94,32 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            font-size: small;
         }
 
         tr:nth-child(even) {
             background-color: #f5f5f5;
         }
 
+        .controls {
+            margin-top: 5px;
+        }
+
+        .syncCheckBox {
+            vertical-align: middle;
+            margin-bottom: 0px;
+        }
+
+        .btn {
+            cursor: pointer;
+        }
+
         .sort-icon {
             display: inline-block;
+            width: 0;
+            height: 0;
             margin-left: 5px;
             vertical-align: middle;
-            position: relative;
-            top: -1px;
         }
 
         th.asc .sort-icon::after {
@@ -117,313 +130,8 @@
             content: '▼';
         }
     </style>
-    <script src="https://unpkg.com/jsonata@2.0.5/jsonata.js"></script>
-</head>
-
-<body>
-    <div class="header">JSON Magic</div>
-
-    <div class="controls toolbar">
-        <div class="left">
-            <input type="text" id="searchInput" placeholder="Search...">
-            <button id="toggleJsonata" class="btn">JSONata Expression</button>
-            <button id="copyCSV" class="btn">Copy CSV</button>
-            <span id="recordCount" style="margin-left: 10px;"></span>
-        </div>
-    </div>
-    <div id="jsonataContainer" class="hidden" style="height: 300px;">
-        <div class="editor-container">
-            <div class="editor-pane">
-                <div class="toolbar">
-                    <i>JSONata Expression</i>
-                    <a href="http://docs.jsonata.org/overview.html"> docs.jsonata.org</a>
-                </div>
-                <div id="query-editor" class="editor"></div>
-                <div class="toolbar" style="padding-top:5px">
-                    <input type="checkbox" id="syncCheckBox" class="syncCheckBox" name="sync" checked>
-                    Sync
-                    <button id="runJsonata" class="btn" onclick="onRunQuery()" style="color:#20ab4e;">Run</button>
-                </div>
-            </div>
-            <div class="editor-pane">
-                <i>Input JSON</i>
-                <div id="json-data" class="editor"></div>
-            </div>
-            <div class="editor-pane">
-                <i>Output JSON</i>
-                <div id="json-results" class="editor"></div>
-            </div>
-        </div>
-    </div>
-    <div id="tableContainer" class="table-container"></div>
-    <div id="pagination"></div>
 
     <script>
-        // Primary variables
-        var result = "{}";
-        var table;
-        var originalData = `
-        [{
-            "test":123,
-            "name":"foo"
-        },
-        {
-            "test":456,
-            "name":"bar"
-        }]
-        `;
-        var filteredData = JSON.parse(originalData);
-        var query = "$";
-
-        const tableEl = document.getElementById("tableContainer");
-        const syncCheckBoxEl = document.getElementById("syncCheckBox");
-
-        var inputEditor, queryEditor, resultsEditor;
-
-        function initializeEditors() {
-            queryEditor = ace.edit("query-editor");
-            queryEditor.setTheme("ace/theme/chrome");
-            queryEditor.getSession().setMode("ace/mode/json");
-            queryEditor.getSession().setUseWorker(false);
-            queryEditor.getSession().on('change', onQueryChange);
-
-            inputEditor = ace.edit("json-data");
-            inputEditor.setTheme("ace/theme/chrome");
-            inputEditor.getSession().setMode("ace/mode/json");
-            inputEditor.getSession().setUseWorker(false);
-            inputEditor.getSession().on('change', onJsonData);
-
-            resultsEditor = ace.edit("json-results");
-            resultsEditor.setTheme("ace/theme/chrome");
-            resultsEditor.getSession().setMode("ace/mode/json");
-            resultsEditor.getSession().setUseWorker(false);
-            resultsEditor.getSession().on('change', onResultChange);
-
-            // Set initial content
-            queryEditor.setValue("$");
-            inputEditor.setValue(typeof originalData === 'string' ? originalData : JSON.stringify(originalData, null, 4));
-            resultsEditor.setValue("");
-
-            // Ensure editors are visible and sized correctly
-            queryEditor.renderer.updateFull();
-            inputEditor.renderer.updateFull();
-            resultsEditor.renderer.updateFull();
-        }
-
-        initializeEditors();
-
-        // Postman Data
-        try {
-            pm.getData(function (err, data) {
-                queryEditor.getSession().setValue(query);
-                inputEditor.getSession().setValue(typeof data === 'string' ? data : JSON.stringify(data, null, 4));
-            });
-        } catch (e) {
-            console.log('postman not connected')
-        }
-
-        function onJsonData() {
-            try {
-                originalData = JSON.parse(inputEditor.getSession().getValue());
-            } catch (e) {
-                originalData = inputEditor.getSession().getValue();
-            }
-            updateResults(query);
-        }
-
-        function onRunQuery() {
-            updateResults(query);
-        }
-
-        function onCopyCsv() {
-            // Convert result string to object
-            let resultObj = {};
-            try {
-                resultObj = JSON.parse(result)
-            } catch (e) {
-                resultObj = {
-                    result: result
-                }
-            }
-
-            // Convert JSON object to CSV
-            const transforms = [json2csv.transforms.flatten({
-                objects: true,
-                arrays: true
-            })];
-            let options = {
-                "flattenArrays": true,
-                transforms
-            };
-            const parser = new json2csv.Parser(options);
-            let csv;
-            try {
-                csv = parser.parse(resultObj);
-            } catch (e) {
-                console.log(e)
-                csv = parser.parse({ result: resultObj })
-            }
-
-            // Copy CSV to clipboard using a temporary textarea
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = csv;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-            console.log("CSV copied to clipboard")
-            // Update button text and color
-            const copyBtn = document.getElementById('copyCSV');
-            copyBtn.style.backgroundColor = `#45991f`; // Green color
-            copyBtn.innerHTML = `Copied!`;
-
-            // Revert button text and color after 2 seconds
-            setTimeout(() => {
-                copyBtn.style.backgroundColor = ''; // Reset to original color
-                copyBtn.innerHTML = `Copy CSV`;
-            }, 2000);
-        }
-
-        function onQueryChange() {
-            query = queryEditor.getSession().getValue() || "$";
-            if (syncCheckBoxEl.checked) {
-                updateResults(query);
-            }
-        } function onResultChange() {
-            result = resultsEditor.getSession().getValue();
-            buildTable(result);
-        }
-
-        async function updateResults(query) {
-            let res = await generateJsonataResult(query, originalData);
-            if (res) {
-                filteredData = Array.isArray(res) ? res : [res];
-                buildTable(filteredData);
-                updateRecordCount(filteredData.length);
-            }
-        }
-
-        async function generateJsonataResult(query, data) {
-            try {
-                const expression = jsonata(query);
-                const result = await expression.evaluate(data);
-                resultsEditor.getSession().setValue(JSON.stringify(result, null, 4));
-                return result;
-            } catch (e) {
-                resultsEditor.getSession().setValue("Error: " + e.message);
-                return null;
-            }
-        }
-
-        // Global variable to track sorting state
-        let sortState = {
-            columnIndex: -1,
-            isAscending: true
-        };
-
-        function buildTable(data) {
-            table = tableify(data);
-            tableEl.innerHTML = table;
-            attachSortEventListeners(data);
-            updateSortIcons();
-        }
-
-        function attachSortEventListeners(data) {
-            tableEl.querySelectorAll('th').forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    sortTable(data, index);
-                    buildTable(data);
-                });
-            });
-        }
-
-        function sortTable(data, columnIndex) {
-            if (!Array.isArray(data)) {
-                console.error("Expected data to be an array, but got:", typeof data);
-                return;
-            }
-
-            // Toggle sort direction if clicking on the same column
-            if (sortState.columnIndex === columnIndex) {
-                sortState.isAscending = !sortState.isAscending;
-            } else {
-                sortState.isAscending = true;
-            }
-            sortState.columnIndex = columnIndex;
-
-            const columnKey = Object.keys(data[0])[columnIndex];
-
-            data.sort((a, b) => {
-                const aValue = a[columnKey];
-                const bValue = b[columnKey];
-                if (aValue === bValue) return 0;
-                if (sortState.isAscending) {
-                    return aValue > bValue ? 1 : -1;
-                } else {
-                    return aValue < bValue ? 1 : -1;
-                }
-            });
-        }
-
-        function updateSortIcons() {
-            tableEl.querySelectorAll('th').forEach((header, index) => {
-                // Remove existing sort icons
-                const existingIcon = header.querySelector('.sort-icon');
-                if (existingIcon) {
-                    header.removeChild(existingIcon);
-                }
-
-                // Add new sort icon if this is the sorted column
-                if (index === sortState.columnIndex) {
-                    addSortIcon(header, sortState.isAscending);
-                }
-            });
-        }
-
-        function addSortIcon(header, isAscending) {
-            const icon = document.createElement('span');
-            icon.classList.add('sort-icon');
-            icon.textContent = isAscending ? '▲' : '▼';
-            header.appendChild(icon);
-        }
-
-
-
-        document.getElementById('searchInput').addEventListener('keyup', function (event) {
-            if (event.key === 'Enter') {
-                const searchInput = this.value.trim().toLowerCase();
-                const searchTerms = searchInput.split(' ').map(term => term.replace('*', '.*'));
-                const filtered = filteredData.filter(item => {
-                    return searchTerms.every(term => JSON.stringify(item).toLowerCase().includes(term));
-                });
-                buildTable(filtered);
-                updateRecordCount(filtered.length);
-            }
-        });
-
-        document.getElementById('toggleJsonata').addEventListener('click', function () {
-            const jsonataContainer = document.getElementById('jsonataContainer');
-            const toggleJsonataBtn = document.getElementById('toggleJsonata');
-
-            jsonataContainer.classList.toggle('hidden');
-
-            if (jsonataContainer.classList.contains('hidden')) {
-                toggleJsonataBtn.style.backgroundColor = ''; // Revert to initial color
-            } else {
-                toggleJsonataBtn.style.backgroundColor = '#dbd9d9'; // Change color to gray
-            }
-        });
-
-        document.getElementById('copyCSV').addEventListener('click', onCopyCsv);
-
-        function updateRecordCount(count) {
-            const recordCountElement = document.getElementById('recordCount');
-            recordCountElement.textContent = `Record Count: ${count}`;
-        }
-
-        buildTable(filteredData); // Initialize table with initial data
-
-        // Original tableify function
         function tableify(obj, columns, parents) {
             var buf = [];
             var type = typeof obj;
@@ -549,6 +257,281 @@
                 + '"'
                 ;
         }
+    </script>
+
+    <script src="https://unpkg.com/jsonata@2.0.5/jsonata.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+
+</head>
+
+<body>
+    <div class="header">JSON Magic</div>
+
+    <div class="controls toolbar">
+        <div class="left">
+            <input type="text" id="searchInput" placeholder="Search...">
+            <button id="toggleJsonata" class="btn">JSONata Expression</button>
+            <button id="copyCSV" class="btn">Copy CSV</button>
+            <span id="recordCount" style="margin-left: 10px;"></span>
+        </div>
+    </div>
+    <div id="jsonataContainer" class="hidden" style="height: 300px;">
+        <div class="editor-container">
+            <div class="editor-pane">
+                <div class="toolbar">
+
+                    <i>JSONata Expression</i>
+
+                    <a href="http://docs.jsonata.org/overview.html"> docs.jsonata.org</a>
+                </div>
+
+                <div id="query-editor" class="editor"></div>
+                <div class="toolbar" style="padding-top:5px">
+                    <input type="checkbox" id="syncCheckBox" class="syncCheckBox" name="sync" checked>
+                    Sync
+                    <button id="runJsonata" class="btn" style="color:#20ab4e;">Run</button>
+                </div>
+
+            </div>
+            <div class="editor-pane">
+                <i>Input JSON</i>
+                <div id="json-data" class="editor"></div>
+            </div>
+            <div class="editor-pane">
+                <i>Output JSON</i>
+                <div id="json-results" class="editor"></div>
+            </div>
+        </div>
+
+    </div>
+    <div id="tableContainer" class="table-container"></div>
+    <div id="pagination"></div>
+
+
+    <script>
+        // Primary variables
+        var result = "{}";
+        var table;
+        var data = `
+        [{
+            "test":123,
+            "name":"foo"
+        },
+        {
+            "test":456,
+            "name":"bar"
+        }]
+        `;
+        var query = "$";
+
+        const tableEl = document.getElementById("tableContainer");
+        const syncCheckBoxEl = document.getElementById("syncCheckBox");
+
+        var inputEditor, queryEditor, resultsEditor;
+
+        function initializeEditors() {
+            queryEditor = ace.edit("query-editor");
+            queryEditor.setTheme("ace/theme/chrome");
+            queryEditor.getSession().setMode("ace/mode/json");
+            queryEditor.getSession().setUseWorker(false);
+            queryEditor.getSession().on('change', onQueryChange);
+
+            inputEditor = ace.edit("json-data");
+            inputEditor.setTheme("ace/theme/chrome");
+            inputEditor.getSession().setMode("ace/mode/json");
+            inputEditor.getSession().setUseWorker(false);
+            inputEditor.getSession().on('change', onJsonData);
+
+            resultsEditor = ace.edit("json-results");
+            resultsEditor.setTheme("ace/theme/chrome");
+            resultsEditor.getSession().setMode("ace/mode/json");
+            resultsEditor.getSession().setUseWorker(false);
+            resultsEditor.getSession().on('change', onResultChange);
+
+            // Set initial content
+            queryEditor.setValue("$");
+            console.log('inputEditor setValue', data)
+            inputEditor.setValue(typeof data === 'string' ? data : JSON.stringify(data, null, 4));
+            resultsEditor.setValue("");
+
+            // Ensure editors are visible and sized correctly
+            queryEditor.renderer.updateFull();
+            inputEditor.renderer.updateFull();
+            resultsEditor.renderer.updateFull();
+        }
+
+        initializeEditors();
+
+        // Postman Data
+        try {
+            pm.getData(function (err, data) {
+                queryEditor.getSession().setValue(query);
+                inputEditor.getSession().setValue(typeof data === 'string' ? data : JSON.stringify(data, null, 4));
+                console.log('postman data', query, data)
+            });
+        } catch (e) {
+            console.log('postman not connected')
+        }
+
+        function onJsonData() {
+            try {
+                data = JSON.parse(inputEditor.getSession().getValue())
+            } catch (e) {
+                data = inputEditor.getSession().getValue()
+            }
+            updateResults(query)
+        }
+
+        function onRunQuery() {
+            updateResults(query)
+        }
+
+        function toggleFullScreen(elementId) {
+            var elem = document.getElementById(elementId);
+            if (elem.classList.contains('fullscreen')) {
+                elem.classList.remove('fullscreen');
+            } else {
+                elem.classList.add('fullscreen');
+            }
+        }
+
+        function onCopyCsv() {
+            // Convert result string to object
+            let resultObj = {};
+            try {
+                resultObj = JSON.parse(result)
+            } catch (e) {
+                resultObj = {
+                    result: result
+                }
+            }
+
+            // Convert JSON object to CSV
+            const transforms = [json2csv.transforms.flatten({
+                objects: true,
+                arrays: true
+            })];
+            let options = {
+                "flattenArrays": true,
+                transforms
+            };
+            const parser = new json2csv.Parser(options);
+            let csv;
+            try {
+                csv = parser.parse(resultObj);
+            } catch (e) {
+                console.log(e)
+                csv = parser.parse({ result: resultObj })
+            }
+
+            // Copy CSV to clipboard using a temporary textarea
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = csv;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            console.log("CSV copied to clipboard")
+            // Update button text and color
+            const copyBtn = document.getElementById('copyCSV');
+            copyBtn.style.backgroundColor = `#45991f`; // Green color
+            copyBtn.innerHTML = `Copied!`;
+
+            // Revert button text and color after 2 seconds
+            setTimeout(() => {
+                copyBtn.style.backgroundColor = ''; // Reset to original color
+                copyBtn.innerHTML = `Copy CSV`;
+            }, 2000);
+        }
+
+        function onQueryChange() {
+            query = queryEditor.getSession().getValue() || "$"
+            console.log('onQueryChange query', query)
+            if (syncCheckBoxEl.checked) {
+                updateResults(query)
+            }
+        }
+
+        function onResultChange() {
+            result = resultsEditor.getSession().getValue()
+            buildTable(result)
+        }
+
+        async function updateResults(query) {
+            let res = await generateJsonataResult(query, data)
+            console.log("updateResults: ", res)
+        }
+
+        async function generateJsonataResult(query, data) {
+            console.log("generateJsonataResult query data", query, data)
+            try {
+                const expression = jsonata(query);
+                const result = await expression.evaluate(data);
+                resultsEditor.getSession().setValue(JSON.stringify(result, null, 4));
+                return result;
+            } catch (e) {
+                console.error("JSONata evaluation error:", e);
+                resultsEditor.getSession().setValue("Error: " + e.message);
+                return null;
+            }
+        }
+
+        // Event listeners for toolbar buttons
+        document.getElementById('toggleJsonata').addEventListener('click', function () {
+            const jsonataContainer = document.getElementById('jsonataContainer');
+            jsonataContainer.classList.toggle('hidden');
+        });
+
+        document.getElementById('searchInput').addEventListener('keyup', function (event) {
+            if (event.key === 'Enter') {
+                const searchInput = this.value.trim().toLowerCase(); 
+                const searchTerms = searchInput.split(' ').map(term => term.replace('*', '.*'));
+                const filteredData = data.filter(item => {
+                    return searchTerms.every(term => JSON.stringify(item).toLowerCase().includes(term));
+                });
+                updateResults(query, filteredData);
+            }
+        });
+
+        document.getElementById('copyCSV').addEventListener('click', onCopyCsv);
+
+        function updateRecordCount(count) {
+            const recordCountElement = document.getElementById('recordCount');
+            recordCountElement.textContent = `Record Count: ${count}`;
+        }
+
+        function updateResults(query, filteredData = data) {
+            let res = generateJsonataResult(query, filteredData);
+            updateRecordCount(filteredData.length);
+            console.log("updateResults: ", res);
+        }
+
+        
+        // Dynamic Table
+        buildTable(data); //init
+
+        function buildTable(result) {
+            let resultData = {};
+            try {
+                resultData = JSON.parse(result);
+            } catch (e) {
+                resultData = result;
+            }
+            table = tableify(resultData);
+            tableEl.innerHTML = table;
+
+            tableEl.querySelectorAll('th').forEach((header, index) => {
+                const sortIcon = document.createElement('span');
+                sortIcon.classList.add('sort-icon');
+                header.appendChild(sortIcon);
+
+                header.addEventListener('click', () => {
+                    sortTable(index);
+                });
+            });
+        }
+
+
     </script>
 </body>
 
