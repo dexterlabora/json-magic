@@ -126,7 +126,7 @@
     <div class="controls toolbar">
         <div class="left">
             <input type="text" id="searchInput" placeholder="Search...">
-            <button id="toggleJsonata" class="btn">JSONata Expression</button>
+            <button id="toggleJsonata" class="btn">Transform JSON</button>
             <button id="copyCSV" class="btn">Copy CSV</button>
             <span id="recordCount" style="margin-left: 10px;"></span>
         </div>
@@ -136,13 +136,16 @@
             <div class="editor-pane">
                 <div class="toolbar">
                     <i>JSONata Expression</i>
-                    <a href="http://docs.jsonata.org/overview.html"> docs.jsonata.org</a>
+                    
                 </div>
                 <div id="query-editor" class="editor"></div>
                 <div class="toolbar" style="padding-top:5px">
                     <input type="checkbox" id="syncCheckBox" class="syncCheckBox" name="sync" checked>
                     Sync
                     <button id="runJsonata" class="btn" onclick="onRunQuery()" style="color:#20ab4e;">Run</button>
+                </div>
+                <div style="font-size: x-small;">
+                    <i>JSONata is a lightweight query and transformation language for JSON data. It allows you to filter, map, and manipulate JSON structures with simple expressions. Learn more at <a href="https://docs.jsonata.org/overview" target="_blank"> docs.jsonata.org</a></i>
                 </div>
             </div>
             <div class="editor-pane">
@@ -423,7 +426,8 @@
 
         buildTable(filteredData); // Initialize table with initial data
 
-        // Original tableify function
+
+        // optimized tableify
         function tableify(obj, columns, parents) {
             var buf = [];
             var type = typeof obj;
@@ -432,11 +436,10 @@
             parents = parents || [];
 
             if (type !== 'object' || obj == null || obj == undefined) {
-            }
-            else if (~parents.indexOf(obj)) {
+                return String(obj);
+            } else if (parents.includes(obj)) {
                 return "[Circular]";
-            }
-            else {
+            } else {
                 parents.push(obj);
             }
 
@@ -445,25 +448,21 @@
                     buf.push('<table>', '<tbody>');
                     cols = [];
 
-                    // 2D array is an array of rows
                     obj.forEach(function (row, ix) {
                         cols.push(ix);
-
                         buf.push('<tr>');
 
                         row.forEach(function (val) {
-                            buf.push('<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>')
+                            buf.push('<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>');
                         });
 
                         buf.push('</tr>');
                     });
 
                     buf.push('</tbody>', '</table>');
-                }
-                else if (typeof obj[0] === 'object') {
+                } else if (typeof obj[0] === 'object') {
                     buf.push('<table>', '<thead>', '<tr>');
 
-                    //loop through every object and get unique keys
                     var keys = {};
                     obj.forEach(function (o) {
                         if (typeof o === 'object' && !Array.isArray(o)) {
@@ -488,8 +487,7 @@
                     });
 
                     buf.push('</tbody></table>');
-                }
-                else {
+                } else {
                     buf.push('<table>', '<tbody>');
                     cols = [];
 
@@ -500,9 +498,7 @@
 
                     buf.push('</tbody>', '</table>');
                 }
-
-            }
-            else if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date)) {
+            } else if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date)) {
                 if (!columns) {
                     buf.push('<table>');
 
@@ -511,28 +507,20 @@
                     });
 
                     buf.push('</table>');
-                }
-                else {
+                } else {
                     columns.forEach(function (key) {
                         if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
                             buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], false, parents), '</td>');
-                        }
-                        else {
+                        } else {
                             buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], columns, parents), '</td>');
                         }
                     });
                 }
-            }
-            else {
-                buf.push(obj);
-            }
-
-            if (type !== 'object' || obj == null || obj == undefined) {
-            }
-            else {
-                parents.pop(obj);
+            } else {
+                buf.push(String(obj));
             }
 
+            parents.pop(obj);
             return buf.join('');
         }
 
