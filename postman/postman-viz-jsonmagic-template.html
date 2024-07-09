@@ -57,6 +57,10 @@
             padding: 20px;
         }
 
+        .toolbar {
+            padding: 5px;
+        }
+
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -136,7 +140,7 @@
             <div class="editor-pane">
                 <div class="toolbar">
                     <i>JSONata Expression</i>
-                    
+
                 </div>
                 <div id="query-editor" class="editor"></div>
                 <div class="toolbar" style="padding-top:5px">
@@ -144,16 +148,23 @@
                     Sync
                     <button id="runJsonata" class="btn" onclick="onRunQuery()" style="color:#20ab4e;">Run</button>
                 </div>
-                <div style="font-size: x-small;">
-                    <i>JSONata is a lightweight query and transformation language for JSON data. It allows you to filter, map, and manipulate JSON structures with simple expressions. Learn more at <a href="https://docs.jsonata.org/overview" target="_blank"> docs.jsonata.org</a></i>
+                <div style="font-size: x-small; padding:5px;">
+                    <p>
+                    <i>JSONata is a lightweight query and transformation language for JSON data. It allows you to
+                        filter, map, and manipulate JSON structures with simple expressions. Learn more at <a
+                            href="https://docs.jsonata.org/overview" target="_blank"> docs.jsonata.org</a></i></p>
                 </div>
             </div>
             <div class="editor-pane">
-                <i>Input JSON</i>
+                <div class="toolbar">
+                    <i>Input JSON</i>
+                </div>
                 <div id="json-data" class="editor"></div>
             </div>
             <div class="editor-pane">
-                <i>Output JSON</i>
+                <div class="toolbar">
+                    <i>Output JSON</i>
+                </div>
                 <div id="json-results" class="editor"></div>
             </div>
         </div>
